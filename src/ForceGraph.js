@@ -10,7 +10,7 @@ class ForceGraph extends React.Component {
   }
 
   draw () {
-    // if (!this.state.nodes) return
+    // if (this.simulation) console.log('draw', this.simulation.alpha());
     let nodes = this.state.nodes.map((n) => {
       return (
         <circle key={'node' + n.index} cx={n.x} cy={n.y} fill="red" r="10" />
@@ -29,28 +29,48 @@ class ForceGraph extends React.Component {
   }
 
   componentDidMount () {
-    let nodes = this.props.nodes
-    let links = this.props.links
+    let nodes = this.props.nodes || []
+    let links = this.props.links || []
 
     this.simulation = d3.forceSimulation(nodes)
 
-    this.simulation.force('center', d3.forceCenter(5, 5))
-    .force('charge', d3.forceManyBody())
-    .force('link', d3.forceLink(links))
-    .force('center', d3.forceCenter(480, 270))
+    this.simulation.force('charge', d3.forceManyBody())
+    // this.simulation.force('center')
+    // this.simulation.force('center', d3.forceCenter(480, 270))
+    // .force('charge', d3.forceManyBody())
+    // .force('link', d3.forceLink(links))
 
     this.simulation.on('tick', () => {
       this.setState({nodes, links})
     })
+
+    document.onmousedown = () => {
+      let nodes = this.state.nodes
+      let links = this.state.links
+      // if (nodes.length > 0) nodes.push({name: 1}), links.push({source: 0, target: 1})
+
+      if (nodes.length > 0) {
+        nodes.push({name: 1})
+        this.simulation.nodes(nodes)
+        links.push({source: nodes.length - 1, target: 0})
+        this.simulation.force('link', d3.forceLink(links))
+      }
+
+      if (nodes.length === 0) {
+        nodes.push({name: 0, fx: 480, fy: 270})
+        this.simulation.nodes(nodes)
+        this.simulation.force('center', d3.forceCenter(480, 270))
+      }
+
+      this.simulation = this.simulation.alpha(1).restart()
+    }
   }
 
   render () {
     return (
-      <div>
-        <svg width='960px' height='540px' viewBox='0 0 960 540'>
-          {this.draw()}
-        </svg>
-      </div>
+      <svg width='960px' height='540px' viewBox='0 0 960 540'>
+        {this.draw()}
+      </svg>
     )
   }
 }

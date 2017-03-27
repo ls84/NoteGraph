@@ -10,21 +10,22 @@ describe('main.js', () => {
     container.id = 'main'
     document.body.appendChild(container)
 
-    const nodes = [
-      {name: 0},
-      {name: 1},
-      {name: 2},
-      {name: 3},
-      {name: 4},
-      {name: 5}
-    ]
+    // const nodes = [
+    //   {name: 0},
+    //   {name: 1},
+    //   {name: 2},
+    //   {name: 3},
+    //   {name: 4},
+    //   {name: 5}
+    // ]
+    //
+    // const links = [
+    //   {'source': 1, 'target': 2},
+    //   {'source': 3, 'target': 4},
+    //   {'source': 5, 'target': 0}
+    // ]
 
-    const links = [
-      {'source': 1, 'target': 2},
-      {'source': 3, 'target': 4},
-      {'source': 5, 'target': 0}
-    ]
-
-    ReactDOM.render(<ForceGraph nodes={nodes} links={links} />, container)
+    // ReactDOM.render(<ForceGraph nodes={nodes} links={links} />, container)
+    ReactDOM.render(<ForceGraph />, container)
   })
 })
