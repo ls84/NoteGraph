@@ -1,18 +1,31 @@
 class ForceGraph extends React.Component {
   constructor (props) {
     super(props)
-    this.state = {}
+    this.state = {
+      nodes: [],
+      links: []
+    }
 
     this.draw = this.draw.bind(this)
   }
 
   draw () {
-    if (!this.state.nodes) return
-    return this.state.nodes.map((n) => {
+    // if (!this.state.nodes) return
+    let nodes = this.state.nodes.map((n) => {
       return (
-        <circle cx={n.x} cy={n.y} key={n.index} fill="red" r="10" />
+        <circle key={'node' + n.index} cx={n.x} cy={n.y} fill="red" r="10" />
       )
     })
+
+    let links = this.state.links.map((l) => {
+      let source = l.source
+      let target = l.target
+      return (
+        <line key={'link' + l.index} x1={source.x} y1={source.y} x2={target.x} y2={target.y} stroke='black' />
+      )
+    })
+
+    return nodes.concat(links)
   }
 
   componentDidMount () {
