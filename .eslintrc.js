@@ -5,7 +5,9 @@ module.exports = {
     "promise"
   ],
   "globals": {
-    "d3": true
+    "d3": true,
+    "React": true,
+    "ReactDOM": true
   }
 
 };

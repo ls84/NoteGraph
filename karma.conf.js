@@ -5,9 +5,11 @@ module.exports = function (config) {
     basePath: '',
     frameworks: ['mocha'],
     files: [
-      'test/index.js',
       'externals/d3.js',
-      {pattern: 'style/main.less', watched: false, included: true, served: true}
+      'externals/react.js',
+      'externals/react-dom.js',
+      {pattern: 'style/main.less', watched: false, included: true, served: true},
+      'test/index.js'
     ],
     preprocessors: {
       'test/index.js': ['webpack', 'sourcemap'],

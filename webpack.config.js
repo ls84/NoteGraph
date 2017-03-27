@@ -6,7 +6,9 @@ module.exports = {
     path: './build'
   },
   externals: {
-    'd3': 'd3'
+    'd3': 'd3',
+    'react': 'React',
+    'react-dom': 'ReactDOM'
   },
   module: {
     rules: [

@@ -1,6 +1,6 @@
 /* windows compatible needs cross-env package, https://github.com/istanbuljs/babel-plugin-istanbul */
 {
-  "presets":["es2015"],
+  "presets":["react", "es2015"],
   "sourceMaps":"inline",
   "env": {
     "test": {
