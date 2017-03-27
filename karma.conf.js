@@ -6,6 +6,7 @@ module.exports = function (config) {
     frameworks: ['mocha'],
     files: [
       'test/index.js',
+      'externals/d3.js',
       {pattern: 'style/main.less', watched: false, included: true, served: true}
     ],
     preprocessors: {

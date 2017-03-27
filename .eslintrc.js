@@ -3,5 +3,9 @@ module.exports = {
   "plugins": [
     "standard",
     "promise"
-  ]
+  ],
+  "globals": {
+    "d3": true
+  }
+
 };

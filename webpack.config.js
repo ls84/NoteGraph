@@ -6,6 +6,7 @@ module.exports = {
     path: './build'
   },
   externals: {
+    'd3': 'd3'
   },
   module: {
     rules: [
