@@ -7,6 +7,7 @@ class ForceGraph extends React.Component {
     }
 
     this.draw = this.draw.bind(this)
+    this.handleClick = this.handleClick.bind(this)
   }
 
   draw () {
@@ -28,6 +29,26 @@ class ForceGraph extends React.Component {
     return nodes.concat(links)
   }
 
+  handleClick (event) {
+    let nodes = this.state.nodes
+    let links = this.state.links
+
+    if (nodes.length > 0) {
+      nodes.push({name: 1, x: 480, y: 270})
+      this.simulation.nodes(nodes)
+      links.push({source: nodes.length - 1, target: 0})
+      this.simulation.force('link', d3.forceLink(links).distance(100))
+    }
+
+    if (nodes.length === 0) {
+      nodes.push({name: 0, fx: 480, fy: 270})
+      this.simulation.nodes(nodes)
+      this.simulation.force('center', d3.forceCenter(480, 270))
+    }
+
+    this.simulation = this.simulation.alpha(1).restart()
+  }
+
   componentDidMount () {
     let nodes = this.props.nodes || []
     let links = this.props.links || []
@@ -35,40 +56,36 @@ class ForceGraph extends React.Component {
     this.simulation = d3.forceSimulation(nodes)
 
     this.simulation.force('charge', d3.forceManyBody())
-    // this.simulation.force('center')
-    // this.simulation.force('center', d3.forceCenter(480, 270))
-    // .force('charge', d3.forceManyBody())
-    // .force('link', d3.forceLink(links))
 
     this.simulation.on('tick', () => {
       this.setState({nodes, links})
     })
-
-    document.onmousedown = () => {
-      let nodes = this.state.nodes
-      let links = this.state.links
-      // if (nodes.length > 0) nodes.push({name: 1}), links.push({source: 0, target: 1})
-
-      if (nodes.length > 0) {
-        nodes.push({name: 1})
-        this.simulation.nodes(nodes)
-        links.push({source: nodes.length - 1, target: 0})
-        this.simulation.force('link', d3.forceLink(links))
-      }
-
-      if (nodes.length === 0) {
-        nodes.push({name: 0, fx: 480, fy: 270})
-        this.simulation.nodes(nodes)
-        this.simulation.force('center', d3.forceCenter(480, 270))
-      }
-
-      this.simulation = this.simulation.alpha(1).restart()
-    }
+    //
+    // document.onmousedown = () => {
+    //   let nodes = this.state.nodes
+    //   let links = this.state.links
+    //   // if (nodes.length > 0) nodes.push({name: 1}), links.push({source: 0, target: 1})
+    //
+    //   if (nodes.length > 0) {
+    //     nodes.push({name: 1, x: 480, y: 270})
+    //     this.simulation.nodes(nodes)
+    //     links.push({source: nodes.length - 1, target: 0})
+    //     this.simulation.force('link', d3.forceLink(links).distance(100))
+    //   }
+    //
+    //   if (nodes.length === 0) {
+    //     nodes.push({name: 0, fx: 480, fy: 270})
+    //     this.simulation.nodes(nodes)
+    //     this.simulation.force('center', d3.forceCenter(480, 270))
+    //   }
+    //
+    //   this.simulation = this.simulation.alpha(1).restart()
+    // }
   }
 
   render () {
     return (
-      <svg width='960px' height='540px' viewBox='0 0 960 540'>
+      <svg width='960px' height='540px' viewBox='0 0 960 540' onClick={this.handleClick}>
         {this.draw()}
       </svg>
     )
