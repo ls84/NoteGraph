@@ -7,7 +7,7 @@ module.exports = {
   "globals": {
     "d3": true,
     "React": true,
-    "ReactDOM": true
+    "ReactDOM": true,
+    "Gun": true
   }
-
 };

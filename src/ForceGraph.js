@@ -6,6 +6,7 @@ class ForceGraph extends React.Component {
       links: []
     }
 
+    this.simulation = d3.forceSimulation()
     this.draw = this.draw.bind(this)
     this.handleClick = this.handleClick.bind(this)
   }
@@ -30,57 +31,55 @@ class ForceGraph extends React.Component {
   }
 
   handleClick (event) {
+    let globalX = event.clientX
+    let globalY = event.clientY
+
     let nodes = this.state.nodes
-    let links = this.state.links
+    // let links = this.state.links
 
     if (nodes.length > 0) {
-      nodes.push({name: 1, x: 480, y: 270})
+      nodes.push({name: 1, fx: globalX, fy: globalY})
       this.simulation.nodes(nodes)
-      links.push({source: nodes.length - 1, target: 0})
-      this.simulation.force('link', d3.forceLink(links).distance(100))
-    }
-
-    if (nodes.length === 0) {
-      nodes.push({name: 0, fx: 480, fy: 270})
-      this.simulation.nodes(nodes)
-      this.simulation.force('center', d3.forceCenter(480, 270))
+      // links.push({source: nodes.length - 1, target: 0})
     }
 
     this.simulation = this.simulation.alpha(1).restart()
   }
 
-  componentDidMount () {
-    let nodes = this.props.nodes || []
-    let links = this.props.links || []
+  componentWillReceiveProps (nextProps) {
+    function jsonShallowEqual (a, b) {
+      let aKeys = Object.keys(a).sort()
+      let bKeys = Object.keys(b).sort()
+      if (aKeys.length !== bKeys.length) return false
+      if (aKeys.reduce((p, c) => p + c, '') !== bKeys.reduce((p, c) => p + c, '')) return false
+      return aKeys.every((v) => {
+        return a[v] === b[v]
+      })
+    }
 
-    this.simulation = d3.forceSimulation(nodes)
+    if (jsonShallowEqual(this.props.data, nextProps.data)) return false
 
+    let center = { x: 480, y: 270 }
+    let nodes = [{key: 'test', fx: center.x, fy: center.y}]
+    let links = []
+    for (let key in nextProps.data) {
+      let node = { key }
+      if (typeof nextProps.data[key] !== 'object') node[key] = nextProps.data[key]
+      if (typeof nextProps.data[key] === 'object') Object.assign(node, nextProps.data[key])
+
+      nodes.push(node)
+      links.push({source: 'test', target: key})
+    }
+    // console.log(nodes, links);
+
+    this.simulation.nodes(nodes)
     this.simulation.force('charge', d3.forceManyBody())
+    this.simulation.force('center', d3.forceCenter(center.x, center.y))
+    this.simulation.force('link', d3.forceLink(links).id((n) => n.key).distance(100))
 
     this.simulation.on('tick', () => {
       this.setState({nodes, links})
     })
-    //
-    // document.onmousedown = () => {
-    //   let nodes = this.state.nodes
-    //   let links = this.state.links
-    //   // if (nodes.length > 0) nodes.push({name: 1}), links.push({source: 0, target: 1})
-    //
-    //   if (nodes.length > 0) {
-    //     nodes.push({name: 1, x: 480, y: 270})
-    //     this.simulation.nodes(nodes)
-    //     links.push({source: nodes.length - 1, target: 0})
-    //     this.simulation.force('link', d3.forceLink(links).distance(100))
-    //   }
-    //
-    //   if (nodes.length === 0) {
-    //     nodes.push({name: 0, fx: 480, fy: 270})
-    //     this.simulation.nodes(nodes)
-    //     this.simulation.force('center', d3.forceCenter(480, 270))
-    //   }
-    //
-    //   this.simulation = this.simulation.alpha(1).restart()
-    // }
   }
 
   render () {

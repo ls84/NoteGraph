@@ -8,6 +8,7 @@ module.exports = function (config) {
       'externals/d3.js',
       'externals/react.js',
       'externals/react-dom.js',
+      'externals/gun.js',
       {pattern: 'style/main.less', watched: false, included: true, served: true},
       'test/index.js'
     ],

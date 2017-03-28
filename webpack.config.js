@@ -8,7 +8,8 @@ module.exports = {
   externals: {
     'd3': 'd3',
     'react': 'React',
-    'react-dom': 'ReactDOM'
+    'react-dom': 'ReactDOM',
+    'gun': 'Gun'
   },
   module: {
     rules: [
