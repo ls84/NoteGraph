@@ -3,9 +3,7 @@ const ForceGraph = require('../src/ForceGraph.js') // eslint-disable-line no-unu
 class Main extends React.Component {
   constructor (props) {
     super(props)
-    this.state = {
-      data: {}
-    }
+    this.state = {}
     this.gun = Gun()
   }
 
