@@ -13,21 +13,46 @@ class ForceGraph extends React.Component {
 
   draw () {
     // if (this.simulation) console.log('draw', this.simulation.alpha());
-    let nodes = this.state.nodes.map((n) => {
-      return (
-        <circle key={'node' + n.index} cx={n.x} cy={n.y} fill="red" r="10" />
-      )
+    // console.log(d3.select('svg').selectAll('circle').size())
+    let svg = d3.select('svg')
+
+    if (svg.selectAll('circle').size() === 0) {
+      this.state.nodes.forEach((n) => {
+        svg.append('circle')
+        .attr('fill', 'red')
+        .attr('r', '10')
+        .attr('cx', n.x)
+        .attr('cy', n.y)
+      })
+
+      this.state.links.forEach((l) => {
+        svg.append('line')
+        .attr('stroke', 'black')
+        .attr('x1', l.source.x)
+        .attr('y1', l.source.y)
+        .attr('x2', l.target.x)
+        .attr('y2', l.target.y)
+      })
+
+      return
+    }
+
+    let nodes = svg.selectAll('circle').nodes()
+
+    nodes.forEach((n, i) => {
+      d3.select(n).attr('cx', this.state.nodes[i].x)
+      d3.select(n).attr('cy', this.state.nodes[i].y)
     })
 
-    let links = this.state.links.map((l) => {
-      let source = l.source
-      let target = l.target
-      return (
-        <line key={'link' + l.index} x1={source.x} y1={source.y} x2={target.x} y2={target.y} stroke='black' />
-      )
-    })
+    let links = svg.selectAll('line').nodes()
 
-    return nodes.concat(links)
+    links.forEach((l, i) => {
+      d3.select(l)
+      .attr('x1', this.state.links[i].source.x)
+      .attr('y1', this.state.links[i].source.y)
+      .attr('x2', this.state.links[i].target.x)
+      .attr('y2', this.state.links[i].target.y)
+    })
   }
 
   handleClick (event) {
