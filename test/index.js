@@ -2,7 +2,7 @@
 // https://webpack.github.io/docs/context.html#require-context
 // let req = require.context('./', true, /\.js$/)
 
-const Main = require('../src/Main.js') // eslint-disable-line no-unused-vars
+const Main = require('../src/main.js') // eslint-disable-line no-unused-vars
 
 describe('main.js', () => {
   it('should work', () => {
