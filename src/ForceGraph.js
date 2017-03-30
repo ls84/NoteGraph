@@ -8,15 +8,13 @@ class ForceGraph extends React.Component {
     }
 
     this.simulation = d3.forceSimulation()
-    this.initGraph = this.initGraph.bind(this)
     this.draw = this.draw.bind(this)
   }
 
-  addNodes (node, center) {
-    // console.log(document.querySelector('#ForceGraph'));
+  addNodes (nodes, center) {
     let svg = d3.select('#ForceGraph')
     svg.selectAll('circle')
-    .data(node)
+    .data(nodes)
     .enter()
     .append('circle')
     .attr('r', '10')
@@ -26,13 +24,13 @@ class ForceGraph extends React.Component {
     // .on('mouseup', () => {console.log('mouseup');})
     // .on('mousedown', () => {console.log('mousedown');})
 
-    return this.state.nodes.concat(node)
+    return this.state.nodes.concat(nodes)
   }
 
-  addLinks (link, center) {
+  addLinks (links, center) {
     let svg = d3.select('#ForceGraph')
     svg.selectAll('line')
-    .data(link)
+    .data(links)
     .enter()
     .append('line')
     .attr('stroke', 'black')
@@ -41,10 +39,10 @@ class ForceGraph extends React.Component {
     .attr('x2', center.x)
     .attr('y2', center.y)
 
-    return this.state.nodes.concat(link)
+    return this.state.nodes.concat(links)
   }
 
-  initGraph (data, center, path) {
+  addNode (data, path, center) {
     let nodes = [{key: path, fx: center.x, fy: center.y}]
     let links = []
     for (let key in data) {
@@ -60,6 +58,30 @@ class ForceGraph extends React.Component {
     this.addLinks(links, center)
 
     this.setState({nodes, links, center})
+  }
+
+  addNewNode (path, center) {
+    let node = [{key: path, fx: center.x, fy: center.y}]
+
+    let svg = d3.select('#ForceGraph')
+    svg.data(node)
+    .append('circle')
+    .attr('r', '10')
+    .attr('fill', 'red')
+    .attr('cx', center.x)
+    .attr('cy', center.y)
+  }
+
+  addValue (center) {
+    console.log('addValue');
+    let svg = d3.select('#ForceGraph')
+    svg.append('circle')
+    .attr('r', '10')
+    .attr('fill', 'white')
+    .attr('stroke', 'black')
+    .attr('strokeWidth', 0.5)
+    .attr('cx', center.x)
+    .attr('cy', center.y)
   }
 
   draw () {
@@ -121,7 +143,9 @@ class ForceGraph extends React.Component {
     //   })
     // }
 
-    if (this.props.data === undefined && nextProps.data) return this.initGraph(nextProps.data, nextProps.center, 'test')
+    // if (this.props.data === undefined && nextProps.data) return this.initGraph(nextProps.data, nextProps.center, 'test')
+    // if (this.props.data && nextProps.data === undefined) return this.updateGraph(nextProps.props, 'test')
+    // console.log(this.props.data, nextProps.data);
     // TODO:
     // if (jsonShallowEqual(this.props.data, nextProps.data)) return this.updateGraph(nextProps.props, 'test')
   }

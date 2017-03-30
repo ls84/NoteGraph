@@ -26,15 +26,18 @@ class Main extends React.Component {
     })
 
     DropArea.addEventListener('drop', (event) => {
-      let svg = document.querySelector('#ForceGraph')
-      var pt = svg.createSVGPoint()
       function cursorPoint (evt) {
+        let svg = document.querySelector('#ForceGraph')
+        let pt = svg.createSVGPoint()
         pt.x = evt.clientX
         pt.y = evt.clientY
         return pt.matrixTransform(svg.getScreenCTM().inverse())
       }
 
-      this.setState({data: this.state.aData, center: cursorPoint(event)})
+      let center = cursorPoint(event)
+      if (this.state.path === undefined) return this.forceGraph.addValue(center)
+      if (this.state.data) return this.forceGraph.addNode(this.state.data, this.state.path, center)
+      if (this.state.data === undefined) return this.forceGraph.addNewNode(this.state.path, center)
     })
 
     // keeping this data injection for now
@@ -63,12 +66,13 @@ class Main extends React.Component {
 
   pathChange (event) {
     let input = event.target.value
-    if (input === '') return false
+
+    if (input === '') return this.setState({path: undefined})
 
     let path = this.gun.get(input)
 
     path.not(() => {
-      this.setState({nodeColor: 'white'})
+      this.setState({data: undefined, path: input, nodeColor: 'white'})
     })
     path.val((data, path) => {
       let graphData = {}
@@ -76,8 +80,7 @@ class Main extends React.Component {
         if (key !== '_' && data[key] !== null) graphData[key] = data[key]
       }
 
-      // this.setState({data: graphData})
-      this.setState({aData: graphData, nodeColor: 'red'})
+      this.setState({data: graphData, path: input, nodeColor: 'red'})
     })
   }
 
@@ -94,7 +97,7 @@ class Main extends React.Component {
           <input type='text' id="PathInput" onChange={this.pathChange} />
         </div>
         <div id="DropArea">
-          <ForceGraph data={this.state.data} center={this.state.center} />
+          <ForceGraph ref={(c) => { this.forceGraph = c }} />
         </div>
       </div>
     )
