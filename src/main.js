@@ -25,20 +25,22 @@ class Main extends React.Component {
       event.preventDefault()
     })
 
-    DropArea.addEventListener('drop', () => {
-      console.log('drop');
-      this.setState({data: this.state.aData})
+    DropArea.addEventListener('drop', (event) => {
+      let svg = document.querySelector('#ForceGraph')
+      var pt = svg.createSVGPoint()
+      function cursorPoint (evt) {
+        pt.x = evt.clientX
+        pt.y = evt.clientY
+        return pt.matrixTransform(svg.getScreenCTM().inverse())
+      }
+
+      this.setState({data: this.state.aData, center: cursorPoint(event)})
     })
 
-    // DropArea.addEventListener('drop', () => {
-    //   console.log('drop');
-    // }, true)
-    // const test = this.gun.get('test')
-
     // keeping this data injection for now
+    // const test = this.gun.get('test')
     // test.put({value: null})
     // test.put({name: 'test'})
-
     // const node = this.gun.get('node')
     // test.path('node 01').put(node.path('node1').put({name: '1st node'}))
     // test.path('node 02').put(node.path('node2').put({name: '2nd node'}))
@@ -92,7 +94,7 @@ class Main extends React.Component {
           <input type='text' id="PathInput" onChange={this.pathChange} />
         </div>
         <div id="DropArea">
-          <ForceGraph data={this.state.data} />
+          <ForceGraph data={this.state.data} center={this.state.center} />
         </div>
       </div>
     )

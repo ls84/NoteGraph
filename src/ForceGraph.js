@@ -3,17 +3,16 @@ class ForceGraph extends React.Component {
     super(props)
     this.state = {
       nodes: [],
-      links: []
+      links: [],
+      center: { x: 480, y: 270 }
     }
-    this.center = { x: 480, y: 270 }
 
     this.simulation = d3.forceSimulation()
     this.initGraph = this.initGraph.bind(this)
     this.draw = this.draw.bind(this)
-    this.handleClick = this.handleClick.bind(this)
   }
 
-  addNodes (node) {
+  addNodes (node, center) {
     // console.log(document.querySelector('#ForceGraph'));
     let svg = d3.select('#ForceGraph')
     svg.selectAll('circle')
@@ -22,31 +21,30 @@ class ForceGraph extends React.Component {
     .append('circle')
     .attr('r', '10')
     .attr('fill', 'red')
-    .attr('cx', this.center.x)
-    .attr('cy', this.center.y)
+    .attr('cx', center.x)
+    .attr('cy', center.y)
     // .on('mouseup', () => {console.log('mouseup');})
     // .on('mousedown', () => {console.log('mousedown');})
 
     return this.state.nodes.concat(node)
   }
 
-  addLinks (link) {
+  addLinks (link, center) {
     let svg = d3.select('#ForceGraph')
     svg.selectAll('line')
     .data(link)
     .enter()
     .append('line')
     .attr('stroke', 'black')
-    .attr('x1', this.center.x)
-    .attr('y1', this.center.y)
-    .attr('x2', this.center.x)
-    .attr('y2', this.center.y)
+    .attr('x1', center.x)
+    .attr('y1', center.y)
+    .attr('x2', center.x)
+    .attr('y2', center.y)
 
     return this.state.nodes.concat(link)
   }
 
-  initGraph (data, path) {
-    let center = { x: 480, y: 270 }
+  initGraph (data, center, path) {
     let nodes = [{key: path, fx: center.x, fy: center.y}]
     let links = []
     for (let key in data) {
@@ -58,21 +56,22 @@ class ForceGraph extends React.Component {
       links.push({source: path, target: key})
     }
 
-    this.addNodes(nodes)
-    this.addLinks(links)
+    this.addNodes(nodes, center)
+    this.addLinks(links, center)
 
-    this.setState({nodes, links})
+    this.setState({nodes, links, center})
   }
 
   draw () {
     let nodes = this.state.nodes
     let links = this.state.links
+    let center = this.state.center
     let svg = d3.select('#ForceGraph')
 
     this.simulation.nodes(nodes)
     this.simulation.force('link', d3.forceLink(links).id((n) => n.key).distance(100))
     this.simulation.force('charge', d3.forceManyBody())
-    this.simulation.force('center', d3.forceCenter(this.center.x, this.center.y))
+    this.simulation.force('center', d3.forceCenter(center.x, center.y))
 
     this.simulation.alpha(1).restart()
 
@@ -122,14 +121,14 @@ class ForceGraph extends React.Component {
     //   })
     // }
 
-    if (this.props.data === undefined && nextProps.data) return this.initGraph(nextProps.data, 'test')
+    if (this.props.data === undefined && nextProps.data) return this.initGraph(nextProps.data, nextProps.center, 'test')
     // TODO:
     // if (jsonShallowEqual(this.props.data, nextProps.data)) return this.updateGraph(nextProps.props, 'test')
   }
 
   render () {
     return (
-      <svg id="ForceGraph" width='960px' height='540px' viewBox='0 0 960 540' onClick={this.handleClick}>
+      <svg id="ForceGraph" width='960px' height='540px' viewBox='0 0 960 540'>
         {this.draw()}
       </svg>
     )
