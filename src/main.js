@@ -9,9 +9,30 @@ class Main extends React.Component {
     this.gun = Gun()
 
     this.pathChange = this.pathChange.bind(this)
+    // this.dragStart = this.dragStart.bind(this)
+    // this.dragOver = this.dragOver.bind(this)
   }
 
   componentDidMount () {
+    let symbol = document.querySelector('#NodeSymbol')
+    let DropArea = document.querySelector('#DropArea')
+
+    symbol.addEventListener('dragstart', () => {
+      console.log('dragStart');
+    })
+
+    DropArea.addEventListener('dragover', (event) => {
+      event.preventDefault()
+    })
+
+    DropArea.addEventListener('drop', () => {
+      console.log('drop');
+      this.setState({data: this.state.aData})
+    })
+
+    // DropArea.addEventListener('drop', () => {
+    //   console.log('drop');
+    // }, true)
     // const test = this.gun.get('test')
 
     // keeping this data injection for now
@@ -43,6 +64,10 @@ class Main extends React.Component {
     if (input === '') return false
 
     let path = this.gun.get(input)
+
+    path.not(() => {
+      this.setState({nodeColor: 'white'})
+    })
     path.val((data, path) => {
       let graphData = {}
       for (let key in data) {
@@ -50,20 +75,25 @@ class Main extends React.Component {
       }
 
       // this.setState({data: graphData})
-      this.setState({nodeColor: 'red'})
+      this.setState({aData: graphData, nodeColor: 'red'})
     })
   }
 
   render () {
+    let style = {height: '51px', width: '100%'}
     return (
       <div>
-        <div>
-          <svg id="NodeSymbol" width="20px" height="20px" viewBox="0 0 20 20">
-            <circle r="9" cx="10" cy="10" fill={this.state.nodeColor} stroke='grey' strokeWidth="0.5" />
-          </svg>
-          <input id="PathInput" type='text' onChange={this.pathChange}/>
+        <div style={style}>
+          <div draggable='true' id="NodeSymbol">
+            <svg width="20px" height="20px" viewBox="0 0 20 20" >
+              <circle r="9" cx="10" cy="10" fill={this.state.nodeColor} stroke='grey' strokeWidth="0.5" />
+            </svg>
+          </div>
+          <input type='text' id="PathInput" onChange={this.pathChange} />
         </div>
-        <ForceGraph data={this.state.data} />
+        <div id="DropArea">
+          <ForceGraph data={this.state.data} />
+        </div>
       </div>
     )
   }
