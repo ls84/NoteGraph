@@ -14,12 +14,12 @@ class Main extends React.Component {
   }
 
   componentDidMount () {
-    let symbol = document.querySelector('#NodeSymbol')
+    // let symbol = document.querySelector('#NodeSymbol')
     let DropArea = document.querySelector('#DropArea')
 
-    symbol.addEventListener('dragstart', () => {
-      console.log('dragStart');
-    })
+    // symbol.addEventListener('dragstart', () => {
+    //   console.log('dragStart');
+    // })
 
     DropArea.addEventListener('dragover', (event) => {
       event.preventDefault()
@@ -36,8 +36,7 @@ class Main extends React.Component {
 
       let center = cursorPoint(event)
       if (this.state.path === undefined) return this.forceGraph.addValue(center)
-      if (this.state.data) return this.forceGraph.addNode(this.state.data, this.state.path, center)
-      if (this.state.data === undefined) return this.forceGraph.addNewNode(this.state.path, center)
+      this.forceGraph.addNode(center, this.state.path, this.state.data)
     })
 
     // keeping this data injection for now
@@ -79,7 +78,6 @@ class Main extends React.Component {
       for (let key in data) {
         if (key !== '_' && data[key] !== null) graphData[key] = data[key]
       }
-
       this.setState({data: graphData, path: input, nodeColor: 'red'})
     })
   }

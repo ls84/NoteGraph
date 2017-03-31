@@ -2,7 +2,7 @@ class ForceGraph extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      nodes: [],
+      nodes: {},
       links: [],
       center: { x: 480, y: 270 }
     }
@@ -11,77 +11,169 @@ class ForceGraph extends React.Component {
     this.draw = this.draw.bind(this)
   }
 
-  addNodes (nodes, center) {
+  // addNode (node, center) {
+  //   let nodes = this.state.nodes.concat(node)
+  //
+  //   let svg = d3.select('#ForceGraph')
+  //   svg.selectAll('circle')
+  //   .data(nodes)
+  //   .enter()
+  //   .append('circle')
+  //   .attr('r', '10')
+  //   .attr('fill', 'red')
+  //   .attr('cx', center.x)
+  //   .attr('cy', center.y)
+  //   // .on('mouseup', () => {console.log('mouseup');})
+  //   // .on('mousedown', () => {console.log('mousedown');})
+  //
+  //   return this.state.nodes.concat(nodes)
+  // }
+  //
+  // addLinks (links, center) {
+  //   let svg = d3.select('#ForceGraph')
+  //   svg.selectAll('line')
+  //   .data(links)
+  //   .enter()
+  //   .append('line')
+  //   .attr('stroke', 'black')
+  //   .attr('x1', center.x)
+  //   .attr('y1', center.y)
+  //   .attr('x2', center.x)
+  //   .attr('y2', center.y)
+  //
+  //   return this.state.nodes.concat(links)
+  // }
+
+  // addNode (data, path, center) {
+  //   let nodes = [{key: path, fx: center.x, fy: center.y}]
+  //   let links = []
+  //   for (let key in data) {
+  //     let node = { key }
+  //     if (typeof data[key] !== 'object') node[key] = data[key]
+  //     if (typeof data[key] === 'object') Object.assign(node, data[key])
+  //
+  //     nodes.push(node)
+  //     links.push({source: path, target: key})
+  //   }
+  //
+  //   // this.addNodes(nodes, center)
+  //   // this.addLinks(links, center)
+  //
+  //   // this.setState({nodes, links, center})
+  // }
+
+  // addNewNode (path, center) {
+  //   let node = [{key: path, fx: center.x, fy: center.y}]
+  //
+  //   let svg = d3.select('#ForceGraph')
+  //   svg.data(node)
+  //   .append('circle')
+  //   .attr('r', '10')
+  //   .attr('fill', 'red')
+  //   .attr('cx', center.x)
+  //   .attr('cy', center.y)
+  // }
+
+  addNode (center, path, data) {
+    console.log('addnode', data);
+    let node = {}
+    node[path] = {fx: center.x, fy: center.y}
+
     let svg = d3.select('#ForceGraph')
+    // svg.append('circle')
     svg.selectAll('circle')
-    .data(nodes)
+    .data([{path: path, fx: center.x, fy: center.y}], function (d) { return d.path })
+    .attr('cx', center.x)
+    .attr('cy', center.y)
     .enter()
     .append('circle')
+    .attr('id', path)
     .attr('r', '10')
-    .attr('fill', 'red')
+    .attr('fill', (data) ? 'red' : 'white')
+    .attr('stroke', 'black')
+    .attr('stroke-width', 0.5)
     .attr('cx', center.x)
     .attr('cy', center.y)
     // .on('mouseup', () => {console.log('mouseup');})
     // .on('mousedown', () => {console.log('mousedown');})
 
-    return this.state.nodes.concat(nodes)
-  }
+    let nodes = Object.assign(this.state.nodes, node)
+    this.setState({nodes})
 
-  addLinks (links, center) {
-    let svg = d3.select('#ForceGraph')
-    svg.selectAll('line')
-    .data(links)
-    .enter()
-    .append('line')
-    .attr('stroke', 'black')
-    .attr('x1', center.x)
-    .attr('y1', center.y)
-    .attr('x2', center.x)
-    .attr('y2', center.y)
+    if (data) this.expandLinks(path, data)
 
-    return this.state.nodes.concat(links)
-  }
+    // TODO
+    // this.setState({forces: {path: data})
+    // TODO
 
-  addNode (data, path, center) {
-    let nodes = [{key: path, fx: center.x, fy: center.y}]
-    let links = []
-    for (let key in data) {
-      let node = { key }
-      if (typeof data[key] !== 'object') node[key] = data[key]
-      if (typeof data[key] === 'object') Object.assign(node, data[key])
-
-      nodes.push(node)
-      links.push({source: path, target: key})
-    }
-
-    this.addNodes(nodes, center)
-    this.addLinks(links, center)
-
-    this.setState({nodes, links, center})
-  }
-
-  addNewNode (path, center) {
-    let node = [{key: path, fx: center.x, fy: center.y}]
-
-    let svg = d3.select('#ForceGraph')
-    svg.data(node)
-    .append('circle')
-    .attr('r', '10')
-    .attr('fill', 'red')
-    .attr('cx', center.x)
-    .attr('cy', center.y)
+    // if (!data) return console.log('add new');
+    // return console.log('add node');
   }
 
   addValue (center) {
-    console.log('addValue');
+    // console.log('addValue');
     let svg = d3.select('#ForceGraph')
     svg.append('circle')
     .attr('r', '10')
     .attr('fill', 'white')
     .attr('stroke', 'black')
-    .attr('strokeWidth', 0.5)
+    .attr('stroke-width', '0.5')
     .attr('cx', center.x)
     .attr('cy', center.y)
+  }
+
+  expandLinks (path, data) {
+    // console.log('expandLinks', path, data);
+    let center = {x: this.state.nodes[path].fx, y: this.state.nodes[path].fy}
+    let nodes = [{path: path, fx: center.x, fy: center.y}]
+    let links = []
+    for (let key in data) {
+      let node = { path: `${path}.${key}` }
+      if (typeof data[key] !== 'object') node[path] = `${path}.${data[key]}`
+      if (typeof data[key] === 'object') Object.assign(node, data[key])
+
+      nodes.push(node)
+      links.push({source: path, target: `${path}.${key}`})
+    }
+
+    let svg = d3.select('#ForceGraph')
+
+    svg.selectAll('circle')
+    .data(nodes, function (d) { return d ? d.path : this.id })
+    .enter()
+    .append('circle')
+    .attr('id', function (d) { return d.path })
+    .attr('r', '10')
+    .attr('fill', 'red')
+    .attr('stroke', 'black')
+    .attr('stroke-width', 0.5)
+    .attr('cx', center.x)
+    .attr('cy', center.y)
+
+    // this.setState()
+
+    this.simulation.nodes(nodes)
+    this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))
+    this.simulation.force('charge', d3.forceManyBody())
+    this.simulation.force('center', d3.forceCenter(center.x, center.y))
+
+    this.simulation.alpha(1).restart()
+
+    this.simulation.on('tick', () => {
+      svg.selectAll('circle')
+      .data(nodes, function (d) { return d ? d.path : this.id })
+      .attr('cx', (n) => n.x)
+      .attr('cy', (n) => n.y)
+
+      // svg.selectAll('line')
+      // .data(links)
+      // .attr('x1', (l) => l.source.x)
+      // .attr('y1', (l) => l.source.y)
+      // .attr('x2', (l) => l.target.x)
+      // .attr('y2', (l) => l.target.y)
+    })
+
+    // console.log(nodes, links);
   }
 
   draw () {
@@ -153,7 +245,6 @@ class ForceGraph extends React.Component {
   render () {
     return (
       <svg id="ForceGraph" width='960px' height='540px' viewBox='0 0 960 540'>
-        {this.draw()}
       </svg>
     )
   }
