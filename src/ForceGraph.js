@@ -2,7 +2,7 @@ class ForceGraph extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      nodes: {},
+      nodes: [],
       links: [],
       center: { x: 480, y: 270 }
     }
@@ -11,78 +11,12 @@ class ForceGraph extends React.Component {
     this.draw = this.draw.bind(this)
   }
 
-  // addNode (node, center) {
-  //   let nodes = this.state.nodes.concat(node)
-  //
-  //   let svg = d3.select('#ForceGraph')
-  //   svg.selectAll('circle')
-  //   .data(nodes)
-  //   .enter()
-  //   .append('circle')
-  //   .attr('r', '10')
-  //   .attr('fill', 'red')
-  //   .attr('cx', center.x)
-  //   .attr('cy', center.y)
-  //   // .on('mouseup', () => {console.log('mouseup');})
-  //   // .on('mousedown', () => {console.log('mousedown');})
-  //
-  //   return this.state.nodes.concat(nodes)
-  // }
-  //
-  // addLinks (links, center) {
-  //   let svg = d3.select('#ForceGraph')
-  //   svg.selectAll('line')
-  //   .data(links)
-  //   .enter()
-  //   .append('line')
-  //   .attr('stroke', 'black')
-  //   .attr('x1', center.x)
-  //   .attr('y1', center.y)
-  //   .attr('x2', center.x)
-  //   .attr('y2', center.y)
-  //
-  //   return this.state.nodes.concat(links)
-  // }
-
-  // addNode (data, path, center) {
-  //   let nodes = [{key: path, fx: center.x, fy: center.y}]
-  //   let links = []
-  //   for (let key in data) {
-  //     let node = { key }
-  //     if (typeof data[key] !== 'object') node[key] = data[key]
-  //     if (typeof data[key] === 'object') Object.assign(node, data[key])
-  //
-  //     nodes.push(node)
-  //     links.push({source: path, target: key})
-  //   }
-  //
-  //   // this.addNodes(nodes, center)
-  //   // this.addLinks(links, center)
-  //
-  //   // this.setState({nodes, links, center})
-  // }
-
-  // addNewNode (path, center) {
-  //   let node = [{key: path, fx: center.x, fy: center.y}]
-  //
-  //   let svg = d3.select('#ForceGraph')
-  //   svg.data(node)
-  //   .append('circle')
-  //   .attr('r', '10')
-  //   .attr('fill', 'red')
-  //   .attr('cx', center.x)
-  //   .attr('cy', center.y)
-  // }
-
   addNode (center, path, data) {
-    console.log('addnode', data);
-    let node = {}
-    node[path] = {fx: center.x, fy: center.y}
-
+    // console.log('addnode', data);
+    let node = {path: path, fx: center.x, fy: center.y}
     let svg = d3.select('#ForceGraph')
-    // svg.append('circle')
     svg.selectAll('circle')
-    .data([{path: path, fx: center.x, fy: center.y}], function (d) { return d.path })
+    .data([node], function (d) { return d.path })
     .attr('cx', center.x)
     .attr('cy', center.y)
     .enter()
@@ -97,10 +31,11 @@ class ForceGraph extends React.Component {
     // .on('mouseup', () => {console.log('mouseup');})
     // .on('mousedown', () => {console.log('mousedown');})
 
-    let nodes = Object.assign(this.state.nodes, node)
+    let nodes = this.state.nodes.filter((v) => v.path !== path)
+    nodes.push(node)
     this.setState({nodes})
 
-    if (data) this.expandLinks(path, data)
+    if (data) this.expandLinks(center, path, data)
 
     // TODO
     // this.setState({forces: {path: data})
@@ -122,9 +57,10 @@ class ForceGraph extends React.Component {
     .attr('cy', center.y)
   }
 
-  expandLinks (path, data) {
+  expandLinks (center, path, data) {
     // console.log('expandLinks', path, data);
-    let center = {x: this.state.nodes[path].fx, y: this.state.nodes[path].fy}
+    // console.log(this.state);
+    // let center = {x: this.state.nodes[path].fx, y: this.state.nodes[path].fy}
     let nodes = [{path: path, fx: center.x, fy: center.y}]
     let links = []
     for (let key in data) {
