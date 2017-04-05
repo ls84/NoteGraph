@@ -6,6 +6,7 @@ class ForceGraph extends React.Component {
       links: [],
       center: { x: 480, y: 270 }
     }
+    this.test = 'name'
 
     this.simulation = d3.forceSimulation()
     this.draw = this.draw.bind(this)
@@ -46,15 +47,25 @@ class ForceGraph extends React.Component {
   }
 
   addValue (center) {
-    // console.log('addValue');
+    console.log('addValue');
+    let node = {path: 'avalue', fx: center.x, fy: center.y}
     let svg = d3.select('#ForceGraph')
-    svg.append('circle')
+    let group = svg.selectAll('g').data([node]).enter().append('g').attr('transform', `translate(${center.x},${center.y})`)
+
+    group.append('circle')
     .attr('r', '10')
     .attr('fill', 'white')
     .attr('stroke', 'black')
     .attr('stroke-width', '0.5')
-    .attr('cx', center.x)
-    .attr('cy', center.y)
+    group.append('foreignObject')
+    .append('xhtml:body')
+    .append('xhtml:p')
+    .attr('contenteditable', 'true')
+    .attr('class', 'ValueInput')
+    .text('')
+    .on('blur', () => {
+      console.log('change');
+    })
   }
 
   expandLinks (center, path, data) {
