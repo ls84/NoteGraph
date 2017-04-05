@@ -8,9 +8,12 @@ class ForceGraph extends React.Component {
     }
 
     this.valueIterator = 0
+    this.linkIterator = 0
 
     this.simulation = d3.forceSimulation()
     this.draw = this.draw.bind(this)
+    this.addLink = this.addLink.bind(this)
+    this.previewLink = this.previewLink.bind(this)
   }
 
   addNode (center, path, data) {
@@ -47,6 +50,33 @@ class ForceGraph extends React.Component {
     // return console.log('add node');
   }
 
+  addLink (link) {
+    link.link = `link-${this.linkIterator ++}`
+    this.temporaryLink = link
+
+    d3.select('#ForceGraph')
+    .selectAll('line')
+    .data([link], function (d) { return d.link })
+    .enter()
+    .append('line')
+    .attr('stroke', 'black')
+    .attr('stroke-width', '0.5')
+  }
+
+  previewLink (link) {
+    console.log(this.temporaryLink);
+    this.temporaryLink.x2 = link.x2
+    this.temporaryLink.y2 = link.y2
+
+    d3.select('#ForceGraph')
+    .selectAll('line')
+    .data([this.temporaryLink], function (d) { return d.link })
+    .attr('x1', function (d) { return d.x1 })
+    .attr('y1', function (d) { return d.y1 })
+    .attr('x2', function (d) { return d.x2 })
+    .attr('y2', function (d) { return d.y2 })
+  }
+
   addValue (center) {
     console.log('addValue', center);
     let node = {path: `value-${this.valueIterator ++}`, fx: center.x, fy: center.y}
@@ -59,11 +89,40 @@ class ForceGraph extends React.Component {
     .attr('transform', `translate(${center.x},${center.y})`)
     .attr('id', function (d) { return d.path })
 
+    let dragBehaviour = d3.drag()
+    // dragBehaviour.on('start', function (d) { console.log(this.parentNode); })
+    let scope = this
+
+    dragBehaviour.on('start', function (d) {
+      let cursor = d3.mouse(document.querySelector('#ForceGraph'))
+      let nodePosition = this.parentNode.getCTM()
+
+      if (d3.event.sourceEvent.shiftKey) scope.addLink({x1: nodePosition.e, y1: nodePosition.f, x2: cursor[0], y2: cursor[1]})
+    })
+
+    dragBehaviour.on('drag', function (d) {
+      if (!d3.event.sourceEvent.shiftKey) {
+        let cursor = d3.mouse(document.querySelector('#ForceGraph'))
+        d3.select(this.parentNode)
+        .attr('transform', `translate(${cursor[0]},${cursor[1]})`)
+      }
+
+      if (d3.event.sourceEvent.shiftKey) {
+        let cursor = d3.mouse(document.querySelector('#ForceGraph'))
+        let nodePosition = this.parentNode.getCTM()
+        scope.previewLink({x1: nodePosition.e, y1: nodePosition.f, x2: cursor[0], y2: cursor[1]})
+      }
+    })
+
+    dragBehaviour.on('end', function () { console.log(this.parentNode); })
+
     group.append('circle')
     .attr('r', '10')
     .attr('fill', 'white')
     .attr('stroke', 'black')
     .attr('stroke-width', '0.5')
+    .call(dragBehaviour)
+
     group.append('foreignObject')
     .append('xhtml:body')
     .append('xhtml:p')
@@ -71,7 +130,7 @@ class ForceGraph extends React.Component {
     .attr('class', 'ValueInput')
     .text('')
     .on('blur', () => {
-      console.log('change');
+      console.log('should update gun');
     })
   }
 
