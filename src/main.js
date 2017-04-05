@@ -66,7 +66,7 @@ class Main extends React.Component {
   pathChange (event) {
     let input = event.target.value
 
-    if (input === '') return this.setState({path: undefined})
+    if (input === '') return this.setState({path: undefined, nodeColor: 'white'})
 
     let path = this.gun.get(input)
 

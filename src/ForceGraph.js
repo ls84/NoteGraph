@@ -6,7 +6,8 @@ class ForceGraph extends React.Component {
       links: [],
       center: { x: 480, y: 270 }
     }
-    this.test = 'name'
+
+    this.valueIterator = 0
 
     this.simulation = d3.forceSimulation()
     this.draw = this.draw.bind(this)
@@ -47,10 +48,16 @@ class ForceGraph extends React.Component {
   }
 
   addValue (center) {
-    console.log('addValue');
-    let node = {path: 'avalue', fx: center.x, fy: center.y}
-    let svg = d3.select('#ForceGraph')
-    let group = svg.selectAll('g').data([node]).enter().append('g').attr('transform', `translate(${center.x},${center.y})`)
+    console.log('addValue', center);
+    let node = {path: `value-${this.valueIterator ++}`, fx: center.x, fy: center.y}
+    let group = d3.select('#ForceGraph')
+    .selectAll('g')
+    .data([node], function (d) { return d.path })
+    .attr('transform', `translate(${center.x},${center.y})`)
+    .enter()
+    .append('g')
+    .attr('transform', `translate(${center.x},${center.y})`)
+    .attr('id', function (d) { return d.path })
 
     group.append('circle')
     .attr('r', '10')
