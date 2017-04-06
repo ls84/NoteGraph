@@ -1,3 +1,5 @@
+let ElementMakers = require('./ElementMakers.js')
+
 class ForceGraph extends React.Component {
   constructor (props) {
     super(props)
@@ -12,7 +14,6 @@ class ForceGraph extends React.Component {
     this.dragBehaviour = require('./DragBehaviour.js')(this)
 
     this.simulation = d3.forceSimulation()
-    this.draw = this.draw.bind(this)
     this.addLink = this.addLink.bind(this)
     this.previewLink = this.previewLink.bind(this)
   }
@@ -25,14 +26,8 @@ class ForceGraph extends React.Component {
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append('g')
-    .attr('transform', `translate(${center.x},${center.y})`)
-    .append('circle')
-    .attr('id', path)
-    .attr('r', '10')
-    .attr('fill', (data) ? 'red' : 'white')
-    .attr('stroke', 'black')
-    .attr('stroke-width', 0.5)
+    .append(function () { return ElementMakers.NewNode(center, path, data) })
+    .select('circle')
     .call(this.dragBehaviour)
     .on('mouseenter', function () { scope.targetNode = this.parentNode })
     .on('mouseleave', function () { scope.targetNode = null })
