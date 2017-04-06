@@ -58,15 +58,14 @@ class ForceGraph extends React.Component {
     .selectAll('line')
     .data([link], function (d) { return d.link })
     .enter()
-    .append('line')
+    .insert('line', ':first-child')
     .attr('stroke', 'black')
     .attr('stroke-width', '0.5')
   }
 
   previewLink (link) {
-    console.log(this.temporaryLink);
-    this.temporaryLink.x2 = link.x2
-    this.temporaryLink.y2 = link.y2
+    this.temporaryLink.x2 = (this.targetNode) ? this.targetNode.getCTM().e : link.x2
+    this.temporaryLink.y2 = (this.targetNode) ? this.targetNode.getCTM().f : link.y2
 
     d3.select('#ForceGraph')
     .selectAll('line')
@@ -75,6 +74,14 @@ class ForceGraph extends React.Component {
     .attr('y1', function (d) { return d.y1 })
     .attr('x2', function (d) { return d.x2 })
     .attr('y2', function (d) { return d.y2 })
+  }
+
+  removeLink (link) {
+
+    d3.select('#ForceGraph')
+    .selectAll('line')
+    .data([link], function (d) { return d.link })
+    .remove()
   }
 
   addValue (center) {
@@ -114,7 +121,9 @@ class ForceGraph extends React.Component {
       }
     })
 
-    dragBehaviour.on('end', function () { console.log(this.parentNode); })
+    dragBehaviour.on('end', function () {
+      if (!scope.targetNode) scope.removeLink(scope.temporaryLink)
+    })
 
     group.append('circle')
     .attr('r', '10')
@@ -122,9 +131,11 @@ class ForceGraph extends React.Component {
     .attr('stroke', 'black')
     .attr('stroke-width', '0.5')
     .call(dragBehaviour)
+    .on('mouseenter', function () { scope.targetNode = this.parentNode })
+    .on('mouseleave', function () { scope.targetNode = null })
 
     group.append('foreignObject')
-    .append('xhtml:body')
+    // .append('xhtml:body')
     .append('xhtml:p')
     .attr('contenteditable', 'true')
     .attr('class', 'ValueInput')
