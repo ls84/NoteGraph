@@ -74,35 +74,19 @@ class ForceGraph extends React.Component {
   }
 
   addValue (center) {
+    let scope = this
     let node = {path: `value-${this.valueIterator ++}`, fx: center.x, fy: center.y}
-    let group = d3.select('#ForceGraph')
+
+    d3.select('#ForceGraph')
     .selectAll('g')
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append('g')
-    .attr('transform', `translate(${center.x},${center.y})`)
-    .attr('id', function (d) { return d.path })
-
-    let scope = this
-
-    group.append('circle')
-    .attr('r', '10')
-    .attr('fill', 'white')
-    .attr('stroke', 'black')
-    .attr('stroke-width', '0.5')
+    .append(function (data) { return ElementMakers.EmptyValue(center, data) })
+    .select('circle')
     .call(this.dragBehaviour)
     .on('mouseenter', function () { scope.targetNode = this.parentNode })
     .on('mouseleave', function () { scope.targetNode = null })
-
-    group.append('foreignObject')
-    .append('xhtml:p')
-    .attr('contenteditable', 'true')
-    .attr('class', 'ValueInput')
-    .text('')
-    .on('blur', () => {
-      console.log('should update gun');
-    })
   }
 
   expandLinks (center, path, data) {
