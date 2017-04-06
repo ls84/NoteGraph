@@ -1,4 +1,5 @@
-module.exports = function (scope) {
+module.exports = function () {
+  let scope = this
   let dragBehaviour = d3.drag()
 
   dragBehaviour.on('start', function () {

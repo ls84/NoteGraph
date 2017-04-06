@@ -2,6 +2,7 @@ let DragBehaviour = require('./DragBehaviour.js')
 
 function NewNode (center, path, data) {
   let group = document.createElementNS(d3.namespaces.svg, 'g')
+  let scope = this
 
   d3.select(group)
   .attr('transform', `translate(${center.x},${center.y})`)
@@ -11,12 +12,16 @@ function NewNode (center, path, data) {
   .attr('fill', (data) ? 'red' : 'white')
   .attr('stroke', 'black')
   .attr('stroke-width', 0.5)
+  .call(DragBehaviour.call(this))
+  .on('mouseenter', function () { scope.targetNode = this.parentNode })
+  .on('mouseleave', function () { scope.targetNode = null })
 
   return group
 }
 
 function EmptyValue (center, data) {
   let group = document.createElementNS(d3.namespaces.svg, 'g')
+  let scope = this
 
   d3.select(group)
   .attr('transform', `translate(${center.x},${center.y})`)
@@ -26,6 +31,9 @@ function EmptyValue (center, data) {
   .attr('fill', 'white')
   .attr('stroke', 'black')
   .attr('stroke-width', '0.5')
+  .call(DragBehaviour.call(this))
+  .on('mouseenter', function () { scope.targetNode = this.parentNode })
+  .on('mouseleave', function () { scope.targetNode = null })
 
   d3.select(group)
   .append('foreignObject')

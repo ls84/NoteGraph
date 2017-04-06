@@ -11,7 +11,6 @@ class ForceGraph extends React.Component {
 
     this.valueIterator = 0
     this.linkIterator = 0
-    this.dragBehaviour = require('./DragBehaviour.js')(this)
 
     this.simulation = d3.forceSimulation()
     this.addLink = this.addLink.bind(this)
@@ -19,18 +18,13 @@ class ForceGraph extends React.Component {
   }
 
   addNode (center, path, data) {
-    let scope = this
     let node = {path: path, fx: center.x, fy: center.y}
     let svg = d3.select('#ForceGraph')
     svg.selectAll('g')
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append(function () { return ElementMakers.NewNode(center, path, data) })
-    .select('circle')
-    .call(this.dragBehaviour)
-    .on('mouseenter', function () { scope.targetNode = this.parentNode })
-    .on('mouseleave', function () { scope.targetNode = null })
+    .append(() => { return ElementMakers.NewNode.call(this, center, path, data) })
 
     if (data) this.expandLinks(center, path, data)
 
@@ -74,7 +68,6 @@ class ForceGraph extends React.Component {
   }
 
   addValue (center) {
-    let scope = this
     let node = {path: `value-${this.valueIterator ++}`, fx: center.x, fy: center.y}
 
     d3.select('#ForceGraph')
@@ -82,11 +75,7 @@ class ForceGraph extends React.Component {
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append(function (data) { return ElementMakers.EmptyValue(center, data) })
-    .select('circle')
-    .call(this.dragBehaviour)
-    .on('mouseenter', function () { scope.targetNode = this.parentNode })
-    .on('mouseleave', function () { scope.targetNode = null })
+    .append((data) => { return ElementMakers.EmptyValue.call(this, center, data) })
   }
 
   expandLinks (center, path, data) {
