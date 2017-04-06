@@ -92,17 +92,10 @@ class ForceGraph extends React.Component {
 
     let svg = d3.select('#ForceGraph')
 
-    svg.selectAll('circle')
+    svg.selectAll('g')
     .data(nodes, function (d) { return d ? d.path : this.id })
     .enter()
-    .append('circle')
-    .attr('id', function (d) { return d.path })
-    .attr('r', '10')
-    .attr('fill', 'red')
-    .attr('stroke', 'black')
-    .attr('stroke-width', 0.5)
-    .attr('cx', center.x)
-    .attr('cy', center.y)
+    .append((d) => { return ElementMakers.NewNode.call(this, center, path, data) })
 
     this.simulation.nodes(nodes)
     this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))
@@ -112,10 +105,9 @@ class ForceGraph extends React.Component {
     this.simulation.alpha(1).restart()
 
     this.simulation.on('tick', () => {
-      svg.selectAll('circle')
+      svg.selectAll('g')
       .data(nodes, function (d) { return d ? d.path : this.id })
-      .attr('cx', (n) => n.x)
-      .attr('cy', (n) => n.y)
+      .attr('transform', (n) => `translate(${n.x},${n.y})`)
 
       // svg.selectAll('line')
       // .data(links)
