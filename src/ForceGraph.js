@@ -24,7 +24,10 @@ class ForceGraph extends React.Component {
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append(() => { return ElementMakers.NewNode.call(this, center, path, data) })
+    .append((d) => {
+      if (data) return ElementMakers.Node.call(this, center, d)
+      if (!data) return ElementMakers.NewNode.call(this, center, path)
+    })
 
     if (data) this.expandLinks(center, path, data)
 
@@ -75,7 +78,7 @@ class ForceGraph extends React.Component {
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append((data) => { return ElementMakers.EmptyValue.call(this, center, data) })
+    .append((d) => { return ElementMakers.EmptyValue.call(this, center, d.path) })
   }
 
   expandLinks (center, path, data) {
@@ -83,7 +86,7 @@ class ForceGraph extends React.Component {
     let links = []
     for (let key in data) {
       let node = { path: `${path}.${key}` }
-      if (typeof data[key] !== 'object') node[path] = `${path}.${data[key]}`
+      if (typeof data[key] !== 'object') node[key] = data[key]
       if (typeof data[key] === 'object') Object.assign(node, data[key])
 
       nodes.push(node)
@@ -95,7 +98,10 @@ class ForceGraph extends React.Component {
     svg.selectAll('g')
     .data(nodes, function (d) { return d ? d.path : this.id })
     .enter()
-    .append((d) => { return ElementMakers.NewNode.call(this, center, path, data) })
+    .append((d) => {
+      if (d['#']) return ElementMakers.Node.call(this, center, d)
+      return ElementMakers.Value.call(this, center, d)
+    })
 
     this.simulation.nodes(nodes)
     this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))
@@ -105,6 +111,7 @@ class ForceGraph extends React.Component {
     this.simulation.alpha(1).restart()
 
     this.simulation.on('tick', () => {
+      // console.log(this.simulation.alpha);
       svg.selectAll('g')
       .data(nodes, function (d) { return d ? d.path : this.id })
       .attr('transform', (n) => `translate(${n.x},${n.y})`)
