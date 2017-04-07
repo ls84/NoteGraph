@@ -9,7 +9,7 @@ function NewNode (center, path) {
   .append('circle')
   .attr('id', path)
   .attr('r', '10')
-  .attr('fill', 'white')
+  .attr('fill', 'lightgrey')
   .attr('stroke', 'black')
   .attr('stroke-width', 0.5)
   .call(DragBehaviour.call(this))

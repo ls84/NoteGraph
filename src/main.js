@@ -71,7 +71,7 @@ class Main extends React.Component {
     let path = this.gun.get(input)
 
     path.not(() => {
-      this.setState({data: undefined, path: input, nodeColor: 'white'})
+      this.setState({data: undefined, path: input, nodeColor: 'lightgrey'})
     })
     path.val((data, path) => {
       let graphData = {}

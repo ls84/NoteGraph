@@ -3,11 +3,7 @@ let ElementMakers = require('./ElementMakers.js')
 class ForceGraph extends React.Component {
   constructor (props) {
     super(props)
-    this.state = {
-      nodes: [],
-      links: [],
-      center: { x: 480, y: 270 }
-    }
+    this.state = {}
 
     this.valueIterator = 0
     this.linkIterator = 0
@@ -29,12 +25,16 @@ class ForceGraph extends React.Component {
       if (!data) return ElementMakers.NewNode.call(this, center, path)
     })
 
+    let cache = { [path]: {} }
+    this.setState(cache)
+
     if (data) this.expandLinks(center, path, data)
+    // let newState = Object.Assign(this.state.cache, )
 
     // NOTE: this.state should act as cache for gun
-    let nodes = this.state.nodes.filter((v) => v.path !== path)
-    nodes.push(node)
-    this.setState({nodes})
+    // let nodes = this.state.nodes.filter((v) => v.path !== path)
+    // nodes.push(node)
+    // this.setState({nodes})
   }
 
   addLink (link) {
@@ -84,6 +84,8 @@ class ForceGraph extends React.Component {
   expandLinks (center, path, data) {
     let nodes = [{path: path, fx: center.x, fy: center.y}]
     let links = []
+    let cache = { [path]: { target: [] } }
+
     for (let key in data) {
       let node = { path: `${path}.${key}` }
       if (typeof data[key] !== 'object') node[key] = data[key]
@@ -91,6 +93,8 @@ class ForceGraph extends React.Component {
 
       nodes.push(node)
       links.push({source: path, target: `${path}.${key}`})
+      cache[`${path}.${key}`] = {}
+      cache[path].target.push(`${path}.${key}`)
     }
 
     let svg = d3.select('#ForceGraph')
@@ -102,6 +106,8 @@ class ForceGraph extends React.Component {
       if (d['#']) return ElementMakers.Node.call(this, center, d)
       return ElementMakers.Value.call(this, center, d)
     })
+
+    this.setState(cache)
 
     this.simulation.nodes(nodes)
     this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))
@@ -156,6 +162,7 @@ class ForceGraph extends React.Component {
   // }
 
   render () {
+    console.log(this.state);
     return (
       <svg id="ForceGraph" width='960px' height='540px' viewBox='0 0 960 540'>
       </svg>
