@@ -6,10 +6,10 @@ class ForceGraph extends React.Component {
     this.state = {}
 
     this.valueIterator = 0
-    this.linkIterator = 0
+    this.relationIterator = 0
 
     this.simulation = d3.forceSimulation()
-    this.addLink = this.addLink.bind(this)
+    // this.addLink = this.addLink.bind(this)
     this.previewLink = this.previewLink.bind(this)
   }
 
@@ -37,36 +37,29 @@ class ForceGraph extends React.Component {
     // this.setState({nodes})
   }
 
-  addLink (link) {
-    link.link = `link-${this.linkIterator ++}`
-    this.temporaryLink = link
+  previewLink (link) {
+    if (this.targetNode) Object.assign(link, { x2: this.targetNode.getCTM().e, y2: this.targetNode.getCTM().f })
 
     d3.select('#ForceGraph')
     .selectAll('line')
-    .data([link], function (d) { return d.link })
+    .data([link], (d) => d.relation)
+    .attr('x2', (d) => d.x2)
+    .attr('y2', (d) => d.y2)
     .enter()
     .insert('line', ':first-child')
+    .attr('id', (d) => d.relation)
     .attr('stroke', 'black')
     .attr('stroke-width', '0.5')
+    .attr('x1', (d) => d.x1)
+    .attr('y1', (d) => d.y1)
+    .attr('x2', (d) => d.x2)
+    .attr('y2', (d) => d.y2)
   }
 
-  previewLink (link) {
-    this.temporaryLink.x2 = (this.targetNode) ? this.targetNode.getCTM().e : link.x2
-    this.temporaryLink.y2 = (this.targetNode) ? this.targetNode.getCTM().f : link.y2
-
+  removeLink (relation) {
     d3.select('#ForceGraph')
     .selectAll('line')
-    .data([this.temporaryLink], function (d) { return d.link })
-    .attr('x1', function (d) { return d.x1 })
-    .attr('y1', function (d) { return d.y1 })
-    .attr('x2', function (d) { return d.x2 })
-    .attr('y2', function (d) { return d.y2 })
-  }
-
-  removeLink (link) {
-    d3.select('#ForceGraph')
-    .selectAll('line')
-    .data([link], function (d) { return d.link })
+    .data([{relation}], function (d) { return d.relation })
     .remove()
   }
 
