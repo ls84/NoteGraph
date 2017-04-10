@@ -9,7 +9,7 @@ module.exports = function (config) {
       'externals/react.js',
       'externals/react-dom.js',
       'externals/gun.js',
-      {pattern: 'style/main.less', watched: false, included: true, served: true},
+      {pattern: 'style/main.less', watched: true, included: true, served: true},
       'test/index.js'
     ],
     preprocessors: {

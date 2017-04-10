@@ -15,7 +15,7 @@ module.exports = function () {
     }
 
     if (sourceEvent.shiftKey) {
-      let relation = `relation-${scope.relationIterator}`
+      let relation = `${this.parentNode.id}->relation-${scope.relationIterator}`
       let origin = this.parentNode.getCTM()
       let cursor = d3.mouse(document.querySelector('#ForceGraph'))
       scope.previewLink({relation, x1: origin.e, y1: origin.f, x2: cursor[0], y2: cursor[1]})

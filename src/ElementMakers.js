@@ -106,9 +106,11 @@ function Link (relation, from, to) {
   d3.select(group)
   .attr('id', relation)
   .append('path')
+  .attr('class', 'link')
   .attr('stroke', 'black')
-  .attr('stroke-width', '0.5')
+  .attr('stroke-width', '2')
   .attr('d', description)
+  .on('click', function () { console.log(this); })
 
   return group
 }
