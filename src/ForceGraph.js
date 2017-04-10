@@ -39,26 +39,28 @@ class ForceGraph extends React.Component {
 
   previewLink (link) {
     if (this.targetNode) Object.assign(link, { x2: this.targetNode.getCTM().e, y2: this.targetNode.getCTM().f })
+    let from = [link.x1, link.y1]
+    let to = [link.x2, link.y2]
 
     d3.select('#ForceGraph')
-    .selectAll('line')
+    .selectAll('g')
     .data([link], (d) => d.relation)
-    .attr('x2', (d) => d.x2)
-    .attr('y2', (d) => d.y2)
     .enter()
-    .insert('line', ':first-child')
-    .attr('id', (d) => d.relation)
-    .attr('stroke', 'black')
-    .attr('stroke-width', '0.5')
-    .attr('x1', (d) => d.x1)
-    .attr('y1', (d) => d.y1)
-    .attr('x2', (d) => d.x2)
-    .attr('y2', (d) => d.y2)
+    .insert((d) => ElementMakers.Link.call(this, d.relation, from, to), ':first-child')
+
+    let curve = d3.line()
+    let description = curve([from, to])
+
+    d3.select('#ForceGraph')
+    .selectAll('g')
+    .data([link], (d) => d.relation)
+    .select('path')
+    .attr('d', description)
   }
 
   removeLink (relation) {
     d3.select('#ForceGraph')
-    .selectAll('line')
+    .selectAll('g')
     .data([{relation}], function (d) { return d.relation })
     .remove()
   }

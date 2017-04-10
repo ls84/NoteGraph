@@ -96,4 +96,21 @@ function Value (center, data) {
   return group
 }
 
-module.exports = { NewNode, EmptyValue, Node, Value }
+function Link (relation, from, to) {
+  let group = document.createElementNS(d3.namespaces.svg, 'g')
+  let scope = this
+
+  let curve = d3.line()
+  let description = curve([from, to])
+
+  d3.select(group)
+  .attr('id', relation)
+  .append('path')
+  .attr('stroke', 'black')
+  .attr('stroke-width', '0.5')
+  .attr('d', description)
+
+  return group
+}
+
+module.exports = { NewNode, EmptyValue, Node, Value, Link }
