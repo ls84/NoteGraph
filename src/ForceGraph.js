@@ -58,10 +58,18 @@ class ForceGraph extends React.Component {
     .attr('d', description)
   }
 
-  removeLink (relation) {
+  establishLink (link, from, to) {
     d3.select('#ForceGraph')
     .selectAll('g')
-    .data([{relation}], function (d) { return d.relation })
+    .data([{link}], function (d) { return d.link ? d.link : this.id })
+    .attr('id', `${from}->${to}`)
+  }
+
+  removeLink (link) {
+    console.log(link);
+    d3.select('#ForceGraph')
+    .selectAll('g')
+    .data([{link}], function (d) { return d.link ? d.link : this.id })
     .remove()
   }
 

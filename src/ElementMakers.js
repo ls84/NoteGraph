@@ -108,7 +108,8 @@ function Link (relation, from, to) {
   .append('path')
   .attr('class', 'link')
   .attr('stroke', 'black')
-  .attr('stroke-width', '2')
+  .style('stroke-dasharray', ('3,3'))
+  .style('stroke-width', '2')
   .attr('d', description)
   .on('click', function () { console.log(this); })
 
