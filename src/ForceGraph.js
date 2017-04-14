@@ -134,7 +134,6 @@ class ForceGraph extends React.Component {
   }
 
   removeLink (link) {
-    console.log(link);
     d3.select('#ForceGraph')
     .selectAll('g.link')
     .data([{link}], function (d) { return d.link ? d.link : this.id })
@@ -155,17 +154,21 @@ class ForceGraph extends React.Component {
   expandLinks (center, path, data) {
     let nodes = [{path: path, fx: center.x, fy: center.y}]
     let links = []
-    let cache = { [path]: { target: [] } }
+    let cache = { [path]: {} }
+    let values = {}
 
     for (let key in data) {
-      let node = { path: `${path}.${key}` }
-      if (typeof data[key] !== 'object') node[key] = data[key]
-      if (typeof data[key] === 'object') Object.assign(node, data[key])
+      if (typeof data[key] !== 'object') {
+        values[key] = data[key]
+      }
 
-      nodes.push(node)
-      links.push({source: path, target: `${path}.${key}`})
-      cache[`${path}.${key}`] = {}
-      cache[path].target.push(`${path}.${key}`)
+      if (typeof data[key] === 'object') {
+        let node = { path: `${path}.${key}` }
+        Object.assign(node, data[key])
+        nodes.push(node)
+        links.push({source: path, target: `${path}.${key}`})
+        cache[`${path}.${key}`] = {}
+      }
     }
 
     let svg = d3.select('#ForceGraph')
@@ -178,7 +181,9 @@ class ForceGraph extends React.Component {
       return ElementMakers.Value.call(this, center, d)
     })
 
-    this.setState(cache)
+    this.setState({nodes: cache})
+    this.props.displayValues(path, values)
+    // TODO: set links state
 
     this.simulation.nodes(nodes)
     this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))

@@ -9,6 +9,7 @@ class Main extends React.Component {
     this.gun = Gun()
 
     this.pathChange = this.pathChange.bind(this)
+    this.displayValues = this.displayValues.bind(this)
     // this.dragStart = this.dragStart.bind(this)
     // this.dragOver = this.dragOver.bind(this)
   }
@@ -82,6 +83,24 @@ class Main extends React.Component {
     })
   }
 
+  displayValues (path, values) {
+    function value (key, value) {
+      let uniqueKey = `${path}.${key}`
+      return (
+        <div id={uniqueKey} key={uniqueKey}>
+          <p>{key}</p>
+          <p>{value}</p>
+        </div>
+      )
+    }
+    let lists = []
+    for (let key in values) {
+      lists.push(value(key, values[key]))
+    }
+
+    this.setState({values: lists})
+  }
+
   render () {
     let style = {height: '51px', width: '100%'}
     return (
@@ -95,7 +114,10 @@ class Main extends React.Component {
           <input type='text' id="PathInput" onChange={this.pathChange} />
         </div>
         <div id="DropArea">
-          <ForceGraph ref={(c) => { this.forceGraph = c }} />
+          <ForceGraph ref={(c) => { this.forceGraph = c }} displayValues={ this.displayValues }/>
+        </div>
+        <div id="NodeValue">
+          {this.state.values}
         </div>
       </div>
     )
