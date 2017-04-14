@@ -123,8 +123,8 @@ class ForceGraph extends React.Component {
     }
 
     if (cache[to]) {
-      if (cache[to]['from']) cache[to]['from'].push(`${from}->${to}`)
-      if (!cache[to]['from']) cache[to]['from'] = [`${from}->${to}`]
+      if (cache[to]['to']) cache[to]['to'].push(`${from}->${to}`)
+      if (!cache[to]['to']) cache[to]['to'] = [`${from}->${to}`]
     }
 
     if (!cache[from]) cache[from] = { 'from': [`${from}->${to}`] }
@@ -154,7 +154,8 @@ class ForceGraph extends React.Component {
   expandLinks (center, path, data) {
     let nodes = [{path: path, fx: center.x, fy: center.y}]
     let links = []
-    let cache = { [path]: {} }
+    let nodeCache = this.state.nodes
+    let linkCache = this.state.links
     let values = {}
 
     for (let key in data) {
@@ -167,7 +168,14 @@ class ForceGraph extends React.Component {
         Object.assign(node, data[key])
         nodes.push(node)
         links.push({source: path, target: `${path}.${key}`})
-        cache[`${path}.${key}`] = {}
+        nodeCache[`${path}.${key}`] = {}
+        if (!linkCache[path]) linkCache[path] = {}
+        if (linkCache[path].from) linkCache[path].from.push(`${path}->${key}->${path}.${key}`)
+        if (!linkCache[path].from) linkCache[path].from = [`${path}->${key}->${path}.${key}`]
+
+        if (!linkCache[`${path}.${key}`]) linkCache[`${path}.${key}`] = {}
+        if (linkCache[`${path}.${key}`].to) linkCache[`${path}.${key}`].to.push(`${path}->${key}->${path}.${key}`)
+        if (!linkCache[`${path}.${key}`].to) linkCache[`${path}.${key}`].to = [`${path}->${key}->${path}.${key}`]
       }
     }
 
@@ -177,11 +185,11 @@ class ForceGraph extends React.Component {
     .data(nodes, function (d) { return d ? d.path : this.id })
     .enter()
     .append((d) => {
-      if (d['#']) return ElementMakers.Node.call(this, center, d)
-      return ElementMakers.Value.call(this, center, d)
+      return ElementMakers.Node.call(this, center, d)
     })
 
-    this.setState({nodes: cache})
+    this.setState({nodes: nodeCache, links: linkCache})
+
     this.props.displayValues(path, values)
     // TODO: set links state
 
