@@ -165,7 +165,24 @@ function Link (relation, from, to) {
     let nodes = this.parentNode.parentNode.id.split('->')
     if (nodes.length === 2) nodes.splice(1, 0, this.textContent)
     if (nodes.length === 3) nodes[1] = this.textContent
+
+    function findLink (v) {
+      return v === this.parentNode.parentNode.id
+    }
+    let originalAt
+    let cache = {
+      [nodes[0]]: scope.state.links[nodes[0]],
+      [nodes[2]]: scope.state.links[nodes[2]]
+    }
+
+    originalAt = cache[nodes[0]].from.findIndex(findLink.bind(this))
+    cache[nodes[0]].from.splice(originalAt, 1, nodes.join('->'))
+    originalAt = cache[nodes[2]].to.findIndex(findLink.bind(this))
+    cache[nodes[2]].to.splice(originalAt, 1, nodes.join('->'))
+
     this.parentNode.parentNode.id = nodes.join('->')
+
+    scope.setState({links: Object.assign(scope.state.links, cache)})
   })
 
   return group
