@@ -3,7 +3,10 @@ let ElementMakers = require('./ElementMakers.js')
 class ForceGraph extends React.Component {
   constructor (props) {
     super(props)
-    this.state = {}
+    this.state = {
+      nodes: {},
+      links: {}
+    }
 
     this.valueIterator = 0
     this.relationIterator = 0
@@ -26,10 +29,10 @@ class ForceGraph extends React.Component {
     })
 
     let cache = { [path]: {} }
-    this.setState(cache)
+    let nodes = this.state.nodes
+    this.setState({nodes: Object.assign(nodes, cache)})
 
     if (data) this.expandLinks(center, path, data)
-    // let newState = Object.Assign(this.state.cache, )
 
     // NOTE: this.state should act as cache for gun
     // let nodes = this.state.nodes.filter((v) => v.path !== path)
@@ -111,6 +114,23 @@ class ForceGraph extends React.Component {
     .selectAll('g.link')
     .data([{link}], function (d) { return d.link ? d.link : this.id })
     .attr('id', `${from}->${to}`)
+
+    let cache = this.state.links
+
+    if (cache[from]) {
+      if (cache[from]['from']) cache[from]['from'].push(`${from}->${to}`)
+      if (!cache[from]['from']) cache[from]['from'] = [`${from}->${to}`]
+    }
+
+    if (cache[to]) {
+      if (cache[to]['from']) cache[to]['from'].push(`${from}->${to}`)
+      if (!cache[to]['from']) cache[to]['from'] = [`${from}->${to}`]
+    }
+
+    if (!cache[from]) cache[from] = { 'from': [`${from}->${to}`] }
+    if (!cache[to]) cache[to] = { 'to': [`${from}->${to}`] }
+
+    this.setState({links: cache})
   }
 
   removeLink (link) {

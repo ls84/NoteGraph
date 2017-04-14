@@ -12,6 +12,8 @@ module.exports = function () {
       let cursor = d3.mouse(document.querySelector('#ForceGraph'))
       d3.select(this.parentNode)
       .attr('transform', `translate(${cursor[0]},${cursor[1]})`)
+      // TODO: drag links along
+      console.log(this.parentNode.id);
     }
 
     if (sourceEvent.shiftKey) {
@@ -25,7 +27,9 @@ module.exports = function () {
   dragBehaviour.on('end', function () {
     let sourceEvent = d3.event.sourceEvent
     if (!scope.targetNode) scope.removeLink(`relation-${scope.relationIterator}`)
-    if (sourceEvent.shiftKey && scope.targetNode) scope.establishLink(`relation-${scope.relationIterator}`, this.parentNode.id, scope.targetNode.id)
+    if (sourceEvent.shiftKey && scope.targetNode) {
+      scope.establishLink(`relation-${scope.relationIterator}`, this.parentNode.id, scope.targetNode.id)
+    }
   })
 
   return dragBehaviour

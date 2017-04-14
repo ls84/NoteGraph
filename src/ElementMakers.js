@@ -161,6 +161,12 @@ function Link (relation, from, to) {
   .attr('contenteditable', 'true')
   .style('float', float)
   .text('predicate')
+  .on('blur', function () {
+    let nodes = this.parentNode.parentNode.id.split('->')
+    if (nodes.length === 2) nodes.splice(1, 0, this.textContent)
+    if (nodes.length === 3) nodes[1] = this.textContent
+    this.parentNode.parentNode.id = nodes.join('->')
+  })
 
   return group
 }
