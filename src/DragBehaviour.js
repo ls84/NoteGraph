@@ -10,10 +10,14 @@ module.exports = function () {
     let sourceEvent = d3.event.sourceEvent
     if (!sourceEvent.shiftKey) {
       let cursor = d3.mouse(document.querySelector('#ForceGraph'))
+      let transformGroup = document.querySelector('#ForceGraph #transformGroup')
+      let pt = document.querySelector('#ForceGraph').createSVGPoint()
+      pt.x = cursor[0]
+      pt.y = cursor[1]
+      pt = pt.matrixTransform(transformGroup.getCTM().inverse())
       d3.select(this.parentNode)
-      .attr('transform', `translate(${cursor[0]},${cursor[1]})`)
+      .attr('transform', `translate(${pt.x},${pt.y})`)
       // TODO: drag links along
-      console.log(this.parentNode.id);
     }
 
     if (sourceEvent.shiftKey) {

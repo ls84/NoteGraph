@@ -12,21 +12,50 @@ class ForceGraph extends React.Component {
     this.relationIterator = 0
 
     this.simulation = d3.forceSimulation()
-    // this.addLink = this.addLink.bind(this)
+    this.setGraphSize = this.setGraphSize.bind(this)
     this.previewLink = this.previewLink.bind(this)
   }
 
-  addNode (center, path, data) {
-    let node = {path: path, fx: center.x, fy: center.y}
+  setGraphSize () {
+    let width = window.innerWidth - 16
+    let height = window.innerHeight - 70
+    // NOTE: do i need this state?
+    this.setState({width, height})
+    let svg = document.querySelector('#ForceGraph')
+    svg.setAttribute('width', `${width}px`)
+    svg.setAttribute('height', `${height}px`)
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+    return {width, height}
+  }
+
+  componentDidMount () {
+    this.setGraphSize()
+    window.onresize = this.setGraphSize
+
     let svg = d3.select('#ForceGraph')
-    svg.selectAll('g')
+    let transformGroup = svg.append('g')
+    transformGroup.attr('id', 'transformGroup')
+
+    let zoom = d3.zoom()
+    .on('zoom', function () {
+      d3.select('#ForceGraph #transformGroup')
+      .attr('transform', d3.event.transform)
+    })
+
+    svg.call(zoom)
+  }
+
+  addNode (center, path, data) {
+    let transformGroup = document.querySelector('#ForceGraph #transformGroup')
+    center = center.matrixTransform(transformGroup.getCTM().inverse())
+
+    let node = {path: path}
+    let svg = d3.select('#ForceGraph #transformGroup')
+    svg.selectAll('g.nodes')
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append((d) => {
-      if (data) return ElementMakers.Node.call(this, center, d)
-      if (!data) return ElementMakers.NewNode.call(this, center, path)
-    })
+    .append((d) => ElementMakers.Node.call(this, center, path, data))
 
     let cache = { [path]: {} }
     let nodes = this.state.nodes
@@ -42,8 +71,16 @@ class ForceGraph extends React.Component {
 
   previewLink (link) {
     if (this.targetNode) Object.assign(link, { x2: this.targetNode.getCTM().e, y2: this.targetNode.getCTM().f })
-    let from = [link.x1, link.y1]
-    let to = [link.x2, link.y2]
+    let transformGroup = document.querySelector('#ForceGraph #transformGroup')
+    let pt = document.querySelector('#ForceGraph').createSVGPoint()
+    pt.x = link.x1
+    pt.y = link.y1
+    pt = pt.matrixTransform(transformGroup.getCTM().inverse())
+    let from = [pt.x, pt.y]
+    pt.x = link.x2
+    pt.y = link.y2
+    pt = pt.matrixTransform(transformGroup.getCTM().inverse())
+    let to = [pt.x, pt.y]
 
     function direction (observer, vector) {
       let svg = document.querySelector('#ForceGraph')
@@ -79,7 +116,7 @@ class ForceGraph extends React.Component {
     if (side === 'port') transform = `rotate(${degree - 180}) translate(-220, 0)`
     if (side === 'port') float = 'right'
 
-    d3.select('#ForceGraph')
+    d3.select('#ForceGraph #transformGroup')
     .selectAll('g.link')
     .data([link], (d) => d.relation)
     .enter()
@@ -101,12 +138,6 @@ class ForceGraph extends React.Component {
     .attr('transform', transform)
     .select('span')
     .style('float', float)
-
-    // let svg = document.querySelector('#ForceGraph')
-    // let pt = svg.createSVGPoint()
-    // pt.x = evt.clientX
-    // pt.y = evt.clientY
-    // return pt.matrixTransform(svg.getScreenCTM().inverse())
   }
 
   establishLink (link, from, to) {
@@ -216,39 +247,10 @@ class ForceGraph extends React.Component {
     // console.log(nodes, links);
   }
 
-  // draw () {
-  //   let nodes = this.state.nodes
-  //   let links = this.state.links
-  //   let center = this.state.center
-  //   let svg = d3.select('#ForceGraph')
-  //
-  //   this.simulation.nodes(nodes)
-  //   this.simulation.force('link', d3.forceLink(links).id((n) => n.key).distance(100))
-  //   this.simulation.force('charge', d3.forceManyBody())
-  //   this.simulation.force('center', d3.forceCenter(center.x, center.y))
-  //
-  //   this.simulation.alpha(1).restart()
-  //
-  //   this.simulation.on('tick', () => {
-  //     // console.log('tick', this.simulation.alpha());
-  //     svg.selectAll('circle')
-  //     .data(nodes)
-  //     .attr('cx', (n) => n.x)
-  //     .attr('cy', (n) => n.y)
-  //
-  //     svg.selectAll('line')
-  //     .data(links)
-  //     .attr('x1', (l) => l.source.x)
-  //     .attr('y1', (l) => l.source.y)
-  //     .attr('x2', (l) => l.target.x)
-  //     .attr('y2', (l) => l.target.y)
-  //   })
-  // }
-
   render () {
-    console.log(this.state);
+    console.log(this.state)
     return (
-      <svg id="ForceGraph" width='960px' height='540px' viewBox='0 0 960 540'>
+      <svg id="ForceGraph">
       </svg>
     )
   }

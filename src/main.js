@@ -15,12 +15,7 @@ class Main extends React.Component {
   }
 
   componentDidMount () {
-    // let symbol = document.querySelector('#NodeSymbol')
     let DropArea = document.querySelector('#DropArea')
-
-    // symbol.addEventListener('dragstart', () => {
-    //   console.log('dragStart');
-    // })
 
     DropArea.addEventListener('dragover', (event) => {
       event.preventDefault()

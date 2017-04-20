@@ -1,97 +1,21 @@
 let DragBehaviour = require('./DragBehaviour.js')
 
-function NewNode (center, path) {
+function Node (center, path, data) {
   let group = document.createElementNS(d3.namespaces.svg, 'g')
   let scope = this
 
   d3.select(group)
   .attr('transform', `translate(${center.x},${center.y})`)
+  .attr('class', 'nodes')
   .attr('id', path)
   .append('circle')
   .attr('r', '10')
-  .attr('fill', 'lightgrey')
+  .attr('fill', data ? 'red' : 'lightgrey')
   .attr('stroke', 'black')
   .attr('stroke-width', 0.5)
   .call(DragBehaviour.call(this))
   .on('mouseenter', function () { scope.targetNode = this.parentNode })
   .on('mouseleave', function () { scope.targetNode = null })
-
-  return group
-}
-
-function EmptyValue (center, path) {
-  let group = document.createElementNS(d3.namespaces.svg, 'g')
-  let scope = this
-
-  d3.select(group)
-  .attr('transform', `translate(${center.x},${center.y})`)
-  .attr('id', path)
-  .append('circle')
-  .attr('r', '10')
-  .attr('fill', 'white')
-  .attr('stroke', 'black')
-  .attr('stroke-width', '0.5')
-  .call(DragBehaviour.call(this))
-  .on('mouseenter', function () { scope.targetNode = this.parentNode })
-  .on('mouseleave', function () { scope.targetNode = null })
-
-  d3.select(group)
-  .append('foreignObject')
-  .append('xhtml:p')
-  .attr('contenteditable', 'true')
-  .attr('class', 'ValueInput')
-  .text('')
-  .on('blur', () => {
-    console.log('should update gun');
-  })
-
-  return group
-}
-
-function Node (center, data) {
-  let group = document.createElementNS(d3.namespaces.svg, 'g')
-  let scope = this
-
-  d3.select(group)
-  .attr('transform', `translate(${center.x},${center.y})`)
-  .attr('id', data.path)
-  .append('circle')
-  .attr('r', '10')
-  .attr('fill', 'red')
-  .attr('stroke', 'black')
-  .attr('stroke-width', 0.5)
-  .call(DragBehaviour.call(this))
-  .on('mouseenter', function () { scope.targetNode = this.parentNode })
-  .on('mouseleave', function () { scope.targetNode = null })
-
-  return group
-}
-
-function Value (center, data) {
-  let group = document.createElementNS(d3.namespaces.svg, 'g')
-  let scope = this
-
-  d3.select(group)
-  .attr('transform', `translate(${center.x},${center.y})`)
-  .attr('id', data.path)
-  .append('circle')
-  .attr('r', '10')
-  .attr('fill', 'white')
-  .attr('stroke', 'black')
-  .attr('stroke-width', '0.5')
-  .call(DragBehaviour.call(this))
-  .on('mouseenter', function () { scope.targetNode = this.parentNode })
-  .on('mouseleave', function () { scope.targetNode = null })
-
-  d3.select(group)
-  .append('foreignObject')
-  .append('xhtml:p')
-  .attr('contenteditable', 'true')
-  .attr('class', 'ValueInput')
-  .text('')
-  .on('blur', () => {
-    console.log('should update gun');
-  })
 
   return group
 }
@@ -136,7 +60,10 @@ function Link (relation, from, to) {
   .style('stroke-dasharray', ('3,3'))
   .style('stroke-width', '2')
   .attr('d', description)
-  .on('click', function () { console.log(this); })
+  .on('click', function () {
+    // TODO:
+    // add new path point
+  })
 
   let textOrientation = Math.atan2(0, 1)
   let target = Math.atan2(to[1] - from[1], to[0] - from[0])
@@ -184,8 +111,11 @@ function Link (relation, from, to) {
 
     scope.setState({links: Object.assign(scope.state.links, cache)})
   })
+  .on('mousedown', function () {
+    this.focus()
+  })
 
   return group
 }
 
-module.exports = { NewNode, EmptyValue, Node, Value, Link }
+module.exports = { Node, Link }
