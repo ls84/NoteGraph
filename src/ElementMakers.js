@@ -8,7 +8,8 @@ function Node (center, path, data) {
   .attr('transform', `translate(${center.x},${center.y})`)
   .attr('class', 'nodes')
   .attr('id', path)
-  .append('circle')
+
+  d3.select(group).append('circle')
   .attr('r', '10')
   .attr('fill', data ? 'red' : 'lightgrey')
   .attr('stroke', 'black')

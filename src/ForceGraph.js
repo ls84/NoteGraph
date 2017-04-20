@@ -221,7 +221,7 @@ class ForceGraph extends React.Component {
 
     this.setState({nodes: nodeCache, links: linkCache})
 
-    this.props.displayValues(path, values)
+    // this.props.displayValues(path, values)
     // TODO: set links state
 
     this.simulation.nodes(nodes)

@@ -6,15 +6,20 @@ class Main extends React.Component {
     this.state = {
       nodeColor: 'white'
     }
-    this.gun = Gun()
+    this.gun = Gun().get('app')
 
     this.pathChange = this.pathChange.bind(this)
-    this.displayValues = this.displayValues.bind(this)
-    // this.dragStart = this.dragStart.bind(this)
-    // this.dragOver = this.dragOver.bind(this)
   }
 
   componentDidMount () {
+    this.gun.val((data, key) => {
+      let graphData = {}
+      for (let key in data) {
+        if (key !== '_' && data[key] !== null) graphData[key] = data[key]
+      }
+      this.setState({path: 'app', data: graphData, rootCache: graphData})
+    })
+
     let DropArea = document.querySelector('#DropArea')
 
     DropArea.addEventListener('dragover', (event) => {
@@ -31,7 +36,7 @@ class Main extends React.Component {
       }
 
       let center = cursorPoint(event)
-      if (this.state.path === undefined) return this.forceGraph.addValue(center)
+      // if (this.state.path === undefined) return this.forceGraph.addValue(center)
       this.forceGraph.addNode(center, this.state.path, this.state.data)
     })
 
@@ -62,7 +67,7 @@ class Main extends React.Component {
   pathChange (event) {
     let input = event.target.value
 
-    if (input === '') return this.setState({path: undefined, nodeColor: 'white'})
+    if (input === '') return this.setState({path: 'app', data: this.rootCache, nodeColor: 'white'})
 
     let path = this.gun.get(input)
 
@@ -74,26 +79,8 @@ class Main extends React.Component {
       for (let key in data) {
         if (key !== '_' && data[key] !== null) graphData[key] = data[key]
       }
-      this.setState({data: graphData, path: input, nodeColor: 'red'})
+      this.setState({data: graphData, path: `app.${input}`, nodeColor: 'red'})
     })
-  }
-
-  displayValues (path, values) {
-    function value (key, value) {
-      let uniqueKey = `${path}.${key}`
-      return (
-        <div id={uniqueKey} key={uniqueKey}>
-          <p>{key}</p>
-          <p>{value}</p>
-        </div>
-      )
-    }
-    let lists = []
-    for (let key in values) {
-      lists.push(value(key, values[key]))
-    }
-
-    this.setState({values: lists})
   }
 
   render () {
