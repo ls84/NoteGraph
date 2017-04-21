@@ -39,7 +39,47 @@ function Node (center, path, data) {
   .text(path)
   .on('mousedown', function () { this.focus() })
 
+  function valueGroup (label, content) {
+    function onSelect () {
+      d3.select('#ForceGraph')
+      .on('.zoom', null)
+      this.focus()
+    }
+    function onBlur () {
+      d3.select('#ForceGraph')
+      .call(scope.zoom)
+      // TODO: update gun
+    }
+
+    let valuegroup = document.createElement('div')
+    d3.select(valuegroup)
+    .attr('class', 'valueGroup')
+
+    d3.select(valuegroup).append('xhtml:div')
+    .attr('class', 'valueLabel')
+    .attr('contenteditable', 'true')
+    .text(label)
+    .on('mousedown', onSelect)
+    .on('blur', onBlur)
+    .on('keydown', function () {
+      if (d3.event.key === 'Enter') {
+        d3.event.preventDefault()
+        this.parentNode.querySelector('.value').focus()
+      }
+    })
+
+    d3.select(valuegroup).append('xhtml:div')
+    .attr('class', 'value')
+    .attr('contenteditable', 'true')
+    .text(content)
+    .on('mousedown', onSelect)
+    .on('blur', onBlur)
+
+    return valuegroup
+  }
+
   let nodeValues = document.createElementNS(d3.namespaces.svg, 'foreignObject')
+
   d3.select(nodeValues)
   .attr('class', 'nodeValues')
   .attr('transform', 'translate(0,20)')
@@ -49,86 +89,16 @@ function Node (center, path, data) {
   .attr('class', 'moreValue')
   .text('+')
   .on('click', () => {
-    let div = d3.select(group).select('.nodeValues')
-    .insert('xhtml:div', '.valueGroup:nth-child(2)')
-    .attr('class', 'valueGroup')
+    let emptyValueGroup = valueGroup('', '')
+    d3.select(nodeValues)
+    .insert(() => emptyValueGroup, '.valueGroup:nth-child(2)')
 
-    let label = div.append('xhtml:div')
-    .attr('class', 'valueLabel')
-    .attr('contenteditable', 'true')
-    .on('mousedown', function () {
-      this.focus()
-      d3.select('#ForceGraph')
-      .on('.zoom', null)
-    })
-    .on('blur', function () {
-      d3.select('#ForceGraph')
-      .call(scope.zoom)
-    })
-
-    let value = div.append('xhtml:div')
-    .attr('class', 'value')
-    .attr('contenteditable', 'true')
-    .on('mousedown', function () {
-      this.focus()
-      d3.select('#ForceGraph')
-      .on('.zoom', null)
-    })
-    .on('blur', function () {
-      d3.select('#ForceGraph')
-      .call(scope.zoom)
-    })
-
-    label.node().focus()
-    label.on('keydown', function () {
-      if (d3.event.key === 'Enter') {
-        d3.event.preventDefault()
-        value.node().focus()
-      }
-    })
-
-    // TODO: update gun
-    // value.on('blur', function () { })
+    emptyValueGroup.querySelector('.valueLabel').focus()
   })
 
-  let values = []
   for (let key in data) {
-    if (typeof data[key] !== 'object') values.push(key)
+    if (typeof data[key] !== 'object') d3.select(nodeValues).append(() => valueGroup(key, data[key]))
   }
-
-  values.forEach((v) => {
-    let div = d3.select(nodeValues)
-    .append('xhtml:div')
-    .attr('class', 'valueGroup')
-
-    div.append('xhtml:div')
-    .attr('class', 'valueLabel')
-    .attr('contenteditable', 'true')
-    .text(v)
-    .on('mousedown', function () {
-      this.focus()
-      d3.select('#ForceGraph')
-      .on('.zoom', null)
-    })
-    .on('blur', function () {
-      d3.select('#ForceGraph')
-      .call(scope.zoom)
-    })
-
-    div.append('xhtml:div')
-    .attr('class', 'value')
-    .attr('contenteditable', 'true')
-    .text(data[v])
-    .on('mousedown', function () {
-      this.focus()
-      d3.select('#ForceGraph')
-      .on('.zoom', null)
-    })
-    .on('blur', function () {
-      d3.select('#ForceGraph')
-      .call(scope.zoom)
-    })
-  })
 
   d3.select(group).append(() => nodeValues)
 
