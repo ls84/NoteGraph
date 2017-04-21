@@ -43,12 +43,28 @@ function Node (center, path, data) {
     let label = div.append('xhtml:div')
     .attr('class', 'valueLabel')
     .attr('contenteditable', 'true')
-    .on('mousedown', function () { this.focus() })
+    .on('mousedown', function () {
+      this.focus()
+      d3.select('#ForceGraph')
+      .on('.zoom', null)
+    })
+    .on('blur', function () {
+      d3.select('#ForceGraph')
+      .call(scope.zoom)
+    })
 
     let value = div.append('xhtml:div')
     .attr('class', 'value')
     .attr('contenteditable', 'true')
-    .on('mousedown', function () { this.focus() })
+    .on('mousedown', function () {
+      this.focus()
+      d3.select('#ForceGraph')
+      .on('.zoom', null)
+    })
+    .on('blur', function () {
+      d3.select('#ForceGraph')
+      .call(scope.zoom)
+    })
 
     label.node().focus()
     label.on('keydown', function () {
@@ -77,13 +93,29 @@ function Node (center, path, data) {
     .attr('class', 'valueLabel')
     .attr('contenteditable', 'true')
     .text(v)
-    .on('mousedown', function () { this.focus() })
+    .on('mousedown', function () {
+      this.focus()
+      d3.select('#ForceGraph')
+      .on('.zoom', null)
+    })
+    .on('blur', function () {
+      d3.select('#ForceGraph')
+      .call(scope.zoom)
+    })
 
     div.append('xhtml:div')
     .attr('class', 'value')
     .attr('contenteditable', 'true')
     .text(data[v])
-    .on('mousedown', function () { this.focus() })
+    .on('mousedown', function () {
+      this.focus()
+      d3.select('#ForceGraph')
+      .on('.zoom', null)
+    })
+    .on('blur', function () {
+      d3.select('#ForceGraph')
+      .call(scope.zoom)
+    })
   })
 
   return group

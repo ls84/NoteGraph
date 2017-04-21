@@ -41,7 +41,7 @@ class ForceGraph extends React.Component {
       d3.select('#ForceGraph #transformGroup')
       .attr('transform', d3.event.transform)
     })
-
+    this.zoom = zoom
     svg.call(zoom)
   }
 
