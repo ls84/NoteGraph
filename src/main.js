@@ -84,7 +84,7 @@ class Main extends React.Component {
       for (let key in data) {
         if (key !== '_' && data[key] !== null) graphData[key] = data[key]
       }
-      this.setState({data: graphData, path: `app.${input}`, nodeColor: 'red'})
+      this.setState({data: graphData, path: input, nodeColor: 'red'})
     })
   }
 

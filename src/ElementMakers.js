@@ -32,6 +32,35 @@ function Node (center, path, data) {
   .attr('class', 'nodeValues')
   .attr('transform', 'translate(0,20)')
   .attr('width', '200px')
+  .append('xhtml:div')
+  .attr('class', 'moreValue')
+  .text('+')
+  .on('click', () => {
+    let div = d3.select(group).select('.nodeValues')
+    .insert('xhtml:div', '.valueGroup:nth-child(2)')
+    .attr('class', 'valueGroup')
+
+    let label = div.append('xhtml:div')
+    .attr('class', 'valueLabel')
+    .attr('contenteditable', 'true')
+    .on('mousedown', function () { this.focus() })
+
+    let value = div.append('xhtml:div')
+    .attr('class', 'value')
+    .attr('contenteditable', 'true')
+    .on('mousedown', function () { this.focus() })
+
+    label.node().focus()
+    label.on('keydown', function () {
+      if (d3.event.key === 'Enter') {
+        d3.event.preventDefault()
+        value.node().focus()
+      }
+    })
+
+    // TODO: update gun
+    // value.on('blur', function () { })
+  })
 
   // TODO: bind values
   let values = []
