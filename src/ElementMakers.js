@@ -19,6 +19,17 @@ function Node (center, path, data) {
   .on('mouseenter', function () { scope.targetNode = this.parentNode })
   .on('mouseleave', function () { scope.targetNode = null })
 
+  let boundingBox = d3.select(group).append('g')
+  .attr('class', 'boundingBox')
+
+  boundingBox.append('rect')
+  .attr('width', '200')
+  .attr('height', '200')
+
+  boundingBox.append('polygon')
+  .attr('transform', 'translate(195,195)')
+  .attr('points', '5,0 5,5 0,5')
+
   d3.select(group).append('foreignObject')
   .attr('class', 'pathLabel')
   .attr('transform', 'translate(20,-13)')
@@ -28,11 +39,13 @@ function Node (center, path, data) {
   .text(path)
   .on('mousedown', function () { this.focus() })
 
-  d3.select(group).append('foreignObject')
+  let nodeValues = document.createElementNS(d3.namespaces.svg, 'foreignObject')
+  d3.select(nodeValues)
   .attr('class', 'nodeValues')
   .attr('transform', 'translate(0,20)')
   .attr('width', '200px')
-  .append('xhtml:div')
+
+  d3.select(nodeValues).append('xhtml:div')
   .attr('class', 'moreValue')
   .text('+')
   .on('click', () => {
@@ -78,14 +91,13 @@ function Node (center, path, data) {
     // value.on('blur', function () { })
   })
 
-  // TODO: bind values
   let values = []
   for (let key in data) {
     if (typeof data[key] !== 'object') values.push(key)
   }
 
   values.forEach((v) => {
-    let div = d3.select(group).select('.nodeValues')
+    let div = d3.select(nodeValues)
     .append('xhtml:div')
     .attr('class', 'valueGroup')
 
@@ -117,6 +129,8 @@ function Node (center, path, data) {
       .call(scope.zoom)
     })
   })
+
+  d3.select(group).append(() => nodeValues)
 
   return group
 }
