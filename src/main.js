@@ -44,6 +44,7 @@ class Main extends React.Component {
     // const test = this.gun.get('test')
     // test.put({value: null})
     // test.put({name: 'test'})
+    // test.put({'other value': 'this is another value'})
     // const node = this.gun.get('node')
     // test.path('node 01').put(node.path('node1').put({name: '1st node'}))
     // test.path('node 02').put(node.path('node2').put({name: '2nd node'}))
@@ -62,12 +63,16 @@ class Main extends React.Component {
     // window.setTimeout(() => {
     //   this.setState({data:{}})
     // }, 1000)
+    // this.gun.get('test').path('node 02').val((data, key) => {console.log(data,key);})
+    // Gun().get('app').path('test').val((data, key) => {console.log(data,key);})
+    // this.gun.path('node.node1').val((data, key) => {console.log(data,key);})
+    // this.gun.path('node').val((data, key) => {console.log(data,key);})
   }
 
   pathChange (event) {
     let input = event.target.value
 
-    if (input === '') return this.setState({path: 'app', data: this.rootCache, nodeColor: 'white'})
+    if (input === '') return this.setState({path: 'app', data: this.state.rootCache, nodeColor: 'white'})
 
     let path = this.gun.get(input)
 

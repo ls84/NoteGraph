@@ -15,8 +15,47 @@ function Node (center, path, data) {
   .attr('stroke', 'black')
   .attr('stroke-width', 0.5)
   .call(DragBehaviour.call(this))
+  .on('click', function () { console.log(this);})
   .on('mouseenter', function () { scope.targetNode = this.parentNode })
   .on('mouseleave', function () { scope.targetNode = null })
+
+  d3.select(group).append('foreignObject')
+  .attr('class', 'pathLabel')
+  .attr('transform', 'translate(20,-13)')
+  .attr('width', '200px')
+  .append('xhtml:span')
+  .attr('contenteditable', 'true')
+  .text(path)
+  .on('mousedown', function () { this.focus() })
+
+  d3.select(group).append('foreignObject')
+  .attr('class', 'nodeValues')
+  .attr('transform', 'translate(0,20)')
+  .attr('width', '200px')
+
+  // TODO: bind values
+  let values = []
+  for (let key in data) {
+    if (typeof data[key] !== 'object') values.push(key)
+  }
+
+  values.forEach((v) => {
+    let div = d3.select(group).select('.nodeValues')
+    .append('xhtml:div')
+    .attr('class', 'valueGroup')
+
+    div.append('xhtml:div')
+    .attr('class', 'valueLabel')
+    .attr('contenteditable', 'true')
+    .text(v)
+    .on('mousedown', function () { this.focus() })
+
+    div.append('xhtml:div')
+    .attr('class', 'value')
+    .attr('contenteditable', 'true')
+    .text(data[v])
+    .on('mousedown', function () { this.focus() })
+  })
 
   return group
 }

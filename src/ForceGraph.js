@@ -61,7 +61,7 @@ class ForceGraph extends React.Component {
     let nodes = this.state.nodes
     this.setState({nodes: Object.assign(nodes, cache)})
 
-    if (data) this.expandLinks(center, path, data)
+    // if (data) this.expandLinks(center, path, data)
 
     // NOTE: this.state should act as cache for gun
     // let nodes = this.state.nodes.filter((v) => v.path !== path)

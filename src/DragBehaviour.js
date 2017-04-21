@@ -2,9 +2,10 @@ module.exports = function () {
   let scope = this
   let dragBehaviour = d3.drag()
 
-  dragBehaviour.on('start', function () {
-    scope.relationIterator ++
-  })
+  // dragBehaviour.on('start', function () {
+  //   console.log('what');
+  //   scope.relationIterator ++
+  // })
 
   dragBehaviour.on('drag', function () {
     let sourceEvent = d3.event.sourceEvent
@@ -34,6 +35,7 @@ module.exports = function () {
     if (sourceEvent.shiftKey && scope.targetNode) {
       scope.establishLink(`relation-${scope.relationIterator}`, this.parentNode.id, scope.targetNode.id)
     }
+    scope.relationIterator ++
   })
 
   return dragBehaviour
