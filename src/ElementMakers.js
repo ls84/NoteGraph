@@ -19,17 +19,6 @@ function Node (center, path, data) {
   .on('mouseenter', function () { scope.targetNode = this.parentNode })
   .on('mouseleave', function () { scope.targetNode = null })
 
-  let boundingBox = d3.select(group).append('g')
-  .attr('class', 'boundingBox')
-
-  boundingBox.append('rect')
-  .attr('width', '200')
-  .attr('height', '200')
-
-  boundingBox.append('polygon')
-  .attr('transform', 'translate(195,195)')
-  .attr('points', '5,0 5,5 0,5')
-
   d3.select(group).append('foreignObject')
   .attr('class', 'pathLabel')
   .attr('transform', 'translate(20,-13)')
@@ -84,6 +73,7 @@ function Node (center, path, data) {
   .attr('class', 'nodeValues')
   .attr('transform', 'translate(0,20)')
   .attr('width', '200px')
+  .attr('height', '200px')
 
   d3.select(nodeValues).append('xhtml:div')
   .attr('class', 'moreValue')
@@ -101,6 +91,29 @@ function Node (center, path, data) {
   }
 
   d3.select(group).append(() => nodeValues)
+
+  let boundingBox = d3.select(group).append('g')
+  .attr('class', 'boundingBox')
+
+  boundingBox.append('rect')
+  .attr('width', '200')
+  .attr('height', '200')
+
+  let dragResize = d3.drag()
+  dragResize.on('drag', () => {
+    let width = Math.max(0, parseFloat(boundingBox.select('rect').attr('width')) + d3.event.dx)
+    let height = Math.max(20, parseFloat(boundingBox.select('rect').attr('height')) + d3.event.dy)
+    boundingBox.select('rect').attr('width', width).attr('height', height)
+    d3.select(nodeValues).attr('width', width).attr('height', `${height - 20}`)
+    let handleX = Math.max(0, width - 5)
+    let handleY = Math.max(0, height - 5)
+    boundingBox.select('polygon').attr('transform', `translate(${handleX},${handleY})`)
+  })
+
+  boundingBox.append('polygon')
+  .attr('transform', 'translate(195,195)')
+  .attr('points', '5,0 5,5 0,5')
+  .call(dragResize)
 
   return group
 }
