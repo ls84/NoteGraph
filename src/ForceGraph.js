@@ -1,4 +1,6 @@
-let ElementMakers = require('./ElementMakers.js')
+// let ElementMakers = require('./ElementMakers.js')
+let ElementMaker = require('./ElementMaker.js')
+// let Node = require('./Node.js')
 
 class ForceGraph extends React.Component {
   constructor (props) {
@@ -7,6 +9,8 @@ class ForceGraph extends React.Component {
       nodes: {},
       links: {}
     }
+
+    this.ElementMaker = new ElementMaker(this)
 
     this.valueIterator = 0
     this.relationIterator = 0
@@ -55,7 +59,7 @@ class ForceGraph extends React.Component {
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
-    .append((d) => ElementMakers.Node.call(this, center, path, data))
+    .append(d => this.ElementMaker.Node(center, path, data))
 
     let cache = { [path]: {} }
     let nodes = this.state.nodes
