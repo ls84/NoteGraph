@@ -21,7 +21,7 @@ class ForceGraph extends React.Component {
     let width = window.innerWidth - 16
     let height = window.innerHeight - 70
     // NOTE: do i need this state?
-    this.setState({width, height})
+    // this.setState({width, height})
     let svg = document.querySelector('#ForceGraph')
     svg.setAttribute('width', `${width}px`)
     svg.setAttribute('height', `${height}px`)

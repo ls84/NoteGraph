@@ -38,8 +38,8 @@ class ElementMaker extends Elements {
 
     dragBehaviour.on('end', (d, i, g) => {
       let sourceEvent = d3.event.sourceEvent
-      if (!this.targetNode) this.graph.removeLink(`relation-${this.graph.relationIterator}`)
-      if (sourceEvent.shiftKey && this.targetNode) {
+      if (!this.graph.targetNode) this.graph.removeLink(`relation-${this.graph.relationIterator}`)
+      if (sourceEvent.shiftKey && this.graph.targetNode) {
         this.graph.establishLink(`relation-${this.graph.relationIterator}`, g[i].parentNode.id, this.graph.targetNode.id)
       }
       this.graph.relationIterator ++
