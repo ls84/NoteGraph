@@ -13,7 +13,7 @@ class Elements extends Primitives {
     .attr('class', 'nodeLabel')
     .attr('transform', 'translate(20,-13)')
     .attr('width', this.defaultWidth)
-    .append(() => this.div('path', path, true))
+    .append(() => this.div('label', path, true))
 
     return nodeLabel
   }
@@ -45,6 +45,33 @@ class Elements extends Primitives {
     .attr('points', '5,0 5,5 0,5')
 
     return boundingBox
+  }
+
+  linkPath (from, to) {
+    let curve = d3.line()
+    let description = curve([from, to])
+
+    let path = document.createElementNS(d3.namespaces.svg, 'path')
+    d3.select(path)
+    .attr('transform', `translate(-${from[0]},-${from[1]})`)
+    .attr('class', 'path')
+    .attr('d', description)
+    // .on('click', function () {
+    //   // TODO:
+    //   // add new path point
+    // })
+
+    return path
+  }
+
+  linkLabel () {
+    let label = document.createElementNS(d3.namespaces.svg, 'foreignObject')
+    d3.select(label)
+    .attr('width', this.defaultWidth)
+    .append(() => this.div())
+    .text('predicate')
+
+    return label
   }
 }
 

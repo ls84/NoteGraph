@@ -1,4 +1,5 @@
 let Elements = require('./Elements.js')
+let textOrientation = require('./textOrientation.js')
 
 class ElementMaker extends Elements {
   constructor (graph) {
@@ -113,7 +114,7 @@ class ElementMaker extends Elements {
     .call(this.nodeMove)
 
     let nodeLabel = this.nodeLabel(path)
-    d3.select(nodeLabel).select('.path')
+    d3.select(nodeLabel).select('.label')
     .call(this.editCotent)
 
     let nodeValues = this.nodeValues(data)
@@ -132,6 +133,22 @@ class ElementMaker extends Elements {
     d3.select(group).append(() => nodeLabel)
     d3.select(group).append(() => nodeValues)
     d3.select(group).append(() => boundingBox)
+
+    return group
+  }
+
+  Link (from, to, relation) {
+    let group = this.group('links', relation)
+    d3.select(group)
+    .attr('transform', `translate(${from[0]},${from[1]})`)
+
+    let linkPath = this.linkPath(from, to)
+
+    let linkLabel = this.linkLabel()
+    d3.select(linkLabel).attr('transform', textOrientation(from, to).transform)
+
+    d3.select(group).append(() => linkPath)
+    d3.select(group).append(() => linkLabel)
 
     return group
   }

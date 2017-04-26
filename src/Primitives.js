@@ -1,6 +1,7 @@
 class Primitives {
 
   point (x, y) {
+    // NOTE: depends on the svg element
     let pt = document.querySelector('#ForceGraph').createSVGPoint()
     pt.x = x
     pt.y = y
