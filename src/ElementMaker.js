@@ -7,6 +7,7 @@ class ElementMaker extends Elements {
     this.graph = graph
     this.nodeMove = this.nodeMove.bind(this)
     this.nodeResize = this.nodeResize.bind(this)
+    this.nodeTarget = this.nodeTarget.bind(this)
     this.editCotent = this.editCotent.bind(this)
     this.returnOnNewLine = this.returnOnNewLine.bind(this)
     this.addValue = this.addValue.bind(this)
@@ -28,7 +29,7 @@ class ElementMaker extends Elements {
       }
 
       if (sourceEvent.shiftKey) {
-        let relation = `relation-${this.relationIterator}`
+        let relation = `relation-${this.graph.relationIterator}`
         let origin = g[i].parentNode.getCTM()
         let cursor = d3.mouse(document.querySelector('#ForceGraph'))
         this.graph.previewLink({relation, x1: origin.e, y1: origin.f, x2: cursor[0], y2: cursor[1]})
@@ -37,7 +38,7 @@ class ElementMaker extends Elements {
 
     dragBehaviour.on('end', (d, i, g) => {
       let sourceEvent = d3.event.sourceEvent
-      if (!this.targetNode) this.graph.removeLink(`relation-${this.relationIterator}`)
+      if (!this.targetNode) this.graph.removeLink(`relation-${this.graph.relationIterator}`)
       if (sourceEvent.shiftKey && this.targetNode) {
         this.graph.establishLink(`relation-${this.graph.relationIterator}`, g[i].parentNode.id, this.graph.targetNode.id)
       }
@@ -45,6 +46,11 @@ class ElementMaker extends Elements {
     })
 
     selection.call(dragBehaviour)
+  }
+
+  nodeTarget (selection) {
+    selection.on('mouseenter', (d, i, g) => { this.graph.targetNode = g[i].parentNode })
+    selection.on('mouseleave', () => { this.graph.targetNode = null })
   }
 
   nodeResize (selection) {
@@ -111,7 +117,7 @@ class ElementMaker extends Elements {
     let nodeHandle = this.circle(data)
     d3.select(nodeHandle)
     .attr('fill', data ? 'red' : 'lightgrey')
-    .call(this.nodeMove)
+    .call(this.nodeMove).call(this.nodeTarget)
 
     let nodeLabel = this.nodeLabel(path)
     d3.select(nodeLabel).select('.label')

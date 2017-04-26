@@ -1,5 +1,5 @@
 let ElementMaker = require('./ElementMaker.js')
-let TextOrientation = require('./textOrientation.js')
+let textOrientation = require('./textOrientation.js')
 
 class ForceGraph extends React.Component {
   constructor (props) {
@@ -10,8 +10,6 @@ class ForceGraph extends React.Component {
     }
 
     this.ElementMaker = new ElementMaker(this)
-
-    this.valueIterator = 0
     this.relationIterator = 0
 
     this.simulation = d3.forceSimulation()
@@ -87,10 +85,10 @@ class ForceGraph extends React.Component {
     .selectAll('g.links')
     .data([link], (d) => d.relation)
     .enter()
-    .insert((d) => this.ElementMaker.Link(from, to, d.relation))
+    .insert((d) => this.ElementMaker.Link(from, to, d.relation), '.nodes:first-child')
 
     let description = d3.line()([from, to])
-    let oritation = TextOrientation(from, to)
+    let oritation = textOrientation(from, to)
 
     d3.select('#ForceGraph').selectAll('g.links')
     .data([link], (d) => d.relation)
@@ -106,8 +104,8 @@ class ForceGraph extends React.Component {
   }
 
   establishLink (link, from, to) {
-    d3.select('#ForceGraph')
-    .selectAll('g.link')
+    d3.select('#ForceGraph #transformGroup')
+    .selectAll('g.links')
     .data([{link}], function (d) { return d.link ? d.link : this.id })
     .attr('id', `${from}->${to}`)
 
@@ -130,8 +128,8 @@ class ForceGraph extends React.Component {
   }
 
   removeLink (link) {
-    d3.select('#ForceGraph')
-    .selectAll('g.link')
+    d3.select('#ForceGraph #transformGroup')
+    .selectAll('g.links')
     .data([{link}], function (d) { return d.link ? d.link : this.id })
     .remove()
   }
