@@ -1,5 +1,6 @@
 let ElementMaker = require('./ElementMaker.js')
-let textOrientation = require('./textOrientation.js')
+// let textOrientation = require('./textOrientation.js')
+let linkMove = require('./linkMove.js')
 
 class ForceGraph extends React.Component {
   constructor (props) {
@@ -58,9 +59,11 @@ class ForceGraph extends React.Component {
     .enter()
     .append(d => this.ElementMaker.Node(center, path, data))
 
-    let cache = { [path]: {} }
-    let nodes = this.state.nodes
-    this.setState({nodes: Object.assign(nodes, cache)})
+    let cache = { nodes: this.state.nodes, links: this.state.links }
+    cache.nodes[path] = data || {}
+    cache.links[path] = { position: [center.x, center.y] }
+
+    this.setState(cache)
 
     // if (data) this.expandLinks(center, path, data)
 
@@ -85,22 +88,9 @@ class ForceGraph extends React.Component {
     .selectAll('g.links')
     .data([link], (d) => d.relation)
     .enter()
-    .insert((d) => this.ElementMaker.Link(from, to, d.relation), '.nodes:first-child')
+    .insert((d) => this.ElementMaker.Link(from, to, d.relation), ':first-child')
 
-    let description = d3.line()([from, to])
-    let oritation = textOrientation(from, to)
-
-    d3.select('#ForceGraph').selectAll('g.links')
-    .data([link], (d) => d.relation)
-    .select('.path')
-    .attr('d', description)
-
-    d3.select('#ForceGraph').selectAll('g.links')
-    .data([link], (d) => d.relation)
-    .select('foreignObject')
-    .attr('transform', oritation.transform)
-    .select('div')
-    .attr('align', oritation.align)
+    linkMove(link, [from, to])
   }
 
   establishLink (link, from, to) {
@@ -110,19 +100,14 @@ class ForceGraph extends React.Component {
     .attr('id', `${from}->${to}`)
 
     let cache = this.state.links
+    let linkName = `${from}->${to}`
+    let linkPath = [cache[from].position, cache[to].position]
 
-    if (cache[from]) {
-      if (cache[from]['from']) cache[from]['from'].push(`${from}->${to}`)
-      if (!cache[from]['from']) cache[from]['from'] = [`${from}->${to}`]
-    }
+    if (cache[from]['from']) cache[from]['from'][linkName] = linkPath
+    if (cache[to]['to']) cache[to]['to'][linkName] = linkPath
 
-    if (cache[to]) {
-      if (cache[to]['to']) cache[to]['to'].push(`${from}->${to}`)
-      if (!cache[to]['to']) cache[to]['to'] = [`${from}->${to}`]
-    }
-
-    if (!cache[from]) cache[from] = { 'from': [`${from}->${to}`] }
-    if (!cache[to]) cache[to] = { 'to': [`${from}->${to}`] }
+    if (!cache[from]['from']) cache[from] = Object.assign(cache[from], {'from': {[linkName]: linkPath}})
+    if (!cache[to]['to']) cache[to] = Object.assign(cache[to], {'to': {[linkName]: linkPath}})
 
     this.setState({links: cache})
   }
@@ -134,70 +119,70 @@ class ForceGraph extends React.Component {
     .remove()
   }
 
-  expandLinks (center, path, data) {
-    let nodes = [{path: path, fx: center.x, fy: center.y}]
-    let links = []
-    let nodeCache = this.state.nodes
-    let linkCache = this.state.links
-    let values = {}
-
-    for (let key in data) {
-      if (typeof data[key] !== 'object') {
-        values[key] = data[key]
-      }
-
-      if (typeof data[key] === 'object') {
-        let node = { path: `${path}.${key}` }
-        Object.assign(node, data[key])
-        nodes.push(node)
-        links.push({source: path, target: `${path}.${key}`})
-        nodeCache[`${path}.${key}`] = {}
-        if (!linkCache[path]) linkCache[path] = {}
-        if (linkCache[path].from) linkCache[path].from.push(`${path}->${key}->${path}.${key}`)
-        if (!linkCache[path].from) linkCache[path].from = [`${path}->${key}->${path}.${key}`]
-
-        if (!linkCache[`${path}.${key}`]) linkCache[`${path}.${key}`] = {}
-        if (linkCache[`${path}.${key}`].to) linkCache[`${path}.${key}`].to.push(`${path}->${key}->${path}.${key}`)
-        if (!linkCache[`${path}.${key}`].to) linkCache[`${path}.${key}`].to = [`${path}->${key}->${path}.${key}`]
-      }
-    }
-
-    let svg = d3.select('#ForceGraph')
-
-    svg.selectAll('g')
-    .data(nodes, function (d) { return d ? d.path : this.id })
-    .enter()
-    .append((d) => {
-      return ElementMakers.Node.call(this, center, d)
-    })
-
-    this.setState({nodes: nodeCache, links: linkCache})
-
-    // this.props.displayValues(path, values)
-    // TODO: set links state
-
-    this.simulation.nodes(nodes)
-    this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))
-    this.simulation.force('charge', d3.forceManyBody())
-    this.simulation.force('center', d3.forceCenter(center.x, center.y))
-
-    this.simulation.alpha(1).restart()
-
-    this.simulation.on('tick', () => {
-      // console.log(this.simulation.alpha);
-      svg.selectAll('g')
-      .data(nodes, function (d) { return d ? d.path : this.id })
-      .attr('transform', (n) => `translate(${n.x},${n.y})`)
-
-      // svg.selectAll('line')
-      // .data(links)
-      // .attr('x1', (l) => l.source.x)
-      // .attr('y1', (l) => l.source.y)
-      // .attr('x2', (l) => l.target.x)
-      // .attr('y2', (l) => l.target.y)
-    })
-    // console.log(nodes, links);
-  }
+  // expandLinks (center, path, data) {
+  //   let nodes = [{path: path, fx: center.x, fy: center.y}]
+  //   let links = []
+  //   let nodeCache = this.state.nodes
+  //   let linkCache = this.state.links
+  //   let values = {}
+  //
+  //   for (let key in data) {
+  //     if (typeof data[key] !== 'object') {
+  //       values[key] = data[key]
+  //     }
+  //
+  //     if (typeof data[key] === 'object') {
+  //       let node = { path: `${path}.${key}` }
+  //       Object.assign(node, data[key])
+  //       nodes.push(node)
+  //       links.push({source: path, target: `${path}.${key}`})
+  //       nodeCache[`${path}.${key}`] = {}
+  //       if (!linkCache[path]) linkCache[path] = {}
+  //       if (linkCache[path].from) linkCache[path].from.push(`${path}->${key}->${path}.${key}`)
+  //       if (!linkCache[path].from) linkCache[path].from = [`${path}->${key}->${path}.${key}`]
+  //
+  //       if (!linkCache[`${path}.${key}`]) linkCache[`${path}.${key}`] = {}
+  //       if (linkCache[`${path}.${key}`].to) linkCache[`${path}.${key}`].to.push(`${path}->${key}->${path}.${key}`)
+  //       if (!linkCache[`${path}.${key}`].to) linkCache[`${path}.${key}`].to = [`${path}->${key}->${path}.${key}`]
+  //     }
+  //   }
+  //
+  //   let svg = d3.select('#ForceGraph')
+  //
+  //   svg.selectAll('g')
+  //   .data(nodes, function (d) { return d ? d.path : this.id })
+  //   .enter()
+  //   .append((d) => {
+  //     return ElementMakers.Node.call(this, center, d)
+  //   })
+  //
+  //   this.setState({nodes: nodeCache, links: linkCache})
+  //
+  //   // this.props.displayValues(path, values)
+  //   // TODO: set links state
+  //
+  //   this.simulation.nodes(nodes)
+  //   this.simulation.force('link', d3.forceLink(links).id((n) => n.path).distance(100))
+  //   this.simulation.force('charge', d3.forceManyBody())
+  //   this.simulation.force('center', d3.forceCenter(center.x, center.y))
+  //
+  //   this.simulation.alpha(1).restart()
+  //
+  //   this.simulation.on('tick', () => {
+  //     // console.log(this.simulation.alpha);
+  //     svg.selectAll('g')
+  //     .data(nodes, function (d) { return d ? d.path : this.id })
+  //     .attr('transform', (n) => `translate(${n.x},${n.y})`)
+  //
+  //     // svg.selectAll('line')
+  //     // .data(links)
+  //     // .attr('x1', (l) => l.source.x)
+  //     // .attr('y1', (l) => l.source.y)
+  //     // .attr('x2', (l) => l.target.x)
+  //     // .attr('y2', (l) => l.target.y)
+  //   })
+  //   // console.log(nodes, links);
+  // }
 
   render () {
     console.log(this.state)

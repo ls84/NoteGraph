@@ -68,8 +68,7 @@ class Elements extends Primitives {
     let label = document.createElementNS(d3.namespaces.svg, 'foreignObject')
     d3.select(label)
     .attr('width', this.defaultWidth)
-    .append(() => this.div())
-    .text('predicate')
+    .append(() => this.div('linkLabel', 'predicate', true))
 
     return label
   }

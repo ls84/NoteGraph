@@ -1,5 +1,6 @@
 let Elements = require('./Elements.js')
 let textOrientation = require('./textOrientation.js')
+let linkMove = require('./linkMove.js')
 
 class ElementMaker extends Elements {
   constructor (graph) {
@@ -23,8 +24,22 @@ class ElementMaker extends Elements {
         let transformGroup = document.querySelector('#ForceGraph #transformGroup')
         let pt = this.point(cursor[0], cursor[1])
         pt = pt.matrixTransform(transformGroup.getCTM().inverse())
-        d3.select(g[i].parentNode)
-        .attr('transform', `translate(${pt.x},${pt.y})`)
+
+        d3.select(g[i].parentNode).attr('transform', `translate(${pt.x},${pt.y})`)
+        let cache = this.graph.state.links[g[i].parentNode.id]
+        if (cache['from']) {
+          for (let key in cache['from']) {
+            cache['from'][key].splice(0, 1, [pt.x, pt.y])
+            linkMove({relation: key}, cache['from'][key])
+          }
+        }
+
+        // linkMove(g[i].parentNode.id, pt)
+        // let cache = this.graph.state.links[g[i].parentNode.id]
+        // cache.position = [pt.x, pt.y]
+        // if (cache['from']) for (let key in cache['from']) { linkMove(key, cache['from'][key], 'from') }
+        // if (cache['to']) for (let key in cache['to']) { linkMove(key, cache['to'][key], 'to') }
+        // TODO: setState
         // TODO: drag links along
       }
 
@@ -152,6 +167,7 @@ class ElementMaker extends Elements {
 
     let linkLabel = this.linkLabel()
     d3.select(linkLabel).attr('transform', textOrientation(from, to).transform)
+    .call(this.editCotent)
 
     d3.select(group).append(() => linkPath)
     d3.select(group).append(() => linkLabel)
