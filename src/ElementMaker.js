@@ -27,6 +27,8 @@ class ElementMaker extends Elements {
 
         d3.select(g[i].parentNode).attr('transform', `translate(${pt.x},${pt.y})`)
         let cache = this.graph.state.links[g[i].parentNode.id]
+        // state is updated
+        cache.position = [pt.x, pt.y]
         if (cache['from']) {
           for (let key in cache['from']) {
             cache['from'][key].splice(0, 1, [pt.x, pt.y])
@@ -39,14 +41,6 @@ class ElementMaker extends Elements {
             linkMove({relation: key}, cache['to'][key])
           }
         }
-
-        // linkMove(g[i].parentNode.id, pt)
-        // let cache = this.graph.state.links[g[i].parentNode.id]
-        // cache.position = [pt.x, pt.y]
-        // if (cache['from']) for (let key in cache['from']) { linkMove(key, cache['from'][key], 'from') }
-        // if (cache['to']) for (let key in cache['to']) { linkMove(key, cache['to'][key], 'to') }
-        // TODO: setState
-        // TODO: drag links along
       }
 
       if (sourceEvent.shiftKey) {
