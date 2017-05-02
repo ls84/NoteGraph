@@ -76,14 +76,15 @@ class ElementMaker extends Elements {
       let nodeValues = d3.select(g[i].parentNode.parentNode).select('foreignObject.nodeValues')
 
       let width = Math.max(0, parseFloat(boundingBox.attr('width')) + d3.event.dx)
-      let height = Math.max(20, parseFloat(boundingBox.attr('height')) + d3.event.dy)
-
+      let height = Math.max(0, parseFloat(boundingBox.attr('height')) + d3.event.dy)
+      // expand x first
+      if (width < 15) height = 0
       boundingBox.attr('width', width).attr('height', height)
-      nodeLabel.attr('width', width).attr('height', height)
-      nodeValues.attr('width', width).attr('height', height)
+      nodeLabel.attr('width', (width > 15) ? width - 15 : 0)
+      nodeValues.attr('width', width).attr('height', (height > 15) ? height - 15 : 0)
 
-      let handleX = Math.max(0, width - 5)
-      let handleY = Math.max(0, height + 15)
+      let handleX = Math.max(5, (width < 15) ? 5 : width)
+      let handleY = Math.max(5, (height < 15) ? 5 : height + 15)
 
       d3.select(g[i]).attr('transform', `translate(${handleX},${handleY})`)
     })

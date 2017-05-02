@@ -12,7 +12,7 @@ class Elements extends Primitives {
     d3.select(nodeLabel)
     .attr('class', 'nodeLabel')
     .attr('transform', 'translate(20,-13)')
-    .attr('width', this.defaultWidth)
+    .attr('width', this.defaultWidth).attr('height', '24px')
     .append(() => this.div('label', path, true))
 
     return nodeLabel
