@@ -33,6 +33,12 @@ class ElementMaker extends Elements {
             linkMove({relation: key}, cache['from'][key])
           }
         }
+        if (cache['to']) {
+          for (let key in cache['to']) {
+            cache['to'][key].splice(1, 1, [pt.x, pt.y])
+            linkMove({relation: key}, cache['to'][key])
+          }
+        }
 
         // linkMove(g[i].parentNode.id, pt)
         // let cache = this.graph.state.links[g[i].parentNode.id]

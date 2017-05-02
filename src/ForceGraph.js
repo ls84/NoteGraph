@@ -83,7 +83,6 @@ class ForceGraph extends React.Component {
     pt = this.ElementMaker.point(link.x2, link.y2)
     pt = pt.matrixTransform(transformGroup.getCTM().inverse())
     let to = [pt.x, pt.y]
-
     d3.select('#ForceGraph #transformGroup')
     .selectAll('g.links')
     .data([link], (d) => d.relation)
@@ -96,7 +95,8 @@ class ForceGraph extends React.Component {
   establishLink (link, from, to) {
     d3.select('#ForceGraph #transformGroup')
     .selectAll('g.links')
-    .data([{link}], function (d) { return d.link ? d.link : this.id })
+    .data([{relation: link}], (d) => d.relation)
+    .datum(function (d) { return {relation: `${from}->${to}`} })
     .attr('id', `${from}->${to}`)
 
     let cache = this.state.links
@@ -115,7 +115,7 @@ class ForceGraph extends React.Component {
   removeLink (link) {
     d3.select('#ForceGraph #transformGroup')
     .selectAll('g.links')
-    .data([{link}], function (d) { return d.link ? d.link : this.id })
+    .data([{relation: link}], (d) => d.relation)
     .remove()
   }
 
@@ -185,7 +185,7 @@ class ForceGraph extends React.Component {
   // }
 
   render () {
-    console.log(this.state)
+    console.log('state:', this.state)
     return (
       <svg id="ForceGraph">
       </svg>

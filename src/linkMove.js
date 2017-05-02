@@ -11,7 +11,7 @@ function linkMove (link, path) {
   d3.select('#ForceGraph').selectAll('g.links')
   .data([link], (d) => d.relation)
   .select('.path')
-  .attr('transform', `translate(-${path[0][0]},-${path[0][1]})`)
+  .attr('transform', `translate(${path[0][0] * -1},${path[0][1] * -1})`)
   .attr('d', description)
 
   d3.select('#ForceGraph').selectAll('g.links')
