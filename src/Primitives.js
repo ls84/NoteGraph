@@ -37,9 +37,7 @@ class Primitives {
 
   valueGroup (label, content) {
     let valuegroup = this.div('valueGroup')
-    let div = d3.select(valuegroup).append(() => this.div())
-    div.append(() => this.div('valueLabel', label, true))
-    div.append(() => this.div('valueRemove', 'x'))
+    d3.select(valuegroup).append(() => this.div('valueLabel', label, true))
     d3.select(valuegroup).append(() => this.div('value', content, true))
 
     return valuegroup

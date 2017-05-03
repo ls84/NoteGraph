@@ -63,11 +63,6 @@ class ElementMaker extends Elements {
     selection.call(dragBehaviour)
   }
 
-  nodeTarget (selection) {
-    selection.on('mouseenter', (d, i, g) => { this.graph.targetNode = g[i].parentNode })
-    selection.on('mouseleave', () => { this.graph.targetNode = null })
-  }
-
   nodeResize (selection) {
     let resize = d3.drag()
     resize.on('drag', (d, i, g) => {
@@ -90,6 +85,17 @@ class ElementMaker extends Elements {
     })
 
     selection.call(resize)
+  }
+
+  nodeTarget (selection) {
+    selection.on('mouseenter', (d, i, g) => {
+      this.graph.targetNode = g[i].parentNode
+      this.graph.comandContext = {type: 'node', target: g[i].parentNode}
+    })
+    selection.on('mouseleave', () => {
+      this.graph.targetNode = null
+      this.graph.comandContext = null
+    })
   }
 
   editCotent (selection) {

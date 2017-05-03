@@ -10,6 +10,8 @@ class ForceGraph extends React.Component {
       links: {}
     }
 
+    this.comandContext = null
+
     this.ElementMaker = new ElementMaker(this)
     this.relationIterator = 0
 
@@ -33,6 +35,17 @@ class ForceGraph extends React.Component {
   componentDidMount () {
     this.setGraphSize()
     window.onresize = this.setGraphSize
+
+    window.onkeyup = function (event) {
+      let comand = (this.comandContext ? this.comandContext.type : 'window') + '.' + event.key
+      switch (comand) {
+        case 'node.h':
+          console.log(this.comandContext.target);
+          break
+        default:
+          console.log(this.comandContext);
+      }
+    }.bind(this)
 
     let svg = d3.select('#ForceGraph')
     let transformGroup = svg.append('g')

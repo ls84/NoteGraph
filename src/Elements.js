@@ -9,14 +9,11 @@ class Elements extends Primitives {
 
   nodeLabel (path) {
     let nodeLabel = document.createElementNS(d3.namespaces.svg, 'foreignObject')
-    let div = d3.select(nodeLabel)
+    d3.select(nodeLabel)
     .attr('class', 'nodeLabel')
     .attr('transform', 'translate(20,-13)')
     .attr('width', this.defaultWidth).attr('height', '24px')
-    .append(() => this.div())
-
-    div.append(() => this.div('label', path, true))
-    div.append(() => this.div('nodeRemove', 'x'))
+    .append(() => this.div('label', path, true))
 
     return nodeLabel
   }
@@ -28,7 +25,6 @@ class Elements extends Primitives {
     .attr('transform', 'translate(0,20)')
     .attr('width', this.defaultWidth)
     .attr('height', this.defaultHeight)
-    .append(() => this.div('moreValue', '+'))
 
     for (let key in data) {
       if (typeof data[key] !== 'object') d3.select(nodeValues).append(() => this.valueGroup(key, data[key]))
@@ -70,7 +66,7 @@ class Elements extends Primitives {
   linkLabel () {
     let label = document.createElementNS(d3.namespaces.svg, 'foreignObject')
     d3.select(label)
-    .attr('width', this.defaultWidth)
+    .attr('width', '200')
     .append(() => this.div('linkLabel', 'predicate', true))
 
     return label
