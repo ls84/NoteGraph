@@ -20,10 +20,6 @@ class Main extends React.Component {
       this.setState({path: 'app', data: graphData, rootCache: graphData})
     })
 
-    document.querySelector('div#NodeInteract #PathInput').addEventListener('blur', (event) => {
-      if (event.target.value === '') document.querySelector('div#NodeInteract').classList.remove('show')
-    })
-
     let DropArea = document.querySelector('#DropArea')
 
     DropArea.addEventListener('dragover', (event) => {
@@ -43,6 +39,11 @@ class Main extends React.Component {
       // if (this.state.path === undefined) return this.forceGraph.addValue(center)
       this.forceGraph.addNode(center, this.state.path, this.state.data)
       document.querySelector('div#NodeInteract').classList.remove('show')
+    })
+
+    DropArea.addEventListener('click', (event) => {
+      let NodeInteract = document.querySelector('div#NodeInteract')
+      if (NodeInteract.classList.value === 'show') NodeInteract.classList.remove('show')
     })
 
     // keeping this data injection for now
@@ -94,7 +95,6 @@ class Main extends React.Component {
   }
 
   render () {
-    // let style = {height: '51px', width: '100%'}
     return (
       <div>
         <div id="DropArea">
@@ -112,25 +112,6 @@ class Main extends React.Component {
         </div>
       </div>
     )
-
-    // return (
-    //   <div>
-    //     <div style={style}>
-    //       <div draggable='true' id="NodeSymbol">
-    //         <svg width="20px" height="20px" viewBox="0 0 20 20" >
-    //           <circle r="9" cx="10" cy="10" fill={this.state.nodeColor} stroke='grey' strokeWidth="0.5" />
-    //         </svg>
-    //       </div>
-    //       <input type='text' id="PathInput" onChange={this.pathChange} />
-    //     </div>
-    //     <div id="DropArea">
-    //       <ForceGraph ref={(c) => { this.forceGraph = c }} displayValues={ this.displayValues }/>
-    //     </div>
-    //     <div id="NodeValue">
-    //       {this.state.values}
-    //     </div>
-    //   </div>
-    // )
   }
 }
 

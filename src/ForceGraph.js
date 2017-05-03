@@ -43,9 +43,11 @@ class ForceGraph extends React.Component {
           console.log(this.commandContext.target);
           break
         case 'window.n':
-          let NodeInteract = document.querySelector('div#NodeInteract')
-          NodeInteract.classList.add('show')
-          NodeInteract.querySelector('#PathInput').focus()
+          if (document.activeElement.tagName === 'BODY') {
+            let NodeInteract = document.querySelector('div#NodeInteract')
+            NodeInteract.classList.add('show')
+            NodeInteract.querySelector('#PathInput').focus()
+          }
           break
         default:
           console.log(this.commandContext);
