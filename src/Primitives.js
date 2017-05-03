@@ -31,16 +31,15 @@ class Primitives {
     .attr('r', '10')
     .attr('stroke', 'black')
     .attr('stroke-width', 0.5)
-    // .call(this.moveNode)
-    // .on('mouseenter', (d, i, g) => { this.graph.targetNode = g[i].parentNode })
-    // .on('mouseleave', () => { this.graph.targetNode = null })
 
     return circle
   }
 
   valueGroup (label, content) {
     let valuegroup = this.div('valueGroup')
-    d3.select(valuegroup).append(() => this.div('valueLabel', label, true))
+    let div = d3.select(valuegroup).append(() => this.div())
+    div.append(() => this.div('valueLabel', label, true))
+    div.append(() => this.div('valueRemove', 'x'))
     d3.select(valuegroup).append(() => this.div('value', content, true))
 
     return valuegroup
