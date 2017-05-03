@@ -90,11 +90,11 @@ class ElementMaker extends Elements {
   nodeTarget (selection) {
     selection.on('mouseenter', (d, i, g) => {
       this.graph.targetNode = g[i].parentNode
-      this.graph.comandContext = {type: 'node', target: g[i].parentNode}
+      this.graph.commandContext = {type: 'node', target: g[i].parentNode}
     })
     selection.on('mouseleave', () => {
       this.graph.targetNode = null
-      this.graph.comandContext = null
+      this.graph.commandContext = null
     })
   }
 

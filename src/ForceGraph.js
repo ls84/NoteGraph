@@ -10,7 +10,7 @@ class ForceGraph extends React.Component {
       links: {}
     }
 
-    this.comandContext = null
+    this.commandContext = null
 
     this.ElementMaker = new ElementMaker(this)
     this.relationIterator = 0
@@ -22,7 +22,7 @@ class ForceGraph extends React.Component {
 
   setGraphSize () {
     let width = window.innerWidth - 16
-    let height = window.innerHeight - 70
+    let height = window.innerHeight - 24
     // NOTE: do i need this state?
     // this.setState({width, height})
     let svg = document.querySelector('#ForceGraph')
@@ -37,13 +37,18 @@ class ForceGraph extends React.Component {
     window.onresize = this.setGraphSize
 
     window.onkeyup = function (event) {
-      let comand = (this.comandContext ? this.comandContext.type : 'window') + '.' + event.key
+      let comand = (this.commandContext ? this.commandContext.type : 'window') + '.' + event.key
       switch (comand) {
         case 'node.h':
-          console.log(this.comandContext.target);
+          console.log(this.commandContext.target);
+          break
+        case 'window.n':
+          let NodeInteract = document.querySelector('div#NodeInteract')
+          NodeInteract.classList.add('show')
+          NodeInteract.querySelector('#PathInput').focus()
           break
         default:
-          console.log(this.comandContext);
+          console.log(this.commandContext);
       }
     }.bind(this)
 
