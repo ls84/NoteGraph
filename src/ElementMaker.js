@@ -84,7 +84,7 @@ class ElementMaker extends Elements {
       nodeValues.attr('width', width).attr('height', (height > 15) ? height - 15 : 0)
 
       let handleX = Math.max(5, (width < 15) ? 5 : width)
-      let handleY = Math.max(5, (height < 15) ? 5 : height + 15)
+      let handleY = Math.max(5, (height < 15) ? 5 : height)
 
       d3.select(g[i]).attr('transform', `translate(${handleX},${handleY})`)
     })

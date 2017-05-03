@@ -53,7 +53,7 @@ class ForceGraph extends React.Component {
 
     let node = {path: path}
     let svg = d3.select('#ForceGraph #transformGroup')
-    svg.selectAll('g.nodes')
+    let elements = svg.selectAll('g.nodes')
     .data([node], function (d) { return d.path })
     .attr('transform', `translate(${center.x},${center.y})`)
     .enter()
@@ -64,6 +64,11 @@ class ForceGraph extends React.Component {
     cache.links[path] = { position: [center.x, center.y] }
 
     this.setState(cache)
+
+    let t = d3.transition().duration(500).ease(d3.easePolyInOut)
+    elements.select('.boundingBoxHandle').transition(t).attr('transform', 'translate(200,5)')
+    elements.select('.nodeLabel').transition(t).attr('width', '185')
+    elements.select('.boundingBox').transition(t).attr('width', '200')
 
     // if (data) this.expandLinks(center, path, data)
 

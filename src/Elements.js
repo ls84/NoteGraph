@@ -3,17 +3,20 @@ let Primitives = require('./Primitives.js')
 class Elements extends Primitives {
   constructor (graph) {
     super()
-    this.defaultWidth = 200
-    this.defaultHeight = 200
+    this.defaultWidth = 0
+    this.defaultHeight = 0
   }
 
   nodeLabel (path) {
     let nodeLabel = document.createElementNS(d3.namespaces.svg, 'foreignObject')
-    d3.select(nodeLabel)
+    let div = d3.select(nodeLabel)
     .attr('class', 'nodeLabel')
     .attr('transform', 'translate(20,-13)')
     .attr('width', this.defaultWidth).attr('height', '24px')
-    .append(() => this.div('label', path, true))
+    .append(() => this.div())
+
+    div.append(() => this.div('label', path, true))
+    div.append(() => this.div('nodeRemove', 'x'))
 
     return nodeLabel
   }
@@ -41,7 +44,7 @@ class Elements extends Primitives {
     .attr('height', this.defaultHeight)
     .append('polygon')
     .attr('class', 'boundingBoxHandle')
-    .attr('transform', `translate(${this.defaultWidth - 5},${this.defaultHeight + 15})`)
+    .attr('transform', 'translate(5,5)')
     .attr('points', '5,0 5,5 0,5')
 
     return boundingBox
