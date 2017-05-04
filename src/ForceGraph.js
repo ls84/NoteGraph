@@ -1,6 +1,7 @@
 let ElementMaker = require('./ElementMaker.js')
 // let textOrientation = require('./textOrientation.js')
 let linkMove = require('./linkMove.js')
+let textWidth = require('./textWidth.js')
 
 class ForceGraph extends React.Component {
   constructor (props) {
@@ -22,7 +23,7 @@ class ForceGraph extends React.Component {
 
   setGraphSize () {
     let width = window.innerWidth - 16
-    let height = window.innerHeight - 24
+    let height = window.innerHeight - 36
     // NOTE: do i need this state?
     // this.setState({width, height})
     let svg = document.querySelector('#ForceGraph')
@@ -85,10 +86,12 @@ class ForceGraph extends React.Component {
 
     this.setState(cache)
 
+    let width = textWidth(path, 'nodeLabel') + 10
+
     let t = d3.transition().duration(500).ease(d3.easePolyInOut)
-    elements.select('.boundingBoxHandle').transition(t).attr('transform', 'translate(200,5)')
-    elements.select('.nodeLabel').transition(t).attr('width', '185')
-    elements.select('.boundingBox').transition(t).attr('width', '200')
+    elements.select('.boundingBoxHandle').transition(t).attr('transform', `translate(${width + 15},5)`)
+    elements.select('.nodeLabel').transition(t).attr('width', width)
+    elements.select('.boundingBox').transition(t).attr('width', `${width + 15}`)
 
     // if (data) this.expandLinks(center, path, data)
 

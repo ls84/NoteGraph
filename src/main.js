@@ -100,6 +100,7 @@ class Main extends React.Component {
         <div id="DropArea">
           <ForceGraph ref={(c) => { this.forceGraph = c }} displayValues={ this.displayValues }/>
         </div>
+        <div id="Status"></div>
         <div id="NodeInteract">
           <div className="center">
             <div draggable='true' id="NodeSymbol">
@@ -110,6 +111,7 @@ class Main extends React.Component {
             <input type='text' id="PathInput" onChange={this.pathChange} />
           </div>
         </div>
+        <div id="PreRender"></div>
       </div>
     )
   }

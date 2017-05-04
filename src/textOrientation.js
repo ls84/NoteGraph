@@ -20,13 +20,7 @@ function textOrientation (from, to) {
   let degree = 180 * textRotation / Math.PI
   if (direction === 'port') degree = (degree < 0) ? 180 + degree : degree - 180
 
-  let align = (direction === 'port') ? 'right' : 'left'
-
-  let transform
-  if (direction === 'port') transform = `rotate(${degree}) translate(-220,0)`
-  if (direction === 'starboard') transform = `rotate(${degree}) translate(20,0)`
-
-  return {direction, transform, align}
+  return {direction, degree}
 }
 
 module.exports = textOrientation
