@@ -69,6 +69,9 @@ class Elements extends Primitives {
     .attr('width', '200')
     .append(() => this.div('linkLabel', 'predicate', true))
 
+    d3.select(label)
+    .append(() => this.div('linkLabelHandle'))
+
     return label
   }
 }
