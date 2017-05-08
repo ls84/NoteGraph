@@ -17,6 +17,9 @@ module.exports = function (config) {
       'style/main.less': ['less']
     },
     webpack: webpackConfig,
+    webpackMiddleware: {
+      stats: 'errors-only'
+    },
     reporters: ['progress', 'coverage'],
     port: 9876,
     colors: true,

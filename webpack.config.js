@@ -14,14 +14,19 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.less$/,
-        loader: ExtractTextPlugin.extract('css-loader?sourceMap!less-loader?sourceMap')
+       enforce: "pre",
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "eslint-loader",
       },
       {
-        enforce: 'pre',
         test: /\.js$/,
         exclude: /(node_modules)/,
         loader: 'source-map-loader!babel-loader'
+      },
+      {
+        test: /\.less$/,
+	      loader: ExtractTextPlugin.extract('css-loader?sourceMap!less-loader?sourceMap')
       }
     ]
   },

@@ -41,7 +41,7 @@ class ForceGraph extends React.Component {
       let comand = (this.commandContext ? this.commandContext.type : 'window') + '.' + event.key
       switch (comand) {
         case 'node.h':
-          console.log(this.commandContext.target);
+          // TODO: hide something (this.commandContext.target)
           break
         case 'window.n':
           if (document.activeElement.tagName === 'BODY') {
@@ -51,7 +51,8 @@ class ForceGraph extends React.Component {
           }
           break
         default:
-          console.log(this.commandContext);
+          // TODO: show something
+          console.log('this is not cool')
       }
     }.bind(this)
 
