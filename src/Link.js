@@ -1,6 +1,8 @@
 class Link {
   constructor (id) {
     this.id = id
+
+    this.controlBezier = this.controlBezier.bind(this)
   }
 
   resetHandle () {
@@ -15,6 +17,21 @@ class Link {
     let display = handle.attr('display')
     if (display === 'none') handle.attr('display', 'block')
     if (display === 'block') handle.attr('display', 'none')
+  }
+  
+  controlBezier (selection) {
+    let dragBehaviour = d3.drag()
+
+    dragBehaviour.on('drag', (d, i, g) => {
+      let cursor = d3.mouse(document.querySelector('svg'))
+      let handle = g[i].classList.value
+      this[handle] = cursor
+      
+      d3.select(g[i]).attr('cx', cursor[0]).attr('cy', cursor[1])
+      d3.select(`svg g.links#${this.id}`).select('path').attr('d', () => this.pathDescription())
+    })
+
+    selection.call(dragBehaviour)
   }
 
   path () {
@@ -32,6 +49,7 @@ class Link {
     d3.select(circle).attr('class', className)
     .attr('cx', position[0]).attr('cy', position[1])
     .attr('r', 5)
+    .call(this.controlBezier)
 
     return circle
   }
