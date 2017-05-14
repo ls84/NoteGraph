@@ -1,7 +1,8 @@
 class Link {
   constructor (id) {
     this.id = id
-    this.predicate = 'this should be good both direction'
+    // this.predicate = 'this should be good both direction'
+    this.predicate = ''
 
     this.controlBezier = this.controlBezier.bind(this)
   }
@@ -14,7 +15,7 @@ class Link {
 
   edit (d, i, g) {
     console.log('edit')
-    let handle = d3.select(g[i].parentNode).select('g.bezierHandle')
+    let handle = d3.select(`svg g.links#${this.id}`).select('g.bezierHandle')
     let display = handle.attr('display')
     if (display === 'none') handle.attr('display', 'block')
     if (display === 'block') handle.attr('display', 'none')
@@ -40,7 +41,6 @@ class Link {
     d3.select(path)
     .attr('class', 'path').attr('id', `path.${this.id}`)
     .attr('d', this.pathDescription())
-    .on('dblclick', this.edit.bind(this))
 
     return path
   }
@@ -82,6 +82,7 @@ class Link {
 
     let group = document.createElementNS(d3.namespaces.svg, 'g')
     d3.select(group).attr('class', 'links').attr('id', this.id)
+    .on('mousedown', () => { d3.event.stopPropagation() })
 
     d3.select(group).append(() => this.path())
     d3.select(group).append('rect').attr('class', 'textBackground')
@@ -93,18 +94,19 @@ class Link {
 
   paddtext (textLength, pathLength, oneLetterLength) {
     let differences = pathLength - textLength
-    let count = (differences - (differences % oneLetterLength)) / oneLetterLength
+    let oneUnitLength = oneLetterLength * 3
+    let count = (differences - (differences % oneUnitLength)) / oneUnitLength
     let oneSide = ((count % 2) === 0) ? count / 2 : (count - 1) / 2
     let padding = ''
     for (let i = 0; i < oneSide; i++) {
-      padding = '>' + padding + '>'
+      padding = ' > ' + padding + ' > '
     }
     d3.selectAll(`svg #${this.id} textPath .padding`).text(padding)
   }
 
   updateText () {
     let path = document.querySelector(`svg #${this.id} .path`)
-
+    // skip when element is has not been added to DOM Tree
     if (!path) return false
 
     let pathLength = path.getTotalLength()

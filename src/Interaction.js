@@ -13,7 +13,10 @@ class Interaction {
   }
 
   setContext (selection, context) {
-    selection.on('mouseenter', () => { this.context = context })
+    selection.on('mouseenter', (d) => {
+      this.context = context
+      this.target = d
+    })
     selection.on('mouseleave', () => { this.context = 'canvas' })
   }
 
@@ -21,12 +24,11 @@ class Interaction {
     let dragBehaviour = d3.drag()
     dragBehaviour.on('start', (d, i, g) => {
       let cursor = d3.mouse(document.querySelector('svg'))
-
       let link = new this.c.Link(`test-${++this.c.state.iterator}`)
       d3.select('svg').selectAll('g.links')
       .data([link], (d, i, g) => d.id).enter()
       .append((d) => d.SVGElement(cursor))
-      .select('.path').call((s) => { this.setContext(s, 'link') })
+      .call((s) => { this.setContext(s, 'link') })
     })
 
     dragBehaviour.on('drag', (d, i, g) => {
@@ -39,10 +41,17 @@ class Interaction {
     })
 
     this.canvas.call(dragBehaviour)
+
+    window.onkeyup = null
   }
 
   linkInteract (selection) {
-    this.canvas.on('.drag', null)
+    // this.canvas.on('.drag', null)
+    let commands = (event) => {
+      if (event.key === 'c') this.target.edit()
+    }
+
+    window.onkeyup = commands
   }
 
   set context (value) {
