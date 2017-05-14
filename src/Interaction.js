@@ -1,5 +1,5 @@
 class Interaction {
-  constructor(c) {
+  constructor (c) {
     this.c = c
 
     this.attachCanvas = this.attachCanvas.bind(this)
@@ -11,10 +11,10 @@ class Interaction {
     this.canvas = canvas
     this.context = 'canvas'
   }
-  
+
   setContext (selection, context) {
-    selection.on('mouseenter', () => {this.context = context})
-    selection.on('mouseleave', () => {this.context = 'canvas'})
+    selection.on('mouseenter', () => { this.context = context })
+    selection.on('mouseleave', () => { this.context = 'canvas' })
   }
 
   canvasInteract (selection) {
@@ -26,7 +26,7 @@ class Interaction {
       d3.select('svg').selectAll('g.links')
       .data([link], (d, i, g) => d.id).enter()
       .append((d) => d.SVGElement(cursor))
-      .select('.path').call((s) => {this.setContext(s, 'link')})
+      .select('.path').call((s) => { this.setContext(s, 'link') })
     })
 
     dragBehaviour.on('drag', (d, i, g) => {

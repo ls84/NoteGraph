@@ -1,6 +1,7 @@
 class Link {
   constructor (id) {
     this.id = id
+    this.predicate = 'this should be good both direction'
 
     this.controlBezier = this.controlBezier.bind(this)
   }
@@ -18,7 +19,7 @@ class Link {
     if (display === 'none') handle.attr('display', 'block')
     if (display === 'block') handle.attr('display', 'none')
   }
-  
+
   controlBezier (selection) {
     let dragBehaviour = d3.drag()
 
@@ -26,7 +27,7 @@ class Link {
       let cursor = d3.mouse(document.querySelector('svg'))
       let handle = g[i].classList.value
       this[handle] = cursor
-      
+
       d3.select(g[i]).attr('cx', cursor[0]).attr('cy', cursor[1])
       d3.select(`svg g.links#${this.id}`).select('path').attr('d', () => this.pathDescription())
     })
@@ -37,7 +38,7 @@ class Link {
   path () {
     let path = document.createElementNS(d3.namespaces.svg, 'path')
     d3.select(path)
-    .attr('class', 'path')
+    .attr('class', 'path').attr('id', `path.${this.id}`)
     .attr('d', this.pathDescription())
     .on('dblclick', this.edit.bind(this))
 
@@ -63,6 +64,17 @@ class Link {
     return group
   }
 
+  text () {
+    let text = document.createElementNS(d3.namespaces.svg, 'text')
+    d3.select(text).attr('text-anchor', 'middle').attr('dy', '4px')
+    let textPath = d3.select(text).append('textPath').attr('xlink:href', `#path.${this.id}`).attr('startOffset', '50%')
+    textPath.append('tspan').attr('class', 'padding')
+    textPath.append('tspan').attr('class', 'predicate').text(this.predicate)
+    textPath.append('tspan').attr('class', 'padding')
+
+    return text
+  }
+
   SVGElement (origin) {
     this.from = origin
     this.to = origin
@@ -72,9 +84,37 @@ class Link {
     d3.select(group).attr('class', 'links').attr('id', this.id)
 
     d3.select(group).append(() => this.path())
+    d3.select(group).append('rect').attr('class', 'textBackground')
+    d3.select(group).append(() => this.text())
     d3.select(group).append(() => this.bezierHandle())
 
     return group
+  }
+
+  paddtext (textLength, pathLength, oneLetterLength) {
+    let differences = pathLength - textLength
+    let count = (differences - (differences % oneLetterLength)) / oneLetterLength
+    let oneSide = ((count % 2) === 0) ? count / 2 : (count - 1) / 2
+    let padding = ''
+    for (let i = 0; i < oneSide; i++) {
+      padding = '>' + padding + '>'
+    }
+    d3.selectAll(`svg #${this.id} textPath .padding`).text(padding)
+  }
+
+  updateText () {
+    let path = document.querySelector(`svg #${this.id} .path`)
+
+    if (!path) return false
+
+    let pathLength = path.getTotalLength()
+    // let text = document.querySelector(`svg #${this.id} text`)
+    // d3.select(text).style('fill', 'black')
+    // d3.select(text).select('tspan').text('a')
+    // let oneLetterLength = text.getComputedTextLength()
+    let oneLetterLength = 7.80126953125
+    let textLength = this.predicate.length * oneLetterLength
+    if (pathLength + oneLetterLength * 2 > textLength) this.paddtext(textLength, pathLength, oneLetterLength)
   }
 
   pathDescription (waypoints, calculateHandle) {
@@ -83,6 +123,8 @@ class Link {
     let pathDescription = d3.path()
     pathDescription.moveTo(this.from[0], this.from[1])
     pathDescription.bezierCurveTo(this.controlFrom[0], this.controlFrom[1], this.controlTo[0], this.controlTo[1], this.to[0], this.to[1])
+
+    this.updateText()
 
     return pathDescription.toString()
   }
