@@ -38,6 +38,17 @@ class SVGCanvas extends React.Component {
     return pt.matrixTransform(svg.getScreenCTM().inverse())
   }
 
+  addZoomBehaviour () {
+    let canvas = document.querySelector('svg#Canvas')
+    let zoom = d3.zoom()
+    zoom.on('zoom', function () {
+      d3.select(canvas).select('#zoomTransform')
+      .attr('transform', d3.event.transform)
+    })
+
+    d3.select(canvas).call(zoom)
+  }
+
   addDropNodeBehaviour () {
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
@@ -48,6 +59,7 @@ class SVGCanvas extends React.Component {
       // if (this.state.path === undefined) return this.forceGraph.addValue(center)
       // TODO:
       // this.forceGraph.addNode(center, this.state.path, this.state.data)
+      console.log('should drop')
       document.querySelector('div#NodeInteract').classList.remove('show')
     })
     DropArea.addEventListener('click', (event) => {
@@ -61,6 +73,7 @@ class SVGCanvas extends React.Component {
     window.onresize = this.setGraphSize
 
     this.addDropNodeBehaviour()
+    this.addZoomBehaviour()
     d3.select('svg').call(this.interaction.attachCanvas)
   }
 
