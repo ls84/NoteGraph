@@ -20,8 +20,6 @@ class Main extends React.Component {
       this.setState({path: 'app', data: graphData, rootCache: graphData})
     })
 
-
-
     // keeping this data injection for now
     // const test = this.gun.get('test')
     // test.put({value: null})
@@ -71,7 +69,7 @@ class Main extends React.Component {
   }
 
   render () {
-    return ( <SVGCanvas /> )
+    return (<SVGCanvas />)
   }
 }
 

@@ -1,3 +1,4 @@
+let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused-vars
 let Interaction = require('./Interaction.js')
 
 let Link = require('./Link.js')
@@ -16,8 +17,11 @@ class SVGCanvas extends React.Component {
   setGraphSize () {
     let width = window.innerWidth - 16
     let height = window.innerHeight - 36
+
+    document.documentElement.style.setProperty(`--windowHeight`, `${height}px`)
+    document.documentElement.style.setProperty(`--windowWidth`, `${width}px`)
+
     let svg = document.querySelector('svg')
-    this.setState({width, height})
     svg.setAttribute('width', `${width}px`)
     svg.setAttribute('height', `${height}px`)
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
@@ -30,7 +34,7 @@ class SVGCanvas extends React.Component {
     let pt = svg.createSVGPoint()
     pt.x = event.clientX
     pt.y = event.clientY
-    
+
     return pt.matrixTransform(svg.getScreenCTM().inverse())
   }
 
@@ -40,7 +44,7 @@ class SVGCanvas extends React.Component {
       event.preventDefault()
     })
     DropArea.addEventListener('drop', (event) => {
-      let center = this.cursorPoint(event)
+      // let center = this.cursorPoint(event)
       // if (this.state.path === undefined) return this.forceGraph.addValue(center)
       // TODO:
       // this.forceGraph.addNode(center, this.state.path, this.state.data)
@@ -66,6 +70,10 @@ class SVGCanvas extends React.Component {
     NodeInteract.querySelector('#PathInput').focus()
   }
 
+  showLinkInteract (targetLink) {
+    this.linkInteract.show(targetLink)
+  }
+
   render () {
     console.log('state:', this.state)
     return (
@@ -84,7 +92,7 @@ class SVGCanvas extends React.Component {
             <input type='text' id="PathInput" onChange={this.pathChange} />
           </div>
         </div>
-        <div id="PreRender"></div>
+        <LinkInteract ref={(c) => { this.linkInteract = c }} />
       </div>
     )
   }

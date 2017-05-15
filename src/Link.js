@@ -21,6 +21,11 @@ class Link {
     if (display === 'block') handle.attr('display', 'none')
   }
 
+  name (predicate) {
+    this.predicate = predicate
+    this.updateText()
+  }
+
   controlBezier (selection) {
     let dragBehaviour = d3.drag()
 
@@ -105,10 +110,13 @@ class Link {
   }
 
   updateText () {
-    let path = document.querySelector(`svg #${this.id} .path`)
+    let link = document.querySelector(`svg #${this.id}`)
     // skip when element is has not been added to DOM Tree
-    if (!path) return false
+    if (!link) return false
+    let text = link.querySelector('.predicate')
+    d3.select(text).text(this.predicate)
 
+    let path = link.querySelector('.path')
     let pathLength = path.getTotalLength()
     // let text = document.querySelector(`svg #${this.id} text`)
     // d3.select(text).style('fill', 'black')

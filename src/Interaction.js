@@ -41,7 +41,6 @@ class Interaction {
     })
 
     this.canvas.call(dragBehaviour)
-    
     let commands = (event) => {
       if (event.key === 'n') this.c.showNodeInteract()
     }
@@ -53,6 +52,7 @@ class Interaction {
     // this.canvas.on('.drag', null)
     let commands = (event) => {
       if (event.key === 'c') this.target.edit()
+      if (event.key === 'n') this.c.showLinkInteract(this.target)
     }
 
     window.onkeyup = commands

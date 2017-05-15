@@ -20,7 +20,7 @@ describe('main.js', () => {
 //     let container = document.createElement('div')
 //     container.id = 'main'
 //     document.body.appendChild(container)
-// 
+//
 //     ReactDOM.render(<SVGCanvas />, container)
 //   })
 // })
