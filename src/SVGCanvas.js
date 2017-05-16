@@ -1,6 +1,7 @@
 let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused-vars
 let Interaction = require('./Interaction.js')
 
+let Node = require('./Node.js')
 let Link = require('./Link.js')
 let bindCache = require('./bindCache.js')
 
@@ -10,8 +11,8 @@ class SVGCanvas extends React.Component {
     this.state = { iterator: 0 }
 
     this.Link = bindCache.call(this, Link)
+    this.Node = Node // TODO: bindCache
     this.setGraphSize = this.setGraphSize.bind(this)
-    this.interaction = new Interaction(this)
   }
 
   setGraphSize () {
@@ -30,12 +31,15 @@ class SVGCanvas extends React.Component {
   }
 
   cursorPoint (event) {
-    let svg = document.querySelector('#Canvas')
+    let svg = document.querySelector('svg#Canvas')
     let pt = svg.createSVGPoint()
     pt.x = event.clientX
     pt.y = event.clientY
 
-    return pt.matrixTransform(svg.getScreenCTM().inverse())
+    let zoomTransform = document.querySelector('svg#Canvas #zoomTransform')
+    pt = pt.matrixTransform(zoomTransform.getCTM().inverse())
+    pt = pt.matrixTransform(svg.getScreenCTM().inverse())
+    return [pt.x, pt.y]
   }
 
   addZoomBehaviour () {
@@ -49,18 +53,21 @@ class SVGCanvas extends React.Component {
     d3.select(canvas).call(zoom)
   }
 
-  addDropNodeBehaviour () {
+  addDropNodeBehaviour (newNode) {
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
       event.preventDefault()
     })
     DropArea.addEventListener('drop', (event) => {
-      // let center = this.cursorPoint(event)
-      // if (this.state.path === undefined) return this.forceGraph.addValue(center)
-      // TODO:
-      // this.forceGraph.addNode(center, this.state.path, this.state.data)
-      console.log('should drop')
+      let position = this.cursorPoint(event)
+
       document.querySelector('div#NodeInteract').classList.remove('show')
+      let node = newNode('test')
+      d3.select('#Canvas #zoomTransform').selectAll('.node')
+      .data([node], (d) => d.id)
+      .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
+      .enter()
+      .append(() => node.SVGElement(position))
     })
     DropArea.addEventListener('click', (event) => {
       let NodeInteract = document.querySelector('div#NodeInteract')
@@ -72,9 +79,11 @@ class SVGCanvas extends React.Component {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
-    this.addDropNodeBehaviour()
-    this.addZoomBehaviour()
-    d3.select('svg').call(this.interaction.attachCanvas)
+    this.interaction = new Interaction(this)
+    // this.addDropNodeBehaviour()
+    // this.addZoomBehaviour()
+    // TODO: should move all the addxxxxBehaviour to Interaction class
+    // d3.select('svg').call(this.interaction.attachCanvas)
   }
 
   showNodeInteract () {

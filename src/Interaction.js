@@ -1,6 +1,7 @@
 class Interaction {
-  constructor (c) {
-    this.c = c
+  constructor (canvas) {
+    this.canvas = canvas
+    this.context = 'canvas'
 
     this.attachCanvas = this.attachCanvas.bind(this)
     this.canvasInteract = this.canvasInteract.bind(this)
@@ -21,28 +22,30 @@ class Interaction {
   }
 
   canvasInteract (selection) {
-    let dragBehaviour = d3.drag()
-    dragBehaviour.on('start', (d, i, g) => {
-      let cursor = d3.mouse(document.querySelector('svg#Canvas'))
-      let link = new this.c.Link(`test-${++this.c.state.iterator}`)
-      d3.select('svg#Canvas').selectAll('g.links')
-      .data([link], (d, i, g) => d.id).enter()
-      .append((d) => d.SVGElement(cursor))
-      .call((s) => { this.setContext(s, 'link') })
-    })
+    this.canvas.addZoomBehaviour()
+    this.canvas.addDropNodeBehaviour((id) => new this.canvas.Node(id))
+    // let dragBehaviour = d3.drag()
+    // dragBehaviour.on('start', (d, i, g) => {
+    //   let cursor = d3.mouse(document.querySelector('svg#Canvas'))
+    //   let link = new this.c.Link(`test-${++this.c.state.iterator}`)
+    //   d3.select('svg#Canvas').selectAll('g.links')
+    //   .data([link], (d, i, g) => d.id).enter()
+    //   .append((d) => d.SVGElement(cursor))
+    //   .call((s) => { this.setContext(s, 'link') })
+    // })
 
-    dragBehaviour.on('drag', (d, i, g) => {
-      let cursor = d3.mouse(document.querySelector('svg#Canvas'))
-      console.log('still drags')
-      let link = d3.selectAll('svg#Canvas g.links').filter((d, i, g) => (d.id === `test-${this.c.state.iterator}`))
-      link.select('.path').attr('d', (d) => d.pathDescription({to: cursor}, true))
-      link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
-      link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
-    })
+    // dragBehaviour.on('drag', (d, i, g) => {
+    //   let cursor = d3.mouse(document.querySelector('svg#Canvas'))
+    //   console.log('still drags')
+    //   let link = d3.selectAll('svg#Canvas g.links').filter((d, i, g) => (d.id === `test-${this.c.state.iterator}`))
+    //   link.select('.path').attr('d', (d) => d.pathDescription({to: cursor}, true))
+    //   link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
+    //   link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
+    // })
 
-    this.canvas.call(dragBehaviour)
+    // this.canvas.call(dragBehaviour)
     let commands = (event) => {
-      if (event.key === 'n') this.c.showNodeInteract()
+      if (event.key === 'n') this.canvas.showNodeInteract()
     }
 
     window.onkeyup = commands
