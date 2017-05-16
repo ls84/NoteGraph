@@ -2,9 +2,11 @@ class Interaction {
   constructor (canvas) {
     this.canvas = canvas
     this.context = 'canvas'
+    this.target = null
 
     this.attachCanvas = this.attachCanvas.bind(this)
     this.canvasInteract = this.canvasInteract.bind(this)
+    this.nodeInteract = this.nodeInteract.bind(this)
     this.setContext = this.setContext.bind(this)
   }
 
@@ -13,17 +15,23 @@ class Interaction {
     this.context = 'canvas'
   }
 
-  setContext (selection, context) {
+  setContext (selection, context, target) {
     selection.on('mouseenter', (d) => {
-      this.context = context
       this.target = d
+      this.context = context
     })
-    selection.on('mouseleave', () => { this.context = 'canvas' })
+
+    selection.on('mouseleave', () => {
+      this.target = null
+      this.context = 'canvas'
+    })
   }
 
   canvasInteract (selection) {
     this.canvas.addZoomBehaviour()
-    this.canvas.addDropNodeBehaviour((id) => new this.canvas.Node(id))
+    this.canvas.addDropNodeBehaviour((id) => new this.canvas.Node(id), 
+    (s, t) => { this.setContext(s, 'node', t) })
+      
     // let dragBehaviour = d3.drag()
     // dragBehaviour.on('start', (d, i, g) => {
     //   let cursor = d3.mouse(document.querySelector('svg#Canvas'))
@@ -33,7 +41,6 @@ class Interaction {
     //   .append((d) => d.SVGElement(cursor))
     //   .call((s) => { this.setContext(s, 'link') })
     // })
-
     // dragBehaviour.on('drag', (d, i, g) => {
     //   let cursor = d3.mouse(document.querySelector('svg#Canvas'))
     //   console.log('still drags')
@@ -51,6 +58,11 @@ class Interaction {
     window.onkeyup = commands
   }
 
+  nodeInteract () {
+    console.log(this.target)
+    // this.target.startLink = (cursor) => {console.log(cursor)}
+  }
+
   linkInteract (selection) {
     // this.canvas.on('.drag', null)
     let commands = (event) => {
@@ -62,9 +74,9 @@ class Interaction {
   }
 
   set context (value) {
-    console.log('set context: ', value)
     if (value === 'canvas') this.canvasInteract()
     if (value === 'link') this.linkInteract()
+    if (value === 'node') this.nodeInteract()
     return value
   }
 

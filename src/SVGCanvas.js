@@ -46,6 +46,7 @@ class SVGCanvas extends React.Component {
     let canvas = document.querySelector('svg#Canvas')
     let zoom = d3.zoom()
     zoom.on('zoom', function () {
+      console.log('should not be called')
       d3.select(canvas).select('#zoomTransform')
       .attr('transform', d3.event.transform)
     })
@@ -53,7 +54,7 @@ class SVGCanvas extends React.Component {
     d3.select(canvas).call(zoom)
   }
 
-  addDropNodeBehaviour (newNode) {
+  addDropNodeBehaviour (newNode, context) {
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
       event.preventDefault()
@@ -68,7 +69,9 @@ class SVGCanvas extends React.Component {
       .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
       .enter()
       .append(() => node.SVGElement(position))
+      .call((s) => { context(s, node) })
     })
+    // TODO: separate to cancelInput()
     DropArea.addEventListener('click', (event) => {
       let NodeInteract = document.querySelector('div#NodeInteract')
       if (NodeInteract.classList.value === 'show') NodeInteract.classList.remove('show')
