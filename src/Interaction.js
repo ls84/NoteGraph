@@ -29,9 +29,8 @@ class Interaction {
 
   canvasInteract (selection) {
     this.canvas.addZoomBehaviour()
-    this.canvas.addDropNodeBehaviour((id) => new this.canvas.Node(id), 
-    (s) => { this.setContext(s, 'node') })
-      
+    this.canvas.addDropNodeBehaviour((id) => new this.canvas.Node(id), (s) => { this.setContext(s, 'node') })
+
     let commands = (event) => {
       if (event.key === 'n') this.canvas.showNodeInteract()
     }
@@ -41,7 +40,7 @@ class Interaction {
 
   nodeInteract () {
     this.target.newLink = (event) => new this.canvas.Link('link-test')
-    this.target.newLinkContext = (selection) => {this.setContext(selection, 'link')}
+    this.target.newLinkContext = (selection) => { this.setContext(selection, 'link') }
   }
 
   linkInteract (selection) {

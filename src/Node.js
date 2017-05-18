@@ -1,5 +1,8 @@
-class Node {
+let Primitives = require('./Primitives.js')
+
+class Node extends Primitives {
   constructor (id) {
+    super()
     this.id = id
 
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
@@ -9,28 +12,32 @@ class Node {
     let dragBehaviour = d3.drag()
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
-      let position = d3.mouse(g[i].parentNode)
+      // let container = document.querySelector('svg#Canvas #zoomTransform')
+      // let position = d3.mouse(container)
 
       if (d3.event.sourceEvent.shiftKey) {
         let link = this.newLink()
         d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
         .data([link], (d, i, g) => d.id).enter()
         .append((d) => d.SVGElement(this.position))
-        .call((s) => {this.newLinkContext(s)})
+        .call((s) => { this.newLinkContext(s) })
       }
     })
 
     dragBehaviour.on('drag', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
-      let position = d3.mouse(g[i].parentNode)
+      let container = document.querySelector('svg#Canvas #zoomTransform')
+      let position = d3.mouse(container)
 
       if (!d3.event.sourceEvent.shiftKey) {
-        let node = d3.selectAll('svg#Canvas #zoomTransform circle.node').filter((d, i, g) => {return d.id === this.id})
-        node.attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
+        let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.id === this.id })
+        this.updatePosition(position)
+        node.attr('transform', `translate(${position[0]}, ${position[1]})`)
+        // node.attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
       }
 
       if (d3.event.sourceEvent.shiftKey) {
-        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => {return (d.id === 'link-test')})
+        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === 'link-test') })
         link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
         link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
         link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
@@ -41,13 +48,17 @@ class Node {
   }
 
   node () {
+    let group = this.group('node', this.id)
+
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
     d3.select(circle).attr('class', 'node').attr('id', this.id)
-    .attr('cx', this.position[0]).attr('cy', this.position[1])
     .attr('r', 10)
     .call(this.drawLinkBehaviour)
 
-    return circle
+    d3.select(group).attr('transform', `translate(${this.position[0]}, ${this.position[1]})`)
+    .append(() => circle)
+
+    return group
   }
 
   updatePosition (position) {
