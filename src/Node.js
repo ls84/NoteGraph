@@ -10,22 +10,31 @@ class Node {
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
       let position = d3.mouse(g[i].parentNode)
-      let link = this.newLink()
 
-      d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
-      .data([link], (d, i, g) => d.id).enter()
-      .append((d) => d.SVGElement(this.position))
-      .call((s) => {this.newLinkContext(s)})
+      if (d3.event.sourceEvent.shiftKey) {
+        let link = this.newLink()
+        d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
+        .data([link], (d, i, g) => d.id).enter()
+        .append((d) => d.SVGElement(this.position))
+        .call((s) => {this.newLinkContext(s)})
+      }
     })
 
     dragBehaviour.on('drag', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
       let position = d3.mouse(g[i].parentNode)
-      let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => {return (d.id === 'link-test')})
 
-      link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
-      link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
-      link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
+      if (!d3.event.sourceEvent.shiftKey) {
+        let node = d3.selectAll('svg#Canvas #zoomTransform circle.node').filter((d, i, g) => {return d.id === this.id})
+        node.attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
+      }
+
+      if (d3.event.sourceEvent.shiftKey) {
+        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => {return (d.id === 'link-test')})
+        link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
+        link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
+        link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
+      }
     })
 
     selection.call(dragBehaviour)
