@@ -69,7 +69,7 @@ class SVGCanvas extends React.Component {
       .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
       .enter()
       .append(() => node.SVGElement(position))
-      .call((s) => { context(s, node) })
+      .call((s) => { context(s) })
     })
     // TODO: separate to cancelInput()
     DropArea.addEventListener('click', (event) => {

@@ -1,32 +1,31 @@
 class Node {
   constructor (id) {
     this.id = id
-  }
 
-  startLink () {
+    this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
   }
 
   drawLinkBehaviour (selection) {
     let dragBehaviour = d3.drag()
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
-      console.log('start')
-      // let cursor = d3.mouse(document.querySelector('svg#Canvas'))
-      // let link = new this.c.Link(`test-${++this.c.state.iterator}`)
-      // d3.select('svg#Canvas').selectAll('g.links')
-      // .data([link], (d, i, g) => d.id).enter()
-      // .append((d) => d.SVGElement(cursor))
-      // .call((s) => { this.setContext(s, 'link') })
+      let position = d3.mouse(g[i].parentNode)
+      let link = this.newLink()
+
+      d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
+      .data([link], (d, i, g) => d.id).enter()
+      .append((d) => d.SVGElement(this.position))
+      .call((s) => {this.newLinkContext(s)})
     })
+
     dragBehaviour.on('drag', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
-      console.log('drag')
-      // let cursor = d3.mouse(document.querySelector('svg#Canvas'))
-      // console.log('still drags')
-      // let link = d3.selectAll('svg#Canvas g.links').filter((d, i, g) => (d.id === `test-${this.c.state.iterator}`))
-      // link.select('.path').attr('d', (d) => d.pathDescription({to: cursor}, true))
-      // link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
-      // link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
+      let position = d3.mouse(g[i].parentNode)
+      let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => {return (d.id === 'link-test')})
+
+      link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
+      link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
+      link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
     })
 
     selection.call(dragBehaviour)
@@ -38,7 +37,6 @@ class Node {
     .attr('cx', this.position[0]).attr('cy', this.position[1])
     .attr('r', 10)
     .call(this.drawLinkBehaviour)
-    // .on('dragstart', this.link)
 
     return circle
   }
@@ -47,9 +45,6 @@ class Node {
     this.position = position
 
     return this.position
-  }
-
-  startLink (newLink) {
   }
 
   SVGElement (origin) {
