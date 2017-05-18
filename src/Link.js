@@ -30,7 +30,7 @@ class Link {
     let dragBehaviour = d3.drag()
 
     dragBehaviour.on('drag', (d, i, g) => {
-      let cursor = d3.mouse(document.querySelector('svg'))
+      let cursor = d3.mouse(document.querySelector('svg#Canvas #zoomTransform'))
       let handle = g[i].classList.value
       this[handle] = cursor
 
