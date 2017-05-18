@@ -28,8 +28,8 @@ class Interaction {
   }
 
   canvasInteract (selection) {
-    this.canvas.addZoomBehaviour()
-    this.canvas.addDropNodeBehaviour((id) => new this.canvas.Node(id), (s) => { this.setContext(s, 'node') })
+    this.canvas.newNode = () => new this.canvas.Node('test')
+    this.canvas.newNodeContext = (selection) => { this.setContext(selection, 'node')} 
 
     let commands = (event) => {
       if (event.key === 'n') this.canvas.showNodeInteract()

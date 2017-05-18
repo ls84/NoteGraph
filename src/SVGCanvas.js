@@ -54,7 +54,7 @@ class SVGCanvas extends React.Component {
     d3.select(canvas).call(zoom)
   }
 
-  addDropNodeBehaviour (newNode, context) {
+  addDropNodeBehaviour () {
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
       event.preventDefault()
@@ -63,13 +63,13 @@ class SVGCanvas extends React.Component {
       let position = this.cursorPoint(event)
 
       document.querySelector('div#NodeInteract').classList.remove('show')
-      let node = newNode('test')
+      let node = this.newNode()
       d3.select('#Canvas #zoomTransform').selectAll('.node')
       .data([node], (d) => d.id)
       .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
       .enter()
       .append(() => node.SVGElement(position))
-      .call((s) => { context(s) })
+      .call((s) => { this.newNodeContext(s) })
     })
     // TODO: separate to cancelInput()
     DropArea.addEventListener('click', (event) => {
@@ -82,11 +82,9 @@ class SVGCanvas extends React.Component {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
+    this.addDropNodeBehaviour()
+    this.addZoomBehaviour()
     this.interaction = new Interaction(this)
-    // this.addDropNodeBehaviour()
-    // this.addZoomBehaviour()
-    // TODO: should move all the addxxxxBehaviour to Interaction class
-    // d3.select('svg').call(this.interaction.attachCanvas)
   }
 
   showNodeInteract () {
