@@ -41,6 +41,9 @@ class Interaction {
   nodeInteract () {
     this.target.newLink = (event) => new this.canvas.Link('link-test')
     this.target.newLinkContext = (selection) => { this.setContext(selection, 'link') }
+    this.target.mouseOnTarget = this.targetNode
+    this.target.setThisAsTarget = () => { this.targetNode = this.target }
+    this.target.clearThisAsTarget = () => {  this.targetNode = null }
   }
 
   linkInteract (selection) {
