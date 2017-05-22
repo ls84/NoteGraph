@@ -8,7 +8,6 @@ class Node extends Primitives {
 
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
-    this.clearNodeTarget = this.clearNodeTarget.bind(this)
   }
 
   drawLinkBehaviour (selection) {
@@ -47,19 +46,24 @@ class Node extends Primitives {
       }
     })
 
+    dragBehaviour.on('end', (d, i, g) => {
+      let target = this.mouseOnTarget()
+      let lastLink = this.links.from[this.links.from.length - 1]
+      if (!target) d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) }).remove()
+      if (target) console.log(target.addToLink(lastLink))
+    })
+
     selection.call(dragBehaviour)
   }
 
   setNodeTarget (selection) {
-    selection.on('mouseenter', (d, i, g) => {
-      this.setThisAsTarget()
-    })
+    selection.on('mouseenter', (d, i, g) => { this.setThisAsTarget() })
+    selection.on('mouseleave', (d, i, g) => { this.clearThisAsTarget() })
   }
 
-  clearNodeTarget (selection) {
-    selection.on('mouseleave', (d, i, g) => {
-      this.clearThisAsTarget()
-    })
+  addToLink (link) {
+    this.links.to.push(link)
+    return true
   }
 
   node () {
@@ -70,7 +74,6 @@ class Node extends Primitives {
     .attr('r', 10)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
-    .call(this.clearNodeTarget)
 
     d3.select(group).attr('transform', `translate(${this.position[0]}, ${this.position[1]})`)
     .append(() => circle)
