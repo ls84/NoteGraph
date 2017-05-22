@@ -14,14 +14,12 @@ class Node extends Primitives {
     let dragBehaviour = d3.drag()
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
-      // let container = document.querySelector('svg#Canvas #zoomTransform')
-      // let position = d3.mouse(container)
 
       if (d3.event.sourceEvent.shiftKey) {
         let link = this.newLink()
         d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
         .data([link], (d, i, g) => d.id).enter()
-        .append((d) => d.SVGElement(this.position))
+        .insert((d) => d.SVGElement(this.position), ':first-child')
         .call((s) => { this.newLinkContext(s) })
       }
     })
@@ -38,8 +36,8 @@ class Node extends Primitives {
       }
 
       if (d3.event.sourceEvent.shiftKey) {
-        console.log(this.mouseOnTarget)
         let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === 'link-test') })
+        if (this.mouseOnTarget()) position = this.mouseOnTarget().position
         link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
         link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
         link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])

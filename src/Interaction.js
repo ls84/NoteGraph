@@ -28,8 +28,12 @@ class Interaction {
   }
 
   canvasInteract (selection) {
-    this.canvas.newNode = () => new this.canvas.Node('test')
-    this.canvas.newNodeContext = (selection) => { this.setContext(selection, 'node')} 
+    this.canvas.newNode = () => {
+      let node = new this.canvas.Node(this.canvas.state.nodePath)
+      node.mouseOnTarget = () => { return this.targetNode }
+      return node
+    }
+    this.canvas.newNodeContext = (selection) => { this.setContext(selection, 'node') }
 
     let commands = (event) => {
       if (event.key === 'n') this.canvas.showNodeInteract()
@@ -41,9 +45,8 @@ class Interaction {
   nodeInteract () {
     this.target.newLink = (event) => new this.canvas.Link('link-test')
     this.target.newLinkContext = (selection) => { this.setContext(selection, 'link') }
-    this.target.mouseOnTarget = this.targetNode
     this.target.setThisAsTarget = () => { this.targetNode = this.target }
-    this.target.clearThisAsTarget = () => {  this.targetNode = null }
+    this.target.clearThisAsTarget = () => { this.targetNode = null }
   }
 
   linkInteract (selection) {
@@ -56,6 +59,7 @@ class Interaction {
   }
 
   set context (value) {
+    console.log('set context: ', value)
     if (value === 'canvas') this.canvasInteract()
     if (value === 'link') this.linkInteract()
     if (value === 'node') this.nodeInteract()

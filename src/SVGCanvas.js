@@ -65,7 +65,7 @@ class SVGCanvas extends React.Component {
       document.querySelector('div#NodeInteract').classList.remove('show')
       let node = this.newNode()
       d3.select('#Canvas #zoomTransform').selectAll('.node')
-      .data([node], (d) => d.id)
+      .data([node], (d) => d ? d.id : undefined)
       .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
       .enter()
       .append(() => node.SVGElement(position))
@@ -78,10 +78,18 @@ class SVGCanvas extends React.Component {
     })
   }
 
+  addGetNodeListener () {
+    let input = document.querySelector('div#NodeInteract #PathInput')
+    input.addEventListener('keyup', () => {
+      this.setState({nodePath: input.value})
+    })
+  }
+
   componentDidMount () {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
+    this.addGetNodeListener()
     this.addDropNodeBehaviour()
     this.addZoomBehaviour()
     this.interaction = new Interaction(this)
