@@ -31,9 +31,12 @@ class Node extends Primitives {
       let position = d3.mouse(container)
 
       if (!d3.event.sourceEvent.shiftKey) {
-        let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.id === this.id })
         this.updatePosition(position)
+        let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.id === this.id })
         node.attr('transform', `translate(${position[0]}, ${position[1]})`)
+
+        this.links.from.forEach(this.updateAttachedLink({from: position}))
+        this.links.to.forEach(this.updateAttachedLink({to: position}))
       }
 
       if (d3.event.sourceEvent.shiftKey) {
@@ -50,20 +53,27 @@ class Node extends Primitives {
       let target = this.mouseOnTarget()
       let lastLink = this.links.from[this.links.from.length - 1]
       if (!target) d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) }).remove()
-      if (target) console.log(target.addToLink(lastLink))
+      if (target && target.id !== this.id) target.addToLink(lastLink)
     })
 
     selection.call(dragBehaviour)
   }
 
   setNodeTarget (selection) {
-    selection.on('mouseenter', (d, i, g) => { this.setThisAsTarget() })
-    selection.on('mouseleave', (d, i, g) => { this.clearThisAsTarget() })
+    selection.on('mouseenter.setTarget', (d, i, g) => { this.setThisAsTarget() })
+    selection.on('mouseleave.setTarget', (d, i, g) => { this.clearThisAsTarget() })
   }
 
   addToLink (link) {
     this.links.to.push(link)
     return true
+  }
+
+  updateAttachedLink (position) {
+    return (v) => {
+      let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === v.id) })
+      link.select('.path').attr('d', (d) => d.pathDescription(position))
+    }
   }
 
   node () {
