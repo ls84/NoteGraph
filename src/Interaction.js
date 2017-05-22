@@ -3,6 +3,8 @@ class Interaction {
     this.canvas = canvas
     this.context = 'canvas'
     this.target = null
+    this.targetNode = null
+    this.iterator = 0
 
     this.attachCanvas = this.attachCanvas.bind(this)
     this.canvasInteract = this.canvasInteract.bind(this)
@@ -43,7 +45,7 @@ class Interaction {
   }
 
   nodeInteract () {
-    this.target.newLink = (event) => new this.canvas.Link('link-test')
+    this.target.newLink = (event) => new this.canvas.Link(`link-${++this.iterator}`)
     this.target.newLinkContext = (selection) => { this.setContext(selection, 'link') }
     this.target.setThisAsTarget = () => { this.targetNode = this.target }
     this.target.clearThisAsTarget = () => { this.targetNode = null }

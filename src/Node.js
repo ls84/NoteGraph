@@ -4,6 +4,7 @@ class Node extends Primitives {
   constructor (id) {
     super()
     this.id = id
+    this.links = {from: [], to: []}
 
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
@@ -17,6 +18,7 @@ class Node extends Primitives {
 
       if (d3.event.sourceEvent.shiftKey) {
         let link = this.newLink()
+        this.links.from.push(link)
         d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
         .data([link], (d, i, g) => d.id).enter()
         .insert((d) => d.SVGElement(this.position), ':first-child')
@@ -36,7 +38,8 @@ class Node extends Primitives {
       }
 
       if (d3.event.sourceEvent.shiftKey) {
-        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === 'link-test') })
+        let lastLink = this.links.from[this.links.from.length - 1]
+        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) })
         if (this.mouseOnTarget()) position = this.mouseOnTarget().position
         link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
         link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
