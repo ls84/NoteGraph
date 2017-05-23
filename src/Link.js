@@ -1,7 +1,6 @@
 class Link {
   constructor (id) {
     this.id = id
-    // this.predicate = 'this should be good both direction'
     this.predicate = ''
 
     this.controlBezier = this.controlBezier.bind(this)
@@ -21,7 +20,7 @@ class Link {
     if (display === 'block') handle.attr('display', 'none')
   }
 
-  name (predicate) {
+  updatePredicate (predicate) {
     this.predicate = predicate
     this.updateText()
   }

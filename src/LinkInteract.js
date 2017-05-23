@@ -15,7 +15,7 @@ class LinkInteract extends React.Component {
   updateTarget () {
     this.hide()
     let input = document.querySelector('div#LinkInteract input')
-    this.state.targetLink.name(input.value)
+    this.state.targetLink.updatePredicate(input.value)
     input.value = ''
   }
 
