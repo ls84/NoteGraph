@@ -9,7 +9,7 @@ let bindCache = require('./bindCache.js')
 class SVGCanvas extends React.Component {
   constructor (props) {
     super(props)
-    this.state = { iterator: 0 }
+    this.state = { iterator: 0, nodes: {} }
 
     this.Link = bindCache.call(this, Link)
     this.Node = Node // TODO: bindCache
@@ -65,12 +65,16 @@ class SVGCanvas extends React.Component {
 
       let position = this.cursorPoint(event)
       let node = this.newNode()
+      node.data = this.props.gunData
+
       d3.select('#Canvas #zoomTransform').selectAll('.node')
       .data([node], (d) => d ? d.id : undefined)
       .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
       .enter()
       .append(() => node.SVGElement(position))
       .call((s) => { this.newNodeContext(s) })
+
+      this.updateCanvasCache(node.id, node)
     })
   }
 
@@ -84,6 +88,7 @@ class SVGCanvas extends React.Component {
 
   setNodePath (nodePath) {
     this.setState({nodePath})
+    this.props.getGunData(nodePath)
   }
 
   componentDidMount () {
@@ -102,6 +107,12 @@ class SVGCanvas extends React.Component {
 
   showLinkInteract (targetLink) {
     this.linkInteract.show(targetLink)
+  }
+
+  updateCanvasCache (key, data) {
+    let cache = this.state.nodes
+    cache[key] = data
+    this.setState({nodes: cache})
   }
 
   render () {

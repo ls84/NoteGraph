@@ -49,6 +49,12 @@ class Interaction {
     this.target.newLinkContext = (selection) => { this.setContext(selection, 'link') }
     this.target.setThisAsTarget = () => { this.targetNode = this.target }
     this.target.clearThisAsTarget = () => { this.targetNode = null }
+
+    let commands = (event) => {
+      if (event.key === 't') this.target.data.val((data, key) => { console.log(data, key) })
+    }
+
+    window.onkeyup = commands
   }
 
   linkInteract (selection) {

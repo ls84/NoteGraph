@@ -3,22 +3,20 @@ const SVGCanvas = require('./SVGCanvas.js') // eslint-disable-line no-unused-var
 class Main extends React.Component {
   constructor (props) {
     super(props)
-    this.state = {
-      nodeColor: 'white'
-    }
+    this.state = {}
     this.gun = Gun().get('app')
 
-    this.pathChange = this.pathChange.bind(this)
+    this.getGunData = this.getGunData.bind(this)
   }
 
   componentDidMount () {
-    this.gun.val((data, key) => {
-      let graphData = {}
-      for (let key in data) {
-        if (key !== '_' && data[key] !== null) graphData[key] = data[key]
-      }
-      this.setState({path: 'app', data: graphData, rootCache: graphData})
-    })
+    // this.gun.val((data, key) => {
+    //   let graphData = {}
+    //   for (let key in data) {
+    //     if (key !== '_' && data[key] !== null) graphData[key] = data[key]
+    //   }
+    //   this.setState({path: 'app', data: graphData, rootCache: graphData})
+    // })
 
     // keeping this data injection for now
     // const test = this.gun.get('test')
@@ -49,27 +47,13 @@ class Main extends React.Component {
     // this.gun.path('node').val((data, key) => {console.log(data,key);})
   }
 
-  pathChange (event) {
-    let input = event.target.value
-
-    if (input === '') return this.setState({path: 'app', data: this.state.rootCache, nodeColor: 'white'})
-
-    let path = this.gun.get(input)
-
-    path.not(() => {
-      this.setState({data: undefined, path: input, nodeColor: 'lightgrey'})
-    })
-    path.val((data, path) => {
-      let graphData = {}
-      for (let key in data) {
-        if (key !== '_' && data[key] !== null) graphData[key] = data[key]
-      }
-      this.setState({data: graphData, path: input, nodeColor: 'red'})
-    })
+  getGunData (path) {
+    let data = this.gun.get(path)
+    this.setState({data: data})
   }
 
   render () {
-    return (<SVGCanvas />)
+    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} />)
   }
 }
 
