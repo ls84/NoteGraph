@@ -207,12 +207,22 @@ svg g.links path.path {
 
 svg g.links {
   text {
+    pointer-events: none;
     fill: white;
     font-family: monospace;
   }
 }
 
-svg circle {
-  stroke: black;
-  fill: white;
+svg g.node {
+  circle.nodeAnchor {
+    stroke: white;
+    fill: whitesmoke;
+    stroke-width: 10px;
+  }
+  
+  text.nodeLabel {
+    pointer-events: none;
+    font-family: monospace;
+    font-size: 24px;
+  }
 }

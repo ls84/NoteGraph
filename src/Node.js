@@ -80,13 +80,17 @@ class Node extends Primitives {
     let group = this.group('node', this.id)
 
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
-    d3.select(circle).attr('class', 'node').attr('id', this.id)
-    .attr('r', 10)
+    d3.select(circle).attr('class', 'nodeAnchor').attr('id', this.id)
+    .attr('r', 25)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
 
     d3.select(group).attr('transform', `translate(${this.position[0]}, ${this.position[1]})`)
     .append(() => circle)
+
+    d3.select(group).append('text').attr('class', 'nodeLabel')
+    .attr('transform', 'translate(-7,7)')
+    .text(this.id[0].toUpperCase())
 
     return group
   }
