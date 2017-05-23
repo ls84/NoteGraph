@@ -9,6 +9,7 @@ class NodeInteract extends React.Component {
     let NodeInteract = document.querySelector('div#NodeInteract')
     NodeInteract.classList.add('show')
     NodeInteract.querySelector('#PathInput').focus()
+    this.props.setNodePath('')
   }
 
   hide () {

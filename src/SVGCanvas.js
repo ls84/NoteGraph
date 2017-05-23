@@ -69,7 +69,7 @@ class SVGCanvas extends React.Component {
 
       d3.select('#Canvas #zoomTransform').selectAll('.node')
       .data([node], (d) => d ? d.id : undefined)
-      .attr('cx', (d) => d.updatePosition(position)[0]).attr('cy', (d) => d.updatePosition(position)[1])
+      .attr('transform', `translate(${position[0]}, ${position[1]})`)
       .enter()
       .append(() => node.SVGElement(position))
       .call((s) => { this.newNodeContext(s) })

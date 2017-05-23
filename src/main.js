@@ -48,7 +48,9 @@ class Main extends React.Component {
   }
 
   getGunData (path) {
-    let data = this.gun.get(path)
+    let data = this.gun.path(path)
+    if (path === '') data = this.gun
+
     this.setState({data: data})
   }
 
