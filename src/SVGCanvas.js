@@ -1,4 +1,5 @@
 let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused-vars
+let NodeInteract = require('./NodeInteract.js') // eslint-disable-line no-unused-vars
 let Interaction = require('./Interaction.js')
 
 let Node = require('./Node.js')
@@ -13,6 +14,7 @@ class SVGCanvas extends React.Component {
     this.Link = bindCache.call(this, Link)
     this.Node = Node // TODO: bindCache
     this.setGraphSize = this.setGraphSize.bind(this)
+    this.setNodePath = this.setNodePath.bind(this)
   }
 
   setGraphSize () {
@@ -46,7 +48,6 @@ class SVGCanvas extends React.Component {
     let canvas = document.querySelector('svg#Canvas')
     let zoom = d3.zoom()
     zoom.on('zoom', function () {
-      console.log('should not be called')
       d3.select(canvas).select('#zoomTransform')
       .attr('transform', d3.event.transform)
     })
@@ -60,9 +61,9 @@ class SVGCanvas extends React.Component {
       event.preventDefault()
     })
     DropArea.addEventListener('drop', (event) => {
-      let position = this.cursorPoint(event)
+      this.nodeInteract.hide()
 
-      document.querySelector('div#NodeInteract').classList.remove('show')
+      let position = this.cursorPoint(event)
       let node = this.newNode()
       d3.select('#Canvas #zoomTransform').selectAll('.node')
       .data([node], (d) => d ? d.id : undefined)
@@ -71,34 +72,32 @@ class SVGCanvas extends React.Component {
       .append(() => node.SVGElement(position))
       .call((s) => { this.newNodeContext(s) })
     })
-    // TODO: separate to cancelInput()
+  }
+
+  addCancelInputBehaviour () {
+    let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('click', (event) => {
       let NodeInteract = document.querySelector('div#NodeInteract')
-      if (NodeInteract.classList.value === 'show') NodeInteract.classList.remove('show')
+      if (NodeInteract.classList.value === 'show') this.nodeInteract.hide()
     })
   }
 
-  addGetNodeListener () {
-    let input = document.querySelector('div#NodeInteract #PathInput')
-    input.addEventListener('keyup', () => {
-      this.setState({nodePath: input.value})
-    })
+  setNodePath (nodePath) {
+    this.setState({nodePath})
   }
 
   componentDidMount () {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
-    this.addGetNodeListener()
-    this.addDropNodeBehaviour()
     this.addZoomBehaviour()
+    this.addDropNodeBehaviour()
+    this.addCancelInputBehaviour()
     this.interaction = new Interaction(this)
   }
 
   showNodeInteract () {
-    let NodeInteract = document.querySelector('div#NodeInteract')
-    NodeInteract.classList.add('show')
-    NodeInteract.querySelector('#PathInput').focus()
+    this.nodeInteract.show()
   }
 
   showLinkInteract (targetLink) {
@@ -113,16 +112,7 @@ class SVGCanvas extends React.Component {
           <svg id='Canvas'><g id="zoomTransform"></g></svg>
         </div>
         <div id="Status"></div>
-        <div id="NodeInteract">
-          <div className="center">
-            <div draggable='true' id="NodeSymbol">
-              <svg width="20px" height="20px" viewBox="0 0 20 20" >
-                <circle r="9" cx="10" cy="10" fill={this.state.nodeColor} stroke='grey' strokeWidth="0.5" />
-              </svg>
-            </div>
-            <input type='text' id="PathInput" onChange={this.pathChange} />
-          </div>
-        </div>
+        <NodeInteract ref={(c) => { this.nodeInteract = c }} setNodePath={this.setNodePath} />
         <LinkInteract ref={(c) => { this.linkInteract = c }} />
       </div>
     )
