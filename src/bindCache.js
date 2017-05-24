@@ -1,15 +1,15 @@
 function bindCache (ElementClass) {
-  let set = (t, p, v) => {
-    // TODO: cache relevant waypoints
-    // TODO: cache id change
+  let set = (t, p, v, r) => {
+    if (p === 'position') this.state.cache.nodes[t.id].position = v
     t[p] = v
     return true
   }
 
   let construct = (T, a) => {
-    // TODO: cache link id
-    let instance = new T(a[0])
-    return new Proxy(instance, {set})
+    let id = a[0]
+    this.state.cache.nodes[id] = {}
+
+    return new Proxy(new T(id), {set})
   }
 
   return new Proxy(ElementClass, {construct})

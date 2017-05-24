@@ -31,9 +31,9 @@ class Node extends Primitives {
       let position = d3.mouse(container)
 
       if (!d3.event.sourceEvent.shiftKey) {
-        this.updatePosition(position)
         let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.id === this.id })
-        node.attr('transform', `translate(${position[0]}, ${position[1]})`)
+        node.datum().updatePosition(position)
+        node.attr('transform', (d) => `translate(${d.position[0]}, ${d.position[1]})`)
 
         this.links.from.forEach(this.updateAttachedLink({from: position}))
         this.links.to.forEach(this.updateAttachedLink({to: position}))

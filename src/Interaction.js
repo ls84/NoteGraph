@@ -39,6 +39,7 @@ class Interaction {
 
     let commands = (event) => {
       if (event.key === 'n') this.canvas.showNodeInteract()
+      if (event.key === 's') this.canvas.saveCache()
     }
 
     window.onkeyup = commands

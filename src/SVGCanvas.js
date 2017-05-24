@@ -9,10 +9,11 @@ let bindCache = require('./bindCache.js')
 class SVGCanvas extends React.Component {
   constructor (props) {
     super(props)
-    this.state = { iterator: 0, nodes: {} }
+    this.state = { cache: { nodes: {}, links: {} } }
 
-    this.Link = bindCache.call(this, Link)
-    this.Node = Node // TODO: bindCache
+    // this.Link = bindCache.call(this, Link)
+    this.Link = Link
+    this.Node = bindCache.call(this, Node)
     this.setGraphSize = this.setGraphSize.bind(this)
     this.setNodePath = this.setNodePath.bind(this)
   }
@@ -73,8 +74,6 @@ class SVGCanvas extends React.Component {
       .enter()
       .append(() => node.SVGElement(position))
       .call((s) => { this.newNodeContext(s) })
-
-      this.updateCanvasCache(node.id, node)
     })
   }
 
@@ -109,10 +108,8 @@ class SVGCanvas extends React.Component {
     this.linkInteract.show(targetLink)
   }
 
-  updateCanvasCache (key, data) {
-    let cache = this.state.nodes
-    cache[key] = data
-    this.setState({nodes: cache})
+  saveCache () {
+    console.log(JSON.stringify(this.state.cache))
   }
 
   render () {
