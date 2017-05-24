@@ -4,6 +4,7 @@ let Interaction = require('./Interaction.js')
 
 let Node = require('./Node.js')
 let Link = require('./Link.js')
+let bindLinkToCache = require('./bindLinkToCache.js')
 let bindCache = require('./bindCache.js')
 
 class SVGCanvas extends React.Component {
@@ -11,8 +12,7 @@ class SVGCanvas extends React.Component {
     super(props)
     this.state = { cache: { nodes: {}, links: {} } }
 
-    // this.Link = bindCache.call(this, Link)
-    this.Link = Link
+    this.Link = bindLinkToCache.call(this, Link)
     this.Node = bindCache.call(this, Node)
     this.setGraphSize = this.setGraphSize.bind(this)
   }

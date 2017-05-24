@@ -53,10 +53,17 @@ class Node extends Primitives {
       let target = this.mouseOnTarget()
       let lastLink = this.links.from[this.links.from.length - 1]
       if (!target) {
-        d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) }).remove()
+        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) })
+        link.datum().destory = true
+        link.remove()
+        this.links.from.pop()
         this.setContextToCanvas()
       }
-      if (target && target.id !== this.id) target.addToLink(lastLink)
+      if (target && target.id !== this.id) {
+        lastLink.fromNode = this.id
+        lastLink.toNode = target.id
+        target.addToLink(lastLink)
+      }
     })
 
     selection.call(dragBehaviour)
