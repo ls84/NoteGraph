@@ -66,9 +66,9 @@ class SVGCanvas extends React.Component {
       let position = this.cursorPoint(event)
       let node = this.newNode()
       node.data = this.props.gunData
-
       d3.select('#Canvas #zoomTransform').selectAll('.node')
       .data([node], (d) => d ? d.id : undefined)
+      //TODO: should use Proxy
       .attr('transform', `translate(${position[0]}, ${position[1]})`)
       .enter()
       .append(() => node.SVGElement(position))
@@ -104,6 +104,10 @@ class SVGCanvas extends React.Component {
 
   saveCache () {
     console.log(JSON.stringify(this.state.cache))
+  }
+
+  loadCache () {
+    let cache = {"nodes":{"test":{"position":[456,331]}},"links":{}}
   }
 
   render () {
