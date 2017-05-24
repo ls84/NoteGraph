@@ -30,8 +30,8 @@ class Interaction {
   }
 
   canvasInteract (selection) {
-    this.canvas.newNode = () => {
-      let node = new this.canvas.Node(this.canvas.nodeInteract.state.nodePath)
+    this.canvas.newNode = (nodePath) => {
+      let node = new this.canvas.Node(nodePath)
       node.mouseOnTarget = () => { return this.targetNode }
       return node
     }

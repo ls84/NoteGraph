@@ -55,6 +55,20 @@ class SVGCanvas extends React.Component {
     d3.select(canvas).call(zoom)
   }
 
+  appendNode (id, position) {
+    let node = this.newNode(id)
+    node.data = this.props.gunData
+    d3.select('#Canvas #zoomTransform').selectAll('.node')
+    .data([node], (d) => d ? d.id : undefined)
+    .attr('transform', (d) => {
+      d.updatePosition(position)
+      return `translate(${d.position[0]}, ${d.position[1]})`
+    })
+    .enter()
+    .append(() => node.SVGElement(position))
+    .call((s) => { this.newNodeContext(s) })
+  }
+
   addDropNodeBehaviour () {
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
@@ -64,15 +78,7 @@ class SVGCanvas extends React.Component {
       this.nodeInteract.hide()
 
       let position = this.cursorPoint(event)
-      let node = this.newNode()
-      node.data = this.props.gunData
-      d3.select('#Canvas #zoomTransform').selectAll('.node')
-      .data([node], (d) => d ? d.id : undefined)
-      //TODO: should use Proxy
-      .attr('transform', `translate(${position[0]}, ${position[1]})`)
-      .enter()
-      .append(() => node.SVGElement(position))
-      .call((s) => { this.newNodeContext(s) })
+      this.appendNode(this.nodeInteract.state.nodePath, position)
     })
   }
 
@@ -107,7 +113,12 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    let cache = {"nodes":{"test":{"position":[456,331]}},"links":{}}
+    let cache = {"nodes":{"a":{"position":[365,285]},"b":{"position":[676,230]},"c":{"position":[549,390]},"d":{"position":[338,397]},"e":{"position":[793,492]},"test":{"position":[366,503]}},"links":{}}
+    for (let id in cache.nodes) {
+      let position = cache.nodes[id].position
+      this.props.getGunData(id)
+      this.appendNode(id, position)
+    }
   }
 
   render () {
