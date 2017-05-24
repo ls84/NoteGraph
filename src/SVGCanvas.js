@@ -15,7 +15,6 @@ class SVGCanvas extends React.Component {
     this.Link = Link
     this.Node = bindCache.call(this, Node)
     this.setGraphSize = this.setGraphSize.bind(this)
-    this.setNodePath = this.setNodePath.bind(this)
   }
 
   setGraphSize () {
@@ -85,11 +84,6 @@ class SVGCanvas extends React.Component {
     })
   }
 
-  setNodePath (nodePath) {
-    this.setState({nodePath})
-    this.props.getGunData(nodePath)
-  }
-
   componentDidMount () {
     this.setGraphSize()
     window.onresize = this.setGraphSize
@@ -120,7 +114,7 @@ class SVGCanvas extends React.Component {
           <svg id='Canvas'><g id="zoomTransform"></g></svg>
         </div>
         <div id="Status"></div>
-        <NodeInteract ref={(c) => { this.nodeInteract = c }} setNodePath={this.setNodePath} />
+        <NodeInteract ref={(c) => { this.nodeInteract = c }} getGunData={this.props.getGunData} />
         <LinkInteract ref={(c) => { this.linkInteract = c }} />
       </div>
     )

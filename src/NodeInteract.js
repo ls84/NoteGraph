@@ -9,7 +9,8 @@ class NodeInteract extends React.Component {
     let NodeInteract = document.querySelector('div#NodeInteract')
     NodeInteract.classList.add('show')
     NodeInteract.querySelector('#PathInput').focus()
-    this.props.setNodePath('')
+    this.props.getGunData('')
+    this.setState({nodePath: ''})
   }
 
   hide () {
@@ -23,7 +24,8 @@ class NodeInteract extends React.Component {
     let input = document.querySelector('div#NodeInteract #PathInput')
     input.addEventListener('keyup', (event) => {
       event.stopPropagation()
-      this.props.setNodePath(input.value)
+      this.props.getGunData(input.value)
+      this.setState({nodePath: input.value})
     })
   }
 
