@@ -79,6 +79,11 @@ class Node extends Primitives {
     return true
   }
 
+  addFromLink (link) {
+    this.links.from.push(link)
+    return true
+  }
+
   updateAttachedLink (position) {
     return (v) => {
       let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === v.id) })

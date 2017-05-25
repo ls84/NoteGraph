@@ -14,7 +14,7 @@ function bindCache (ElementClass) {
 
   let construct = (T, a) => {
     let id = a[0]
-    this.state.cache.links[id] = {}
+    this.state.cache.links[id] = {predicate: ''}
 
     return new Proxy(new T(id), {set})
   }

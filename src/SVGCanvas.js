@@ -5,7 +5,7 @@ let Interaction = require('./Interaction.js')
 let Node = require('./Node.js')
 let Link = require('./Link.js')
 let bindLinkToCache = require('./bindLinkToCache.js')
-let bindCache = require('./bindCache.js')
+let bindNodeToCache = require('./bindNodeToCache.js')
 
 class SVGCanvas extends React.Component {
   constructor (props) {
@@ -13,7 +13,7 @@ class SVGCanvas extends React.Component {
     this.state = { cache: { nodes: {}, links: {} } }
 
     this.Link = bindLinkToCache.call(this, Link)
-    this.Node = bindCache.call(this, Node)
+    this.Node = bindNodeToCache.call(this, Node)
     this.setGraphSize = this.setGraphSize.bind(this)
   }
 
@@ -113,11 +113,26 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    let cache = {"nodes":{"a":{"position":[365,285]},"b":{"position":[676,230]},"c":{"position":[549,390]},"d":{"position":[338,397]},"e":{"position":[793,492]},"test":{"position":[366,503]}},"links":{}}
+    let cache = {"nodes":{"a":{"position":[503,180]},"b":{"position":[273,521]},"c":{"position":[748,509]}},"links":{"link-2":{"from":[503,180],"to":[273,521],"controlFrom":[465.5,233.83333333333334],"controlTo":[315.5,449.1666666666667],"fromNode":"a","toNode":"b"},"link-3":{"from":[273,521],"to":[748,509],"controlFrom":[352.1666666666667,519],"controlTo":[668.8333333333334,511],"fromNode":"b","toNode":"c"},"link-4":{"from":[748,509],"to":[503,180],"controlFrom":[707.1666666666666,454.1666666666667],"controlTo":[543.8333333333334,234.83333333333334],"fromNode":"c","toNode":"a"}}}
     for (let id in cache.nodes) {
       let position = cache.nodes[id].position
       this.props.getGunData(id)
       this.appendNode(id, position)
+    }
+
+    for (let id in cache.links) {
+      let data = cache.links[id]
+      let link = new this.Link(id)
+      link.pathDescription({from: data.from, to: data.to, controlFrom: data.controlFrom, controlTo: data.controlTo})
+      d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
+      .data([link], (d, i, g) => d.id).enter()
+      .insert(() => link.SVGElement(), ':first-child')
+      .call((s) => {this.interaction.setContext(s, 'link')})
+      link.updateText()
+      let fromNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.fromNode}`).datum()
+      fromNode.addFromLink(link)
+      let toNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.toNode}`).datum()
+      toNode.addToLink(link)
     }
   }
 
