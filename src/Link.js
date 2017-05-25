@@ -29,11 +29,9 @@ class Link {
     let dragBehaviour = d3.drag()
 
     dragBehaviour.on('drag', (d, i, g) => {
-      // NOTE: the data is not binded to children when using loadCache function, why???
-      let data = g[i].parentNode.parentNode.__data__
       let cursor = d3.mouse(document.querySelector('svg#Canvas #zoomTransform'))
       let handle = g[i].classList.value
-      data[handle] = cursor
+      d[handle] = cursor
 
       d3.select(g[i]).attr('cx', cursor[0]).attr('cy', cursor[1])
       d3.select(`svg g.links#${this.id}`).select('path').attr('d', () => this.pathDescription())

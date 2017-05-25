@@ -123,12 +123,16 @@ class SVGCanvas extends React.Component {
     for (let id in cache.links) {
       let data = cache.links[id]
       let link = new this.Link(id)
-      link.pathDescription({from: data.from, to: data.to, controlFrom: data.controlFrom, controlTo: data.controlTo})
-      d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
+      Object.assign(link, data)
+      let linkDom = d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
       .data([link], (d, i, g) => d.id).enter()
-      .insert(() => link.SVGElement(), ':first-child')
+      .insert((d) => d.SVGElement(), ':first-child')
       .call((s) => {this.interaction.setContext(s, 'link')})
       link.updateText()
+      // NOTE: propagate data to children
+      linkDom.select('.controlFrom')
+      linkDom.select('.controlTo')
+
       let fromNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.fromNode}`).datum()
       fromNode.addFromLink(link)
       let toNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.toNode}`).datum()
