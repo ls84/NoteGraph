@@ -2,10 +2,8 @@ let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused
 let NodeInteract = require('./NodeInteract.js') // eslint-disable-line no-unused-vars
 let Interaction = require('./Interaction.js')
 
-let Node = require('./Node.js')
 let Link = require('./Link.js')
 let bindLinkToCache = require('./bindLinkToCache.js')
-let bindNodeToCache = require('./bindNodeToCache.js')
 
 class SVGCanvas extends React.Component {
   constructor (props) {
@@ -13,7 +11,7 @@ class SVGCanvas extends React.Component {
     this.state = { cache: { nodes: {}, links: {} } }
 
     this.Link = bindLinkToCache.call(this, Link)
-    this.Node = bindNodeToCache.call(this, Node)
+    this.Node = require('./Node.js')
     this.setGraphSize = this.setGraphSize.bind(this)
   }
 
@@ -57,15 +55,14 @@ class SVGCanvas extends React.Component {
 
   appendNode (id, position) {
     let node = this.newNode(id)
+    node.data.position = position
     node.gun = this.props.gunData
+
     d3.select('#Canvas #zoomTransform').selectAll('.node')
-    .data([node], (d) => d ? d.id : undefined)
-    .attr('transform', (d) => {
-      d.updatePosition(position)
-      return `translate(${d.position[0]}, ${d.position[1]})`
-    })
+    .data([node], (d) => d ? d.data.id : undefined)
+    .attr('transform', () => `translate(${position[0]}, ${position[1]})`)
     .enter()
-    .append(() => node.SVGElement(position))
+    .append(() => node.SVGElement())
     .call((s) => { this.newNodeContext(s) })
   }
 

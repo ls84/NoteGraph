@@ -6,9 +6,8 @@ class Node extends Primitives {
     super()
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas))
     this.data.id = id
-    this.id = id
     this.links = {from: [], to: []}
-    
+
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
   }
@@ -34,9 +33,9 @@ class Node extends Primitives {
       let position = d3.mouse(container)
 
       if (!d3.event.sourceEvent.shiftKey) {
-        let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.id === this.id })
-        node.datum().updatePosition(position)
-        node.attr('transform', (d) => `translate(${d.position[0]}, ${d.position[1]})`)
+        let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.data.id === this.data.id })
+        node.datum().data.position = position
+        node.attr('transform', () => `translate(${position[0]}, ${position[1]})`)
 
         this.links.from.forEach(this.updateAttachedLink({from: position}))
         this.links.to.forEach(this.updateAttachedLink({to: position}))
@@ -95,33 +94,29 @@ class Node extends Primitives {
   }
 
   node () {
-    let group = this.group('node', this.id)
+    let id = this.data.id
+    let position = this.data.position
 
+    let group = this.group('node', id)
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
-    d3.select(circle).attr('class', 'nodeAnchor').attr('id', this.id)
+    // TODO: duplicated id
+    d3.select(circle).attr('class', 'nodeAnchor').attr('id', id)
     .attr('r', 25)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
 
-    d3.select(group).attr('transform', `translate(${this.position[0]}, ${this.position[1]})`)
+    d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
     .append(() => circle)
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
-    .text(this.id[0].toUpperCase())
+    .text(id[0].toUpperCase())
 
     return group
   }
 
-  updatePosition (position) {
-    this.position = position
-
-    return this.position
-  }
-
   SVGElement (origin) {
-    this.position = origin
-    this.data.position = origin
+    if (origin) this.data.position = origin
 
     return this.node()
   }

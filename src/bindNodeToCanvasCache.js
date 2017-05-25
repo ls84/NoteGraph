@@ -1,10 +1,11 @@
 function bindNodeToCanvasCache (canvas) {
   let set = (t, p, v, r) => {
-    if (p === 'id') console.log(p, v)
-    if (p === 'position') console.log(p, v)
+    // TODO: use canvas.setState()?
+    let cache = canvas.state.cache.nodes
+    if (p === 'id') cache[v] = {}
+    if (p === 'position') cache[t.id].position = v
     return Reflect.set(t, p, v, r)
   }
-
 
   return { set }
 }
