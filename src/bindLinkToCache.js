@@ -8,8 +8,8 @@ function bindCache (ElementClass) {
     if (p === 'destory') delete this.state.cache.links[t.id]
     if (p === 'fromNode') cache.fromNode = v
     if (p === 'toNode') cache.toNode = v
-    t[p] = v
-    return true
+
+    return Reflect.set(t, p, v)
   }
 
   let construct = (T, a) => {
