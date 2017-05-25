@@ -31,7 +31,7 @@ class Interaction {
 
   canvasInteract (selection) {
     this.canvas.newNode = (nodePath) => {
-      let node = new this.canvas.Node(nodePath)
+      let node = new this.canvas.Node(nodePath, this.canvas)
       node.mouseOnTarget = () => { return this.targetNode }
       return node
     }
@@ -57,7 +57,7 @@ class Interaction {
     this.target.clearThisAsTarget = () => { this.targetNode = null }
 
     let commands = (event) => {
-      if (event.key === 't') this.target.data.val((data, key) => { console.log(data, key) })
+      if (event.key === 't') this.target.gun.val((data, key) => { console.log(data, key) })
     }
 
     window.onkeyup = commands

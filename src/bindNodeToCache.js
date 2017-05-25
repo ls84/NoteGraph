@@ -11,9 +11,10 @@ function bindCache (ElementClass) {
 
   let construct = (T, a) => {
     let id = a[0]
+    let cache = a[1]
     this.state.cache.nodes[id] = {}
 
-    return new Proxy(new T(id), {set, get})
+    return new Proxy(new T(id, cache), {set, get})
   }
 
   return new Proxy(ElementClass, {construct})

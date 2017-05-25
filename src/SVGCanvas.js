@@ -57,7 +57,7 @@ class SVGCanvas extends React.Component {
 
   appendNode (id, position) {
     let node = this.newNode(id)
-    node.data = this.props.gunData
+    node.gun = this.props.gunData
     d3.select('#Canvas #zoomTransform').selectAll('.node')
     .data([node], (d) => d ? d.id : undefined)
     .attr('transform', (d) => {

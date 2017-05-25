@@ -1,11 +1,14 @@
 let Primitives = require('./Primitives.js')
+let bindNodeToCanvasCache = require('./bindNodeToCanvasCache.js')
 
 class Node extends Primitives {
-  constructor (id) {
+  constructor (id, canvas) {
     super()
+    this.data = new Proxy({}, bindNodeToCanvasCache(canvas))
+    this.data.id = id
     this.id = id
     this.links = {from: [], to: []}
-
+    
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
   }
@@ -118,6 +121,7 @@ class Node extends Primitives {
 
   SVGElement (origin) {
     this.position = origin
+    this.data.position = origin
 
     return this.node()
   }
