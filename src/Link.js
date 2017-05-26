@@ -27,6 +27,7 @@ class Link {
 
   updatePredicate (predicate) {
     this.data.predicate = predicate
+    // TODO: should update gun when predicate is updated and not empty
     this.updateText()
   }
 

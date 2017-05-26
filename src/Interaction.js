@@ -4,7 +4,6 @@ class Interaction {
     this.context = 'canvas'
     this.target = null
     this.targetNode = null
-    this.iterator = 0
 
     this.attachCanvas = this.attachCanvas.bind(this)
     this.canvasInteract = this.canvasInteract.bind(this)

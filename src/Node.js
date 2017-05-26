@@ -33,10 +33,8 @@ class Node extends Primitives {
       let position = d3.mouse(container)
 
       if (!d3.event.sourceEvent.shiftKey) {
-        // TODO: move itself
-        let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.data.id === this.data.id })
-        node.datum().data.position = position
-        node.attr('transform', () => `translate(${position[0]}, ${position[1]})`)
+        this.data.position = position
+        d3.select(this.DOM).attr('transform', `translate(${position[0]}, ${position[1]})`)
 
         this.links.from.forEach(this.updateAttachedLink('from', position))
         this.links.to.forEach(this.updateAttachedLink('to', position))
@@ -53,13 +51,13 @@ class Node extends Primitives {
       let target = this.mouseOnTarget()
       let link = this.links.from[this.links.from.length - 1]
       if (!target) {
-        let selection = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.data.id === link.data.id) })
-        selection.remove()
+        d3.select(link.DOM).remove()
         link.data.destory = link.data.id
         this.links.from.pop()
         this.setContextToCanvas()
       }
       if (target && target.data.id !== this.data.id) {
+        // TODO: should reference the node but cache the path
         link.data.fromNode = this.data.path
         link.data.toNode = target.data.path
         target.addToLink(link)

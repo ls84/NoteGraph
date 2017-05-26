@@ -115,22 +115,23 @@ class SVGCanvas extends React.Component {
     }
 
     for (let id in cache.links) {
-      let data = cache.links[id]
-      let link = new this.Link(id)
-      Object.assign(link, data)
-      let linkDom = d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
-      .data([link], (d, i, g) => d.id).enter()
-      .insert((d) => d.SVGElement(), ':first-child')
-      .call((s) => {this.interaction.setContext(s, 'link')})
-      link.updateText()
-      // NOTE: propagate data to children
-      linkDom.select('.controlFrom')
-      linkDom.select('.controlTo')
+      // TODO: 
+      // let data = cache.links[id]
+      // let link = new this.Link(id)
+      // Object.assign(link, data)
+      // let linkDom = d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
+      // .data([link], (d, i, g) => d.id).enter()
+      // .insert((d) => d.SVGElement(), ':first-child')
+      // .call((s) => {this.interaction.setContext(s, 'link')})
+      // link.updateText()
+      // // NOTE: propagate data to children
+      // linkDom.select('.controlFrom')
+      // linkDom.select('.controlTo')
 
-      let fromNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.fromNode}`).datum()
-      fromNode.addFromLink(link)
-      let toNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.toNode}`).datum()
-      toNode.addToLink(link)
+      // let fromNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.fromNode}`).datum()
+      // fromNode.addFromLink(link)
+      // let toNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.toNode}`).datum()
+      // toNode.addToLink(link)
     }
   }
 
