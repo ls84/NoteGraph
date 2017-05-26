@@ -53,9 +53,11 @@ class SVGCanvas extends React.Component {
     d3.select(canvas).call(zoom)
   }
 
-  appendNode (id, position) {
-    let node = this.newNode(id)
+  appendNode (gunPath, position) {
+    let node = this.newNode()
     node.data.position = position
+    node.mouseOnTarget = () => { return this.interaction.targetNode }
+    node.data.path = gunPath
     node.gun = this.props.gunData
     node.appendSelf()
     .call((s) => {this.interaction.setContext(s, 'node')})
@@ -69,9 +71,9 @@ class SVGCanvas extends React.Component {
     DropArea.addEventListener('drop', (event) => {
       this.nodeInteract.hide()
 
-      let id = this.nodeInteract.state.nodePath
+      let nodePath = this.nodeInteract.state.gunPath
       let position = this.cursorPoint(event)
-      this.appendNode(id, position)
+      this.appendNode(nodePath, position)
     })
   }
 
@@ -106,11 +108,13 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    let cache = {"nodes":{"a":{"position":[503,180]},"b":{"position":[273,521]},"c":{"position":[748,509]}},"links":{"link-2":{"from":[503,180],"to":[273,521],"controlFrom":[465.5,233.83333333333334],"controlTo":[315.5,449.1666666666667],"fromNode":"a","toNode":"b"},"link-3":{"from":[273,521],"to":[748,509],"controlFrom":[352.1666666666667,519],"controlTo":[668.8333333333334,511],"fromNode":"b","toNode":"c"},"link-4":{"from":[748,509],"to":[503,180],"controlFrom":[707.1666666666666,454.1666666666667],"controlTo":[543.8333333333334,234.83333333333334],"fromNode":"c","toNode":"a"}}}
+    let cache = {"nodes":{"node-1799549908":{"position":[462,238],"path":"a"},"node-455627046":{"position":[296,477],"path":"b"},"node-1165453107":{"position":[629,480],"path":"c"}},"links":{}}
     for (let id in cache.nodes) {
       let position = cache.nodes[id].position
-      this.props.getGunData(id)
-      this.appendNode(id, position)
+      let path = cache.nodes[id].path
+
+      this.props.getGunData(path)
+      this.appendNode(path, position)
     }
 
     for (let id in cache.links) {

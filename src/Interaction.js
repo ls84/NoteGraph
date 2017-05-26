@@ -29,12 +29,13 @@ class Interaction {
     })
   }
 
+  getRandomValue () {
+    let a = new Uint32Array(1)
+    return window.crypto.getRandomValues(a)
+  }
+
   canvasInteract (selection) {
-    this.canvas.newNode = (nodePath) => {
-      let node = new this.canvas.Node(nodePath, this.canvas)
-      node.mouseOnTarget = () => { return this.targetNode }
-      return node
-    }
+    this.canvas.newNode = () => new this.canvas.Node(`node-${this.getRandomValue()}`, this.canvas)
     this.canvas.newNodeContext = (selection) => { this.setContext(selection, 'node') }
 
     let commands = (event) => {

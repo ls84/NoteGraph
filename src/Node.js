@@ -22,7 +22,7 @@ class Node extends Primitives {
         this.links.from.push(link)
         d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
         .data([link], (d, i, g) => d.id).enter()
-        .insert((d) => d.SVGElement(this.position), ':first-child')
+        .insert((d) => d.SVGElement(this.data.position), ':first-child')
         .call((s) => { this.newLinkContext(s) })
       }
     })
@@ -44,7 +44,7 @@ class Node extends Primitives {
       if (d3.event.sourceEvent.shiftKey) {
         let lastLink = this.links.from[this.links.from.length - 1]
         let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) })
-        if (this.mouseOnTarget()) position = this.mouseOnTarget().position
+        if (this.mouseOnTarget()) position = this.mouseOnTarget().data.position
         link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
         link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
         link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
@@ -96,11 +96,12 @@ class Node extends Primitives {
   node () {
     let id = this.data.id
     let position = this.data.position
+    let path = this.data.path
 
     let group = this.group('node', id)
+    //TODO: use primitives
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
-    // TODO: duplicated id
-    d3.select(circle).attr('class', 'nodeAnchor').attr('id', id)
+    d3.select(circle).attr('class', 'nodeAnchor')
     .attr('r', 25)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
@@ -110,7 +111,7 @@ class Node extends Primitives {
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
-    .text(id[0].toUpperCase())
+    .text(path[0].toUpperCase())
 
     return group
   }
@@ -121,7 +122,7 @@ class Node extends Primitives {
 
   appendSelf () {
     let DOM = d3.select('#Canvas #zoomTransform').selectAll('.node')
-    .data([this], (d) => d ? d.data.id : undefined)
+    .data([this], (d) => d ? d.data.path : undefined)
     .attr('transform', () => `translate(${this.data.position[0]}, ${this.data.position[1]})`)
     .enter()
     .append(() => this.SVGElement())

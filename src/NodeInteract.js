@@ -10,7 +10,7 @@ class NodeInteract extends React.Component {
     NodeInteract.classList.add('show')
     NodeInteract.querySelector('#PathInput').focus()
     this.props.getGunData('')
-    this.setState({nodePath: ''})
+    this.setState({gunPath: ''})
   }
 
   hide () {
@@ -25,7 +25,7 @@ class NodeInteract extends React.Component {
     input.addEventListener('keyup', (event) => {
       event.stopPropagation()
       this.props.getGunData(input.value)
-      this.setState({nodePath: input.value})
+      this.setState({gunPath: input.value})
     })
   }
 
