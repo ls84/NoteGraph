@@ -19,11 +19,11 @@ class Node extends Primitives {
 
       if (d3.event.sourceEvent.shiftKey) {
         let link = this.newLink()
-        this.links.from.push(link)
-        d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
-        .data([link], (d, i, g) => d.id).enter()
-        .insert((d) => d.SVGElement(this.data.position), ':first-child')
+        Object.assign(link.data, {from: this.data.position, to: this.data.position})
+        link.resetHandle()
+        link.appendSelf()
         .call((s) => { this.newLinkContext(s) })
+        this.links.from.push(link)
       }
     })
 
@@ -33,38 +33,36 @@ class Node extends Primitives {
       let position = d3.mouse(container)
 
       if (!d3.event.sourceEvent.shiftKey) {
+        // TODO: move itself
         let node = d3.selectAll('svg#Canvas #zoomTransform g.node').filter((d, i, g) => { return d.data.id === this.data.id })
         node.datum().data.position = position
         node.attr('transform', () => `translate(${position[0]}, ${position[1]})`)
 
-        this.links.from.forEach(this.updateAttachedLink({from: position}))
-        this.links.to.forEach(this.updateAttachedLink({to: position}))
+        this.links.from.forEach(this.updateAttachedLink('from', position))
+        this.links.to.forEach(this.updateAttachedLink('to', position))
       }
 
       if (d3.event.sourceEvent.shiftKey) {
-        let lastLink = this.links.from[this.links.from.length - 1]
-        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) })
+        let link = this.links.from[this.links.from.length - 1]
         if (this.mouseOnTarget()) position = this.mouseOnTarget().data.position
-        link.select('.path').attr('d', (d) => d.pathDescription({to: position}, true))
-        link.select('.controlFrom').attr('cx', (d) => d.controlFrom[0]).attr('cy', (d) => d.controlFrom[1])
-        link.select('.controlTo').attr('cx', (d) => d.controlTo[0]).attr('cy', (d) => d.controlTo[1])
+        link.drawLinkTo(position)
       }
     })
 
     dragBehaviour.on('end', (d, i, g) => {
       let target = this.mouseOnTarget()
-      let lastLink = this.links.from[this.links.from.length - 1]
+      let link = this.links.from[this.links.from.length - 1]
       if (!target) {
-        let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === lastLink.id) })
-        link.datum().destory = true
-        link.remove()
+        let selection = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.data.id === link.data.id) })
+        selection.remove()
+        link.data.destory = link.data.id
         this.links.from.pop()
         this.setContextToCanvas()
       }
-      if (target && target.id !== this.id) {
-        lastLink.fromNode = this.id
-        lastLink.toNode = target.id
-        target.addToLink(lastLink)
+      if (target && target.data.id !== this.data.id) {
+        link.data.fromNode = this.data.path
+        link.data.toNode = target.data.path
+        target.addToLink(link)
       }
     })
 
@@ -86,10 +84,10 @@ class Node extends Primitives {
     return true
   }
 
-  updateAttachedLink (position) {
+  updateAttachedLink (key, position) {
     return (v) => {
-      let link = d3.selectAll('svg#Canvas #zoomTransform g.links').filter((d, i, g) => { return (d.id === v.id) })
-      link.select('.path').attr('d', (d) => d.pathDescription(position))
+      v.data[key] = position
+      d3.select(v.DOM).select('.path').attr('d', v.pathDescription())
     }
   }
 
@@ -99,7 +97,7 @@ class Node extends Primitives {
     let path = this.data.path
 
     let group = this.group('node', id)
-    //TODO: use primitives
+    // TODO: use primitives
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
     d3.select(circle).attr('class', 'nodeAnchor')
     .attr('r', 25)
@@ -123,7 +121,7 @@ class Node extends Primitives {
   appendSelf () {
     let DOM = d3.select('#Canvas #zoomTransform').selectAll('.node')
     .data([this], (d) => d ? d.data.path : undefined)
-    .attr('transform', () => `translate(${this.data.position[0]}, ${this.data.position[1]})`)
+    .attr('transform', `translate(${this.data.position[0]}, ${this.data.position[1]})`)
     .enter()
     .append(() => this.SVGElement())
     .node()

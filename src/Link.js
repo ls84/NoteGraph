@@ -1,27 +1,32 @@
+let bindLinkToCanvasCache = require('./bindLinkToCanvasCache.js')
+
 class Link {
-  constructor (id) {
-    this.id = id
-    this.predicate = ''
+  constructor (id, canvas) {
+    this.data = new Proxy({}, bindLinkToCanvasCache(canvas))
+    this.data.id = id
+    this.data.predicate = ''
 
     this.controlBezier = this.controlBezier.bind(this)
   }
 
   resetHandle () {
-    let tick = [(this.to[0] - this.from[0]) / 6, (this.to[1] - this.from[1]) / 6]
-    this.controlFrom = [this.from[0] + tick[0], this.from[1] + tick[1]]
-    this.controlTo = [this.to[0] - tick[0], this.to[1] - tick[1]]
+    let from = this.data.from
+    let to = this.data.to
+
+    let tick = [(to[0] - from[0]) / 6, (to[1] - from[1]) / 6]
+    this.data.controlFrom = [from[0] + tick[0], from[1] + tick[1]]
+    this.data.controlTo = [to[0] - tick[0], to[1] - tick[1]]
   }
 
   edit (d, i, g) {
-    console.log('edit')
-    let handle = d3.select(`svg g.links#${this.id}`).select('g.bezierHandle')
+    let handle = d3.select(this.DOM).select('g.bezierHandle')
     let display = handle.attr('display')
     if (display === 'none') handle.attr('display', 'block')
     if (display === 'block') handle.attr('display', 'none')
   }
 
   updatePredicate (predicate) {
-    this.predicate = predicate
+    this.data.predicate = predicate
     this.updateText()
   }
 
@@ -31,10 +36,10 @@ class Link {
     dragBehaviour.on('drag', (d, i, g) => {
       let cursor = d3.mouse(document.querySelector('svg#Canvas #zoomTransform'))
       let handle = g[i].classList.value
-      d[handle] = cursor
+      this.data[handle] = cursor
 
       d3.select(g[i]).attr('cx', cursor[0]).attr('cy', cursor[1])
-      d3.select(`svg g.links#${this.id}`).select('path').attr('d', () => this.pathDescription())
+      d3.select(this.DOM).select('.path').attr('d', () => this.pathDescription())
     })
 
     selection.call(dragBehaviour)
@@ -43,7 +48,7 @@ class Link {
   path () {
     let path = document.createElementNS(d3.namespaces.svg, 'path')
     d3.select(path)
-    .attr('class', 'path').attr('id', `path.${this.id}`)
+    .attr('class', 'path').attr('id', `path.${this.data.id}`)
     .attr('d', this.pathDescription())
 
     return path
@@ -60,10 +65,13 @@ class Link {
   }
 
   bezierHandle () {
+    let controlFrom = this.data.controlFrom
+    let controlTo = this.data.controlTo
+
     let group = document.createElementNS(d3.namespaces.svg, 'g')
     d3.select(group).attr('class', 'bezierHandle').attr('display', 'none')
-    d3.select(group).append(() => this.handle('controlFrom', this.controlFrom))
-    d3.select(group).append(() => this.handle('controlTo', this.controlTo))
+    d3.select(group).append(() => this.handle('controlFrom', controlFrom))
+    d3.select(group).append(() => this.handle('controlTo', controlTo))
 
     return group
   }
@@ -71,7 +79,7 @@ class Link {
   text () {
     let text = document.createElementNS(d3.namespaces.svg, 'text')
     d3.select(text).attr('text-anchor', 'middle').attr('dy', '4px')
-    let textPath = d3.select(text).append('textPath').attr('xlink:href', `#path.${this.id}`).attr('startOffset', '50%')
+    let textPath = d3.select(text).append('textPath').attr('xlink:href', `#path.${this.data.id}`).attr('startOffset', '50%')
     textPath.append('tspan').attr('class', 'padding')
     textPath.append('tspan').attr('class', 'predicate').text(this.predicate)
     textPath.append('tspan').attr('class', 'padding')
@@ -80,14 +88,9 @@ class Link {
   }
 
   SVGElement (origin) {
-    if (origin) {
-      this.from = origin
-      this.to = origin
-      this.resetHandle()
-    }
-
+    let id = this.data.id
     let group = document.createElementNS(d3.namespaces.svg, 'g')
-    d3.select(group).attr('class', 'links').attr('id', this.id)
+    d3.select(group).attr('class', 'links').attr('id', id)
     .on('mousedown', () => { d3.event.stopPropagation() })
 
     d3.select(group).append(() => this.path())
@@ -107,37 +110,62 @@ class Link {
     for (let i = 0; i < oneSide; i++) {
       padding = ' > ' + padding + ' > '
     }
-    d3.selectAll(`svg #${this.id} textPath .padding`).text(padding)
+    d3.select(this.DOM).selectAll('textPath .padding').text(padding)
   }
 
   updateText () {
-    let link = document.querySelector(`svg #${this.id}`)
+    // let link = document.querySelector(`svg #${this.id}`)
     // skip when element is has not been added to DOM Tree
-    if (!link) return false
-    let text = link.querySelector('.predicate')
-    d3.select(text).text(this.predicate)
+    if (!this.DOM) return false
+    let predicate = this.data.predicate
 
-    let path = link.querySelector('.path')
+    let text = this.DOM.querySelector('.predicate')
+    d3.select(text).text(predicate)
+
+    let path = this.DOM.querySelector('.path')
     let pathLength = path.getTotalLength()
     // let text = document.querySelector(`svg #${this.id} text`)
     // d3.select(text).style('fill', 'black')
     // d3.select(text).select('tspan').text('a')
     // let oneLetterLength = text.getComputedTextLength()
     let oneLetterLength = 7.80126953125
-    let textLength = this.predicate.length * oneLetterLength
+    let textLength = predicate.length * oneLetterLength
     if (pathLength + oneLetterLength * 2 > textLength) this.paddtext(textLength, pathLength, oneLetterLength)
   }
 
-  pathDescription (waypoints, calculateHandle) {
-    for (let key in waypoints) { this[key] = waypoints[key] }
+  pathDescription (calculateHandle) {
     if (calculateHandle) this.resetHandle()
+
+    let from = this.data.from
+    let to = this.data.to
+    let controlFrom = this.data.controlFrom
+    let controlTo = this.data.controlTo
+
     let pathDescription = d3.path()
-    pathDescription.moveTo(this.from[0], this.from[1])
-    pathDescription.bezierCurveTo(this.controlFrom[0], this.controlFrom[1], this.controlTo[0], this.controlTo[1], this.to[0], this.to[1])
+    pathDescription.moveTo(from[0], from[1])
+    pathDescription.bezierCurveTo(controlFrom[0], controlFrom[1], controlTo[0], controlTo[1], to[0], to[1])
 
     this.updateText()
 
     return pathDescription.toString()
+  }
+
+  appendSelf () {
+    let DOM = d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
+    .data([this], (d) => d ? d.data.id : undefined).enter()
+    .insert(() => this.SVGElement(), ':first-child')
+    .node()
+
+    this.DOM = DOM
+    return d3.select(DOM)
+  }
+
+  drawLinkTo (position) {
+    this.data.to = position
+    let link = d3.select(this.DOM)
+    link.select('.path').attr('d', this.pathDescription(true))
+    link.select('.controlFrom').attr('cx', this.data.controlFrom[0]).attr('cy', this.data.controlFrom[1])
+    link.select('.controlTo').attr('cx', this.data.controlTo[0]).attr('cy', this.data.controlTo[1])
   }
 }
 

@@ -48,7 +48,7 @@ class Interaction {
   }
 
   nodeInteract () {
-    this.target.newLink = (event) => new this.canvas.Link(`link-${++this.iterator}`)
+    this.target.newLink = (event) => new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
     this.target.newLinkContext = (selection) => { this.setContext(selection, 'link') }
     this.target.setContextToCanvas = () => {
       this.target = null

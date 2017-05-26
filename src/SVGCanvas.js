@@ -2,16 +2,13 @@ let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused
 let NodeInteract = require('./NodeInteract.js') // eslint-disable-line no-unused-vars
 let Interaction = require('./Interaction.js')
 
-let Link = require('./Link.js')
-let bindLinkToCache = require('./bindLinkToCache.js')
-
 class SVGCanvas extends React.Component {
   constructor (props) {
     super(props)
     this.state = { cache: { nodes: {}, links: {} } }
 
-    this.Link = bindLinkToCache.call(this, Link)
     this.Node = require('./Node.js')
+    this.Link = require('./Link.js')
     this.setGraphSize = this.setGraphSize.bind(this)
   }
 
