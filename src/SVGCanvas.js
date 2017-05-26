@@ -57,13 +57,8 @@ class SVGCanvas extends React.Component {
     let node = this.newNode(id)
     node.data.position = position
     node.gun = this.props.gunData
-
-    d3.select('#Canvas #zoomTransform').selectAll('.node')
-    .data([node], (d) => d ? d.data.id : undefined)
-    .attr('transform', () => `translate(${position[0]}, ${position[1]})`)
-    .enter()
-    .append(() => node.SVGElement())
-    .call((s) => { this.newNodeContext(s) })
+    node.appendSelf()
+    .call((s) => {this.interaction.setContext(s, 'node')})
   }
 
   addDropNodeBehaviour () {
@@ -74,8 +69,9 @@ class SVGCanvas extends React.Component {
     DropArea.addEventListener('drop', (event) => {
       this.nodeInteract.hide()
 
+      let id = this.nodeInteract.state.nodePath
       let position = this.cursorPoint(event)
-      this.appendNode(this.nodeInteract.state.nodePath, position)
+      this.appendNode(id, position)
     })
   }
 

@@ -115,10 +115,20 @@ class Node extends Primitives {
     return group
   }
 
-  SVGElement (origin) {
-    if (origin) this.data.position = origin
-
+  SVGElement () {
     return this.node()
+  }
+
+  appendSelf () {
+    let DOM = d3.select('#Canvas #zoomTransform').selectAll('.node')
+    .data([this], (d) => d ? d.data.id : undefined)
+    .attr('transform', () => `translate(${this.data.position[0]}, ${this.data.position[1]})`)
+    .enter()
+    .append(() => this.SVGElement())
+    .node()
+
+    this.DOM = DOM
+    return d3.select(DOM)
   }
 }
 
