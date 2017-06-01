@@ -103,21 +103,18 @@ class Node extends Primitives {
     }
   }
 
-  node () {
-    let id = this.data.id
-    let position = this.data.position
+  nodeAnchor () {
     let path = this.data.path
 
-    let group = this.group('node', id)
+    let group = this.group('nodeAnchor')
     // TODO: use primitives
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
-    d3.select(circle).attr('class', 'nodeAnchor')
+    d3.select(circle)
     .attr('r', 25)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
 
-    d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
-    .append(() => circle)
+    d3.select(group).append(() => circle)
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
@@ -127,11 +124,19 @@ class Node extends Primitives {
   }
 
   SVGElement () {
-    return this.node()
+    let id = this.data.id
+    let position = this.data.position
+
+    let group = this.group('nodes', id)
+
+    d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
+    .append(() => this.nodeAnchor())
+
+    return group
   }
 
   appendSelf () {
-    let DOM = d3.select('#Canvas #zoomTransform').selectAll('.node')
+    let DOM = d3.select('#Canvas #zoomTransform').selectAll('.nodes')
     .data([this], (d) => d ? d.data.path : undefined)
     .attr('transform', `translate(${this.data.position[0]}, ${this.data.position[1]})`)
     .enter()
