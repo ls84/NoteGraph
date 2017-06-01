@@ -5,6 +5,8 @@ function bindNodeToCanvasCache (canvas) {
     if (p === 'id') cache[v] = {}
     if (p === 'position') cache[t.id].position = v
     if (p === 'path') cache[t.id].path = v
+    if (p === 'fromLink') cache[t.id].fromLink = v
+    if (p === 'toLink') cache[t.id].toLink = v
     return Reflect.set(t, p, v, r)
   }
 

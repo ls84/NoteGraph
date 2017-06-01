@@ -6,6 +6,8 @@ class Node extends Primitives {
     super()
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas))
     this.data.id = id
+    this.data.fromLink = []
+    this.data.toLink = []
     this.links = {from: [], to: []}
 
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
@@ -23,7 +25,7 @@ class Node extends Primitives {
         link.resetHandle()
         link.appendSelf()
         .call((s) => { this.newLinkContext(s) })
-        this.links.from.push(link)
+        this.addFromLink(link)
       }
     })
 
@@ -53,7 +55,7 @@ class Node extends Primitives {
       if (!target) {
         d3.select(link.DOM).remove()
         link.data.destory = link.data.id
-        this.links.from.pop()
+        this.popLastLink()
         this.setContextToCanvas()
       }
       if (target && target.data.id !== this.data.id) {
@@ -73,12 +75,25 @@ class Node extends Primitives {
 
   addToLink (link) {
     this.links.to.push(link)
+    let cache = this.data.toLink
+    cache.push(link.data.id)
+    this.data.toLink = cache
     return true
   }
 
   addFromLink (link) {
     this.links.from.push(link)
+    let cache = this.data.fromLink
+    cache.push(link.data.id)
+    this.data.fromLink = cache
     return true
+  }
+
+  popLastLink () {
+    this.links.from.pop()
+    let cache = this.data.fromLink
+    cache.pop()
+    this.data.fromLink = cache
   }
 
   updateAttachedLink (key, position) {

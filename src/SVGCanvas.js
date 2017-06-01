@@ -112,8 +112,9 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    let cache = {"nodes":{"node-2358568056":{"position":[462,238],"path":"a"},"node-2395031451":{"position":[296,477],"path":"b"},"node-2154447669":{"position":[629,480],"path":"c"}},"links":{"link-1496855771":{"predicate":"","from":[462,238],"to":[296,477],"controlFrom":[361,211],"controlTo":[203,312],"fromNode":"node-2358568056","toNode":"node-2395031451"},"link-2636264888":{"predicate":"","from":[296,477],"to":[629,480],"controlFrom":[350,596],"controlTo":[555,596],"fromNode":"node-2395031451","toNode":"node-2154447669"},"link-1134414514":{"predicate":"","from":[629,480],"to":[462,238],"controlFrom":[707,389],"controlTo":[561,215],"fromNode":"node-2154447669","toNode":"node-2358568056"}}}
+    let cache = {"nodes":{"node-4210259129":{"fromLink":["link-1976719957"],"toLink":["link-3501817744"],"position":[451,158],"path":"a"},"node-3650578120":{"fromLink":["link-2478644371"],"toLink":["link-1976719957"],"position":[256,425],"path":"b"},"node-4053994535":{"fromLink":["link-3501817744"],"toLink":["link-2478644371"],"position":[638,426],"path":"c"}},"links":{"link-1976719957":{"predicate":"","from":[451,158],"to":[256,425],"controlFrom":[418.5,202.5],"controlTo":[288.5,380.5],"fromNode":"node-4210259129","toNode":"node-3650578120"},"link-2478644371":{"predicate":"","from":[256,425],"to":[638,426],"controlFrom":[322,531],"controlTo":[563,521],"fromNode":"node-3650578120","toNode":"node-4053994535"},"link-3501817744":{"predicate":"","from":[638,426],"to":[451,158],"controlFrom":[606.8333333333334,381.3333333333333],"controlTo":[482.1666666666667,202.66666666666666],"fromNode":"node-4053994535","toNode":"node-4210259129"}}}
     let NodeMapping = {}
+    let LinkMapping = {}
     for (let id in cache.nodes) {
       let position = cache.nodes[id].position
       let path = cache.nodes[id].path
@@ -133,6 +134,20 @@ class SVGCanvas extends React.Component {
       link.appendSelf()
       .call((s) => { this.interaction.setContext(s, 'link') })
       link.updateText()
+
+      LinkMapping[id] = link
+    }
+
+    for (let id in cache.nodes) {
+      let fromLinks = cache.nodes[id].fromLink.map((v) => {
+        return LinkMapping[v]
+      })
+      NodeMapping[id].links.from = fromLinks
+
+      let toLinks = cache.nodes[id].toLink.map((v) => {
+        return LinkMapping[v]
+      })
+      NodeMapping[id].links.to = toLinks
     }
   }
 
