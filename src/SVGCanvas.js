@@ -58,6 +58,8 @@ class SVGCanvas extends React.Component {
     node.gun = this.props.gunData
     node.appendSelf()
     .call((s) => {this.interaction.setContext(s, 'node')})
+
+    return node
   }
 
   addDropNodeBehaviour () {
@@ -100,38 +102,37 @@ class SVGCanvas extends React.Component {
     this.linkInteract.show(targetLink)
   }
 
+  getRandomValue () {
+    let a = new Uint32Array(1)
+    return window.crypto.getRandomValues(a)
+  }
+
   saveCache () {
     console.log(JSON.stringify(this.state.cache))
   }
 
   loadCache () {
-    let cache = {"nodes":{"node-1799549908":{"position":[462,238],"path":"a"},"node-455627046":{"position":[296,477],"path":"b"},"node-1165453107":{"position":[629,480],"path":"c"}},"links":{}}
+    let cache = {"nodes":{"node-2358568056":{"position":[462,238],"path":"a"},"node-2395031451":{"position":[296,477],"path":"b"},"node-2154447669":{"position":[629,480],"path":"c"}},"links":{"link-1496855771":{"predicate":"","from":[462,238],"to":[296,477],"controlFrom":[361,211],"controlTo":[203,312],"fromNode":"node-2358568056","toNode":"node-2395031451"},"link-2636264888":{"predicate":"","from":[296,477],"to":[629,480],"controlFrom":[350,596],"controlTo":[555,596],"fromNode":"node-2395031451","toNode":"node-2154447669"},"link-1134414514":{"predicate":"","from":[629,480],"to":[462,238],"controlFrom":[707,389],"controlTo":[561,215],"fromNode":"node-2154447669","toNode":"node-2358568056"}}}
+    let NodeMapping = {}
     for (let id in cache.nodes) {
       let position = cache.nodes[id].position
       let path = cache.nodes[id].path
 
       this.props.getGunData(path)
-      this.appendNode(path, position)
+      let node = this.appendNode(path, position)
+
+      NodeMapping[id] = node
     }
 
     for (let id in cache.links) {
-      // TODO: 
-      // let data = cache.links[id]
-      // let link = new this.Link(id)
-      // Object.assign(link, data)
-      // let linkDom = d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
-      // .data([link], (d, i, g) => d.id).enter()
-      // .insert((d) => d.SVGElement(), ':first-child')
-      // .call((s) => {this.interaction.setContext(s, 'link')})
-      // link.updateText()
-      // // NOTE: propagate data to children
-      // linkDom.select('.controlFrom')
-      // linkDom.select('.controlTo')
-
-      // let fromNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.fromNode}`).datum()
-      // fromNode.addFromLink(link)
-      // let toNode = d3.select('svg#Canvas #zoomTransform').select(`g.node#${data.toNode}`).datum()
-      // toNode.addToLink(link)
+      let data = cache.links[id]
+      let link = new this.Link(this.getRandomValue(), this)
+      Object.assign(link.data, data)
+      link.data.fromNode = NodeMapping[data.fromNode]
+      link.data.toNode = NodeMapping[data.toNode]
+      link.appendSelf()
+      .call((s) => { this.interaction.setContext(s, 'link') })
+      link.updateText()
     }
   }
 

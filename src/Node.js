@@ -57,9 +57,8 @@ class Node extends Primitives {
         this.setContextToCanvas()
       }
       if (target && target.data.id !== this.data.id) {
-        // TODO: should reference the node but cache the path
-        link.data.fromNode = this.data.path
-        link.data.toNode = target.data.path
+        link.data.fromNode = this.data.id
+        link.data.toNode = target.data.id
         target.addToLink(link)
       }
     })
