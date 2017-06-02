@@ -24,12 +24,24 @@ class Primitives {
     return div
   }
 
-  circle (color) {
+  circle (styleSelector) {
+    let style = {
+      'nodeValueAnchor': {
+        'r': '5',
+        'stroke': 'black',
+        'stroke-width': '0.5',
+        'fill': 'white'
+      }
+    }
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
     d3.select(circle)
     .attr('r', '10')
     .attr('stroke', 'black')
     .attr('stroke-width', 0.5)
+
+    for (let attr in style[styleSelector]) {
+      d3.select(circle).attr(attr, style[styleSelector][attr])
+    }
 
     return circle
   }

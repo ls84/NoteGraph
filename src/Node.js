@@ -123,6 +123,35 @@ class Node extends Primitives {
     return group
   }
 
+  nodeValue () {
+    let group = this.group('nodeValue')
+    let circle = this.circle('nodeValueAnchor')
+
+    d3.select(group).attr('transform', 'translate(0,40)')
+    
+    d3.select(group).append(() => circle)
+
+    d3.select(group).append('text').attr('class', 'valueLabel')
+    .attr('transform', 'translate(15,4)')
+    d3.select(group).append('text').attr('class', 'value')
+    .attr('transform', 'translate(15, 25)')
+    
+    this.gun.val((d, k) => {
+      let value = []
+      for (let key in d ) {
+        if (typeof d[key] !== 'object') value.push(key)
+      }
+      if (value.length > 0) {
+        d3.select(this.DOM).select('text.valueLabel').text(value[0])
+        d3.select(this.DOM).select('text.value').text(d[value[0]])
+      }
+    })
+    
+    //TODO: this.gun.not()
+
+    return group
+  }
+
   SVGElement () {
     let id = this.data.id
     let position = this.data.position
@@ -131,6 +160,7 @@ class Node extends Primitives {
 
     d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
     .append(() => this.nodeAnchor())
+    d3.select(group).append(() => this.nodeValue())
 
     return group
   }

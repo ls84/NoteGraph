@@ -20,6 +20,7 @@ class Main extends React.Component {
 
     // keeping this data injection for now
     // const test = this.gun.get('test')
+    // test.put({history: 'This is of course correct, but I\'d like to add the reason for having to do this: the JSON spec at ietf.org/rfc/rfc4627.txt contains this sentence in section 2.5: "All Unicode characters may be placed within the quotation marks except for the characters that must be escaped: quotation mark, reverse solidus, and the control characters (U+0000 through U+001F)." Since a newline is a control character, it must be escaped.\\nAccording to www.json.org JSON does accept the control sequence "\n" in strings - and if you try JSON.parse([\'"a\\na"\'])[1].charCodeAt(); that will show 10 - which was "Linefeed" the last time I checked. --- BTW: Stop screaming!'})
     // test.put({value: null})
     // test.put({name: 'test'})
     // test.put({'other value': 'this is another value'})
