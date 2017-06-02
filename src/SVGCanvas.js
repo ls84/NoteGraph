@@ -40,11 +40,13 @@ class SVGCanvas extends React.Component {
   }
 
   measureText (text) {
-    let renderedText = d3.select('svg#preRender').append('text')
-    .text(text)
-    .node()
+    let renderedText = d3.select('svg#preRender').append('text').text(text).node()
+    
+    let size = renderedText.getBBox()
 
-    return renderedText.getBBox()
+    renderedText.remove()
+
+    return size
   }
 
   addZoomBehaviour () {

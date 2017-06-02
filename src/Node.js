@@ -10,6 +10,7 @@ class Node extends Primitives {
     this.data.toLink = []
     this.links = {from: [], to: []}
 
+    this.measureText = canvas.measureText
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
   }
@@ -103,6 +104,31 @@ class Node extends Primitives {
     }
   }
 
+  wrapText (text) {
+    let overflowWidth = 300
+    if (text) this.value = text
+    let words = this.value.split(' ').reverse()
+    let lines = []
+    let line = ''
+    let word = words.pop()
+    while (word) {
+      let linePreview = line
+      linePreview += `${word} `
+      let overflow = (this.measureText(linePreview).width > overflowWidth)
+      if (!overflow) line += `${word} `
+      if (overflow) {
+        lines.push(line)
+        line = `${word} `
+      }
+      word = words.pop()
+    }
+    lines.forEach((v,i) => {
+      d3.select(this.DOM).select('.value')
+      .append('tspan').attr('x', 0).attr('y', `${i * 13}`)
+      .text(v)
+    })
+  }
+
   nodeAnchor () {
     let path = this.data.path
 
@@ -143,8 +169,8 @@ class Node extends Primitives {
       }
       if (value.length > 0) {
         d3.select(this.DOM).select('text.valueLabel').text(value[0])
-        d3.select(this.DOM).select('text.value').text(d[value[0]])
-      }
+        this.wrapText(d[value[0]])
+        }
     })
     
     //TODO: this.gun.not()
@@ -159,7 +185,7 @@ class Node extends Primitives {
     let group = this.group('nodes', id)
 
     d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
-    .append(() => this.nodeAnchor())
+    d3.select(group).append(() => this.nodeAnchor())
     d3.select(group).append(() => this.nodeValue())
 
     return group
