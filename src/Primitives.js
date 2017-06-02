@@ -1,5 +1,4 @@
 class Primitives {
-
   point (x, y) {
     // NOTE: depends on the svg element
     let pt = document.querySelector('#ForceGraph').createSVGPoint()
@@ -42,7 +41,6 @@ class Primitives {
 
     return valuegroup
   }
-
 }
 
 module.exports = Primitives

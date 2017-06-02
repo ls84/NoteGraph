@@ -39,6 +39,14 @@ class SVGCanvas extends React.Component {
     return [pt.x, pt.y]
   }
 
+  measureText (text) {
+    let renderedText = d3.select('svg#preRender').append('text')
+    .text(text)
+    .node()
+
+    return renderedText.getBBox()
+  }
+
   addZoomBehaviour () {
     let canvas = document.querySelector('svg#Canvas')
     let zoom = d3.zoom()
@@ -159,6 +167,7 @@ class SVGCanvas extends React.Component {
           <svg id='Canvas'><g id="zoomTransform"></g></svg>
         </div>
         <div id="Status"></div>
+        <svg id='preRender'></svg>
         <NodeInteract ref={(c) => { this.nodeInteract = c }} getGunData={this.props.getGunData} />
         <LinkInteract ref={(c) => { this.linkInteract = c }} />
       </div>
