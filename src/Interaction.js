@@ -58,6 +58,7 @@ class Interaction {
 
     let commands = (event) => {
       if (event.key === 't') this.target.gun.val((data, key) => { console.log(data, key) })
+      if (event.key === 's') this.target.toggleDisplayLevel()
     }
 
     window.onkeyup = commands

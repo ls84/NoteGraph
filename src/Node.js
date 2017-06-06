@@ -6,10 +6,21 @@ class Node extends Primitives {
     super()
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas))
     this.data.id = id
+    // this.data.boundingBoxWidth = 0
+    // this.data.boundingBoxHeight = 0
     this.data.fromLink = []
     this.data.toLink = []
     this.links = {from: [], to: []}
 
+    this.displayLevel = (function () {
+      let counter = 0
+      let level = ['minimal', 'showPath', 'showValue']
+
+      return function () {
+        counter += 1
+        return level[counter % 3]
+      }
+    })()
     this.measureText = canvas.measureText
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
@@ -105,28 +116,66 @@ class Node extends Primitives {
   }
 
   wrapText (text) {
-    let overflowWidth = 300
+    let overflowWidth = this.data.boundingBoxWidth - 15
+    let overflowHeight = this.data.boundingBoxHeight
     if (text) this.value = text
     let words = this.value.split(' ').reverse()
     let lines = []
-    let line = ''
+    let line = words.pop()
     let word = words.pop()
     while (word) {
       let linePreview = line
-      linePreview += `${word} `
-      let overflow = (this.measureText(linePreview).width > overflowWidth)
-      if (!overflow) line += `${word} `
+      linePreview += ` ${word}`
+      let overflow = (this.measureText(linePreview, 'value').width > overflowWidth)
+      if (!overflow) line += ` ${word}`
       if (overflow) {
         lines.push(line)
-        line = `${word} `
+        line = `${word}`
       }
       word = words.pop()
     }
-    lines.forEach((v,i) => {
-      d3.select(this.DOM).select('.value')
-      .append('tspan').attr('x', 0).attr('y', `${i * 13}`)
-      .text(v)
+    lines.push(line)
+    d3.select(this.DOM).select('.value').selectAll('tspan').remove()
+    lines.forEach((v, i) => {
+      if (((i + 1) * 13) < (overflowHeight)) {
+        d3.select(this.DOM).select('.value')
+        .append('tspan').attr('x', 0).attr('y', `${i * 13}`)
+        .text(v)
+      }
     })
+  }
+
+  nodeSizeHandle (size) {
+    if (size) {
+      this.data.boundingBoxWidth = size.width
+      this.data.boundingBoxHeight = size.height
+    }
+
+    let dragBehaviour = d3.drag()
+    dragBehaviour.on('start', (d, i, g) => {
+      d3.event.sourceEvent.stopPropagation()
+    })
+
+    dragBehaviour.on('drag', (d, i, g) => {
+      d3.event.sourceEvent.stopPropagation()
+      this.data.boundingBoxWidth += d3.event.dx
+      this.data.boundingBoxHeight += d3.event.dy
+
+      let minimalWidth = this.measureText(this.data.valueKey, 'valueLabel').width + 30
+      this.data.boundingBoxWidth = (this.data.boundingBoxWidth < minimalWidth) ? minimalWidth : this.data.boundingBoxWidth
+      this.data.boundingBoxHeight = (this.data.boundingBoxHeight < 0) ? 0 : this.data.boundingBoxHeight
+
+      if (this.data.boundingBoxHeight > 0) this.wrapText()
+      d3.select(this.DOM).select('.boundingBoxHandle').attr('transform', `translate(${this.data.boundingBoxWidth}, ${this.data.boundingBoxHeight})`)
+    })
+
+    let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
+    d3.select(handle).attr('class', 'boundingBoxHandle')
+    .attr('transform', `translate(${this.data.boundingBoxWidth += 30}, ${this.data.boundingBoxHeight})`)
+    .attr('points', '5,0 5,5 0,5')
+    .call(dragBehaviour)
+
+    return handle
   }
 
   nodeAnchor () {
@@ -144,7 +193,7 @@ class Node extends Primitives {
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
-    .text(path[0].toUpperCase())
+    .text(path[0])
 
     return group
   }
@@ -153,27 +202,32 @@ class Node extends Primitives {
     let group = this.group('nodeValue')
     let circle = this.circle('nodeValueAnchor')
 
-    d3.select(group).attr('transform', 'translate(0,40)')
-    
+    d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
+
     d3.select(group).append(() => circle)
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
     d3.select(group).append('text').attr('class', 'value')
     .attr('transform', 'translate(15, 25)')
-    
+
     this.gun.val((d, k) => {
-      let value = []
-      for (let key in d ) {
-        if (typeof d[key] !== 'object') value.push(key)
+      let valueKey = []
+      for (let key in d) {
+        if (typeof d[key] !== 'object') valueKey.push(key)
       }
-      if (value.length > 0) {
-        d3.select(this.DOM).select('text.valueLabel').text(value[0])
-        this.wrapText(d[value[0]])
-        }
+      if (valueKey.length > 0) {
+        let key = valueKey[0]
+        let size = this.measureText(key)
+        this.data.valueKey = key
+        d3.select(group).append(() => this.nodeSizeHandle({ width: size.width, height: 0 }))
+        d3.select(this.DOM).select('text.valueLabel').text(key)
+        this.value = d[key]
+        // this.wrapText(d[key])
+      }
     })
-    
-    //TODO: this.gun.not()
+
+    // TODO: this.gun.not()
 
     return group
   }
@@ -201,6 +255,22 @@ class Node extends Primitives {
 
     this.DOM = DOM
     return d3.select(DOM)
+  }
+
+  toggleDisplayLevel () {
+    this.data.displayLevel = this.displayLevel()
+    switch (this.data.displayLevel) {
+      case 'minimal':
+        d3.select(this.DOM).select('.nodeLabel').text(this.data.path[0])
+        d3.select(this.DOM).select('.nodeValue').attr('display', 'none')
+        break
+      case 'showPath':
+        d3.select(this.DOM).select('.nodeLabel').text(this.data.path)
+        break
+      case 'showValue':
+        d3.select(this.DOM).select('.nodeValue').attr('display', 'true')
+        break
+    }
   }
 }
 

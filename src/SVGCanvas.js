@@ -39,11 +39,12 @@ class SVGCanvas extends React.Component {
     return [pt.x, pt.y]
   }
 
-  measureText (text) {
+  measureText (text, style) {
+    d3.select('svg#preRender').attr('class', style)
     let renderedText = d3.select('svg#preRender').append('text').text(text).node()
     
     let size = renderedText.getBBox()
-
+    // d3.select('svg#preRender').selectAll('text').remove()
     renderedText.remove()
 
     return size
