@@ -182,10 +182,8 @@ class Node extends Primitives {
     let path = this.data.path
 
     let group = this.group('nodeAnchor')
-    // TODO: use primitives
-    let circle = document.createElementNS(d3.namespaces.svg, 'circle')
+    let circle = this.circle('nodeAnchor')
     d3.select(circle)
-    .attr('r', 25)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
 

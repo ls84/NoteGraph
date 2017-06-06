@@ -1,27 +1,10 @@
 class Primitives {
-  point (x, y) {
-    // NOTE: depends on the svg element
-    let pt = document.querySelector('#ForceGraph').createSVGPoint()
-    pt.x = x
-    pt.y = y
-    return pt
-  }
-
   group (className, idName) {
     let group = document.createElementNS(d3.namespaces.svg, 'g')
     if (className) d3.select(group).attr('class', className)
     if (idName) d3.select(group).attr('id', idName)
 
     return group
-  }
-
-  div (className, text, contentEditable) {
-    let div = document.createElement('div')
-    if (className) d3.select(div).attr('class', className)
-    if (text) d3.select(div).text(text)
-    if (contentEditable) d3.select(div).attr('contenteditable', 'true')
-
-    return div
   }
 
   circle (styleSelector) {
@@ -31,6 +14,12 @@ class Primitives {
         'stroke': 'black',
         'stroke-width': '0.5',
         'fill': 'white'
+      },
+      'nodeAnchor': {
+        'r': '25',
+        'stroke': 'white',
+        'fill': 'whiteSmoke',
+        'stroke-width': '10px'
       }
     }
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
@@ -44,14 +33,6 @@ class Primitives {
     }
 
     return circle
-  }
-
-  valueGroup (label, content) {
-    let valuegroup = this.div('valueGroup')
-    d3.select(valuegroup).append(() => this.div('valueLabel', label, true))
-    d3.select(valuegroup).append(() => this.div('value', content, true))
-
-    return valuegroup
   }
 }
 
