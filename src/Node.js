@@ -199,10 +199,22 @@ class Node extends Primitives {
   nodeValue () {
     let group = this.group('nodeValue')
     let circle = this.circle('nodeValueAnchor')
+    let dragBehaviour = d3.drag()
+    dragBehaviour.on('start', () => { d3.event.sourceEvent.stopPropagation() })
+    dragBehaviour.on('drag', () => {
+      let mouse = d3.mouse(this.DOM)
+      d3.select(this.DOM).select('.nodeValue')
+      .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
+      // TODO: should add new value link
+    })
+    dragBehaviour.on('end', () => {
+      // TODO: should 'detach' from node group DOM, but not from Node instance
+      // TODO: should append new Nodevalue
+    })
 
     d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
-
-    d3.select(group).append(() => circle)
+    .append(() => circle)
+    .call(dragBehaviour)
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
@@ -221,7 +233,6 @@ class Node extends Primitives {
         d3.select(group).append(() => this.nodeSizeHandle({ width: size.width, height: 0 }))
         d3.select(this.DOM).select('text.valueLabel').text(key)
         this.value = d[key]
-        // this.wrapText(d[key])
       }
     })
 
