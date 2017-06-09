@@ -27,6 +27,7 @@ class SVGCanvas extends React.Component {
     return {width, height}
   }
 
+  // TODO: use d3.mouse instead
   cursorPoint (event) {
     let svg = document.querySelector('svg#Canvas')
     let pt = svg.createSVGPoint()
@@ -49,17 +50,6 @@ class SVGCanvas extends React.Component {
     return size
   }
 
-  addZoomBehaviour () {
-    let canvas = document.querySelector('svg#Canvas')
-    let zoom = d3.zoom()
-    zoom.on('zoom', function () {
-      d3.select(canvas).select('#zoomTransform')
-      .attr('transform', d3.event.transform)
-    })
-
-    d3.select(canvas).call(zoom)
-  }
-
   appendNode (gunPath, position) {
     let node = this.newNode()
     node.data.position = position
@@ -75,7 +65,16 @@ class SVGCanvas extends React.Component {
     return node
   }
 
-  addDropNodeBehaviour () {
+  addInteractions () {
+    let canvas = document.querySelector('svg#Canvas')
+    let zoom = d3.zoom()
+    zoom.on('zoom', function () {
+      d3.select(canvas).select('#zoomTransform')
+      .attr('transform', d3.event.transform)
+    })
+
+    d3.select(canvas).call(zoom)
+
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
       event.preventDefault()
@@ -87,10 +86,6 @@ class SVGCanvas extends React.Component {
       let position = this.cursorPoint(event)
       this.appendNode(nodePath, position)
     })
-  }
-
-  addCancelInputBehaviour () {
-    let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('click', (event) => {
       let NodeInteract = document.querySelector('div#NodeInteract')
       if (NodeInteract.classList.value === 'show') this.nodeInteract.hide()
@@ -101,9 +96,7 @@ class SVGCanvas extends React.Component {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
-    this.addZoomBehaviour()
-    this.addDropNodeBehaviour()
-    this.addCancelInputBehaviour()
+    this.addInteractions()
     this.interaction = new Interaction(this)
   }
 
