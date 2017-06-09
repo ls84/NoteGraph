@@ -10,6 +10,7 @@ class Node extends Primitives {
     // this.data.boundingBoxHeight = 0
     this.data.fromLink = []
     this.data.toLink = []
+    this.data.detachedValue = {}
     this.links = {from: [], to: []}
 
     this.displayLevel = (function () {
@@ -21,6 +22,7 @@ class Node extends Primitives {
         return level[counter % 3]
       }
     })()
+    this.getRandomValue = canvas.getRandomValue
     this.measureText = canvas.measureText
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
@@ -200,7 +202,9 @@ class Node extends Primitives {
     let group = this.group('nodeValue')
     let circle = this.circle('nodeValueAnchor')
     let dragBehaviour = d3.drag()
-    dragBehaviour.on('start', () => { d3.event.sourceEvent.stopPropagation() })
+    dragBehaviour.on('start', () => {
+      d3.event.sourceEvent.stopPropagation() 
+    })
     dragBehaviour.on('drag', () => {
       let mouse = d3.mouse(this.DOM)
       d3.select(this.DOM).select('.nodeValue')
@@ -208,8 +212,35 @@ class Node extends Primitives {
       // TODO: should add new value link
     })
     dragBehaviour.on('end', () => {
-      // TODO: should 'detach' from node group DOM, but not from Node instance
+      let mouse = d3.mouse(this.DOM.parentNode)
+      let id = `value-${this.getRandomValue()}`
+      let cache = this.data.detachedValue
+      cache[id] = {position: mouse}
+
+      let value = d3.select(this.DOM).select('.nodeValue').remove().node()
+      d3.select(this.DOM.parentNode).append(() => value)
+      .attr('id', id)
+      .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
+      
+      // add a new dragBehaviour
+      d3.select(value).select('circle').on('.drag', null)
+      let dragBehaviour = d3.drag()
+      dragBehaviour.on('start', (d, i, g) => {
+        d3.event.sourceEvent.stopPropagation() 
+      })
+      dragBehaviour.on('drag', (d, i, g) => {
+        let mouse = d3.mouse(g[i].parentNode.parentNode)
+        d3.select(g[i].parentNode).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
+        let id = g[i].parentNode.id
+
+        let cache = this.data.detachedValue
+        cache[id].position = mouse
+        this.data.detachedValue = cache
+      })
+      d3.select(value).select('circle').call(dragBehaviour)
       // TODO: should append new Nodevalue
+
+      this.data.detachedValue = cache
     })
 
     d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
