@@ -117,7 +117,7 @@ class Node extends Primitives {
     }
   }
 
-  wrapText (text) {
+  wrapText (text, container) {
     let overflowWidth = this.data.boundingBoxWidth - 15
     let overflowHeight = this.data.boundingBoxHeight
     if (text) this.value = text
@@ -137,10 +137,10 @@ class Node extends Primitives {
       word = words.pop()
     }
     lines.push(line)
-    d3.select(this.DOM).select('.value').selectAll('tspan').remove()
+    d3.select(container).selectAll('tspan').remove()
     lines.forEach((v, i) => {
       if (((i + 1) * 13) < (overflowHeight)) {
-        d3.select(this.DOM).select('.value')
+        d3.select(container)
         .append('tspan').attr('x', 0).attr('y', `${i * 13}`)
         .text(v)
       }
@@ -159,7 +159,7 @@ class Node extends Primitives {
     })
 
     dragBehaviour.on('drag', (d, i, g) => {
-      d3.event.sourceEvent.stopPropagation()
+      // d3.event.sourceEvent.stopPropagation()
       this.data.boundingBoxWidth += d3.event.dx
       this.data.boundingBoxHeight += d3.event.dy
 
@@ -167,8 +167,9 @@ class Node extends Primitives {
       this.data.boundingBoxWidth = (this.data.boundingBoxWidth < minimalWidth) ? minimalWidth : this.data.boundingBoxWidth
       this.data.boundingBoxHeight = (this.data.boundingBoxHeight < 0) ? 0 : this.data.boundingBoxHeight
 
-      if (this.data.boundingBoxHeight > 0) this.wrapText()
+      if (this.data.boundingBoxHeight > 0) this.wrapText(null, g[i].parentNode.querySelector('.value'))
       d3.select(this.DOM).select('.boundingBoxHandle').attr('transform', `translate(${this.data.boundingBoxWidth}, ${this.data.boundingBoxHeight})`)
+      d3.select(g[i]).attr('transform', `translate(${this.data.boundingBoxWidth}, ${this.data.boundingBoxHeight})`)
     })
 
     let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
@@ -222,7 +223,7 @@ class Node extends Primitives {
       .attr('id', id)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
       
-      // add a new dragBehaviour
+      // TODO: this new dragBehaviour is too nested
       d3.select(value).select('circle').on('.drag', null)
       let dragBehaviour = d3.drag()
       dragBehaviour.on('start', (d, i, g) => {
