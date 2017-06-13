@@ -121,6 +121,23 @@ class Node extends Primitives {
     }
   }
 
+  getValue () {
+    this.gun.val((d, k) => {
+      let valueKey = []
+      for (let key in d) {
+        if (typeof d[key] !== 'object') valueKey.push(key)
+      }
+      if (valueKey.length > 0) {
+        let key = valueKey[0]
+        let size = this.measureText(key)
+        this.data.valueKey = key
+        d3.select(this.DOM).select('.nodeValue').append(() => this.nodeSizeHandle({ width: size.width, height: 0 }))
+        d3.select(this.DOM).select('text.valueLabel').text(key)
+        this.value = d[key]
+      }
+    })
+  }
+
   wrapText (text, container) {
     let overflowWidth = this.data.boundingBoxWidth - 15
     let overflowHeight = this.data.boundingBoxHeight
@@ -222,7 +239,8 @@ class Node extends Primitives {
       let id = `value-${this.getRandomValue()}`
       let cache = this.data.detachedValue
       cache[id] = {position: mouse}
-
+      
+      // TODO: should also detach boundingBox data
       let value = d3.select(this.DOM).select('.nodeValue').remove().node()
       d3.select(this.DOM.parentNode).append(() => value)
       .attr('id', id)
@@ -244,7 +262,9 @@ class Node extends Primitives {
         this.data.detachedValue = cache
       })
       d3.select(value).select('circle').call(dragBehaviour)
-      // TODO: should append new Nodevalue
+      d3.select(this.DOM).append(() => this.nodeValue())
+      .attr('display', 'true')
+      this.getValue()
 
       this.data.detachedValue = cache
     })
@@ -257,21 +277,6 @@ class Node extends Primitives {
     .attr('transform', 'translate(15,4)')
     d3.select(group).append('text').attr('class', 'value')
     .attr('transform', 'translate(15, 25)')
-
-    this.gun.val((d, k) => {
-      let valueKey = []
-      for (let key in d) {
-        if (typeof d[key] !== 'object') valueKey.push(key)
-      }
-      if (valueKey.length > 0) {
-        let key = valueKey[0]
-        let size = this.measureText(key)
-        this.data.valueKey = key
-        d3.select(group).append(() => this.nodeSizeHandle({ width: size.width, height: 0 }))
-        d3.select(this.DOM).select('text.valueLabel').text(key)
-        this.value = d[key]
-      }
-    })
 
     // TODO: this.gun.not()
 
@@ -299,10 +304,12 @@ class Node extends Primitives {
     .append(() => this.SVGElement())
     .node()
 
-    // propagate data to child elements
-    d3.select(DOM).select('.nodeAnchor circle')
-
     this.DOM = DOM
+
+    // propagate data to child elements
+    d3.select(this.DOM).select('.nodeAnchor circle')
+    this.getValue()
+
     return d3.select(DOM)
   }
 

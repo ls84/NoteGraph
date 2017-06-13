@@ -1,6 +1,5 @@
 let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused-vars
 let NodeInteract = require('./NodeInteract.js') // eslint-disable-line no-unused-vars
-let Interaction = require('./Interaction.js')
 
 class SVGCanvas extends React.Component {
   constructor (props) {
