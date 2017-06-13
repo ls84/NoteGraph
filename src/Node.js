@@ -4,6 +4,7 @@ let bindNodeToCanvasCache = require('./bindNodeToCanvasCache.js')
 class Node extends Primitives {
   constructor (id, canvas) {
     super()
+    this.canvas = canvas
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas))
     this.data.id = id
     // this.data.boundingBoxWidth = 0
@@ -34,11 +35,11 @@ class Node extends Primitives {
       d3.event.sourceEvent.stopPropagation()
 
       if (d3.event.sourceEvent.shiftKey) {
-        let link = this.newLink()
+        let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
         Object.assign(link.data, {from: this.data.position, to: this.data.position})
         link.resetHandle()
         link.appendSelf()
-        .call((s) => { this.newLinkContext(s) })
+        .call((s) => this.canvas.setContext(s, 'link'))
         this.addFromLink(link)
       }
     })
@@ -58,19 +59,20 @@ class Node extends Primitives {
 
       if (d3.event.sourceEvent.shiftKey) {
         let link = this.links.from[this.links.from.length - 1]
-        if (this.mouseOnTarget()) position = this.mouseOnTarget().data.position
+        if (this.canvas.targetNode) position = this.canvas.targetNode.data.position
         link.drawLinkTo(position)
       }
     })
 
     dragBehaviour.on('end', (d, i, g) => {
-      let target = this.mouseOnTarget()
+      let target = this.canvas.targetNode
       let link = this.links.from[this.links.from.length - 1]
       if (!target) {
         d3.select(link.DOM).remove()
         link.data.destory = link.data.id
         this.popLastLink()
-        this.setContextToCanvas()
+        this.canvas.target = null
+        this.canvas.context = 'canvas'
       }
       if (target && target.data.id !== this.data.id) {
         link.data.fromNode = this.data.id
@@ -83,8 +85,8 @@ class Node extends Primitives {
   }
 
   setNodeTarget (selection) {
-    selection.on('mouseenter.setTarget', (d, i, g) => { this.setThisAsTarget() })
-    selection.on('mouseleave.setTarget', (d, i, g) => { this.clearThisAsTarget() })
+    selection.on('mouseenter.setTarget', (d, i, g) => { this.canvas.targetNode = this })
+    selection.on('mouseleave.setTarget', (d, i, g) => { this.canvas.targetNode = null })
   }
 
   addToLink (link) {
@@ -92,6 +94,7 @@ class Node extends Primitives {
     let cache = this.data.toLink
     cache.push(link.data.id)
     this.data.toLink = cache
+
     return true
   }
 
@@ -100,6 +103,7 @@ class Node extends Primitives {
     let cache = this.data.fromLink
     cache.push(link.data.id)
     this.data.fromLink = cache
+
     return true
   }
 
@@ -189,6 +193,7 @@ class Node extends Primitives {
     d3.select(circle)
     .call(this.drawLinkBehaviour)
     .call(this.setNodeTarget)
+    .call((s) => this.canvas.setContext(s, 'node'))
 
     d3.select(group).append(() => circle)
 
@@ -293,6 +298,9 @@ class Node extends Primitives {
     .enter()
     .append(() => this.SVGElement())
     .node()
+
+    // propagate data to child elements
+    d3.select(DOM).select('.nodeAnchor circle')
 
     this.DOM = DOM
     return d3.select(DOM)

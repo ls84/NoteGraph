@@ -5,6 +5,10 @@ let Interaction = require('./Interaction.js')
 class SVGCanvas extends React.Component {
   constructor (props) {
     super(props)
+    this.conext = 'canvas'
+    this.target = null
+    this.targetNode = null
+
     this.state = { cache: { nodes: {}, links: {} } }
 
     this.Node = require('./Node.js')
@@ -50,17 +54,17 @@ class SVGCanvas extends React.Component {
     return size
   }
 
+  getRandomValue () {
+    let a = new Uint32Array(1)
+    return window.crypto.getRandomValues(a)
+  }
+
   appendNode (gunPath, position) {
-    let node = this.newNode()
+    let node = new this.Node(`node-${this.getRandomValue()}`, this)
     node.data.position = position
-    node.mouseOnTarget = () => { return this.interaction.targetNode }
     node.data.path = gunPath
     node.gun = this.props.gunData
     node.appendSelf()
-    .call((s) => {
-      let nodeAnchor = s.select('.nodeAnchor')
-      this.interaction.setContext(nodeAnchor, 'node')
-    })
 
     return node
   }
@@ -92,25 +96,60 @@ class SVGCanvas extends React.Component {
     })
   }
 
+  set context (value) {
+    console.log('set context: ', value)
+    if (value === 'canvas') this.applyCanvasContext()
+    if (value === 'link') this.applyLinkContext()
+    if (value === 'node') this.applyNodeContext()
+    return value
+  }
+
+  setContext (selection, context) {
+    selection.on('mouseenter', (d) => {
+      this.target = d
+      this.context = context
+    })
+
+    selection.on('mouseleave', () => {
+      this.target = null
+      this.context = 'canvas'
+    })
+  }
+
+  applyCanvasContext (selection) {
+    let commands = (event) => {
+      if (event.key === 'n') this.nodeInteract.show()
+      if (event.key === 's') this.saveCache()
+      if (event.key === 'l') this.loadCache()
+    }
+
+    window.onkeyup = commands
+  }
+
+  applyNodeContext (selection) {
+    let commands = (event) => {
+      if (event.key === 't') this.target.gun.val((data, key) => { console.log(data, key) })
+      if (event.key === 's') this.target.toggleDisplayLevel()
+    }
+
+    window.onkeyup = commands
+  }
+
+  applyLinkContext (selection) {
+    let commands = (event) => {
+      if (event.key === 'c') this.target.edit()
+      if (event.key === 'n') this.linkInteract.show(this.target)
+    }
+
+    window.onkeyup = commands
+  }
+
   componentDidMount () {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
     this.addInteractions()
-    this.interaction = new Interaction(this)
-  }
-
-  showNodeInteract () {
-    this.nodeInteract.show()
-  }
-
-  showLinkInteract (targetLink) {
-    this.linkInteract.show(targetLink)
-  }
-
-  getRandomValue () {
-    let a = new Uint32Array(1)
-    return window.crypto.getRandomValues(a)
+    this.context = 'canvas'
   }
 
   saveCache () {
