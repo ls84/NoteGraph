@@ -121,7 +121,7 @@ class Node extends Primitives {
     }
   }
 
-  getValue () {
+  getValue (valueID) {
     this.gun.val((d, k) => {
       let valueKey = []
       for (let key in d) {
@@ -129,18 +129,21 @@ class Node extends Primitives {
       }
       if (valueKey.length > 0) {
         let key = valueKey[0]
-        let size = this.measureText(key)
+        let textLength = this.measureText(key)
+        let size = valueID ? this.data.detachedValue[valueID] : {boundingBoxWidth: textLength.width, boundingBoxHeight: 0}
+        let DOM = valueID ? document.querySelector(`#${valueID}`) : this.DOM.querySelector('.nodeValue')
         this.data.valueKey = key
-        d3.select(this.DOM).select('.nodeValue').append(() => this.nodeSizeHandle({ width: size.width, height: 0 }))
-        d3.select(this.DOM).select('text.valueLabel').text(key)
+        let container = d3.select(DOM).append(() => this.nodeSizeHandle(size, valueID)).node().parentNode
+        d3.select(DOM).select('text.valueLabel').text(key)
         this.value = d[key]
+        this.wrapText(null, container.querySelector('.value'), size)
       }
     })
   }
 
-  wrapText (text, container) {
-    let overflowWidth = this.data.boundingBoxWidth - 15
-    let overflowHeight = this.data.boundingBoxHeight
+  wrapText (text, container, overflow) {
+    let overflowWidth = overflow.boundingBoxWidth - 15
+    let overflowHeight = overflow.boundingBoxHeight
     if (text) this.value = text
     let words = this.value.split(' ').reverse()
     let lines = []
@@ -168,10 +171,12 @@ class Node extends Primitives {
     })
   }
 
-  nodeSizeHandle (size) {
+  nodeSizeHandle (size, valueID) {
+    let cache = valueID ? this.data.detachedValue[valueID] : this.data
+
     if (size) {
-      this.data.boundingBoxWidth = size.width
-      this.data.boundingBoxHeight = size.height
+      cache.boundingBoxWidth = size.boundingBoxWidth
+      cache.boundingBoxHeight = size.boundingBoxHeight
     }
 
     let dragBehaviour = d3.drag()
@@ -181,21 +186,27 @@ class Node extends Primitives {
 
     dragBehaviour.on('drag', (d, i, g) => {
       // d3.event.sourceEvent.stopPropagation()
-      this.data.boundingBoxWidth += d3.event.dx
-      this.data.boundingBoxHeight += d3.event.dy
+      cache.boundingBoxWidth += d3.event.dx
+      cache.boundingBoxHeight += d3.event.dy
 
       let minimalWidth = this.measureText(this.data.valueKey, 'valueLabel').width + 30
-      this.data.boundingBoxWidth = (this.data.boundingBoxWidth < minimalWidth) ? minimalWidth : this.data.boundingBoxWidth
-      this.data.boundingBoxHeight = (this.data.boundingBoxHeight < 0) ? 0 : this.data.boundingBoxHeight
+      cache.boundingBoxWidth = (cache.boundingBoxWidth < minimalWidth) ? minimalWidth : cache.boundingBoxWidth
+      cache.boundingBoxHeight = (cache.boundingBoxHeight < 0) ? 0 : cache.boundingBoxHeight
 
-      if (this.data.boundingBoxHeight > 0) this.wrapText(null, g[i].parentNode.querySelector('.value'))
-      d3.select(this.DOM).select('.boundingBoxHandle').attr('transform', `translate(${this.data.boundingBoxWidth}, ${this.data.boundingBoxHeight})`)
-      d3.select(g[i]).attr('transform', `translate(${this.data.boundingBoxWidth}, ${this.data.boundingBoxHeight})`)
+      d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
+
+      if (cache.boundingBoxHeight > 0) this.wrapText(null, g[i].parentNode.querySelector('.value'), cache)
+      d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
+
+      if (valueID) this.data.detachedValue[valueID] = cache
+      if (!valueID) this.data = cache
+
     })
 
+    if (valueID) cache.boundingBoxWidth -= 30
     let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
     d3.select(handle).attr('class', 'boundingBoxHandle')
-    .attr('transform', `translate(${this.data.boundingBoxWidth += 30}, ${this.data.boundingBoxHeight})`)
+    .attr('transform', `translate(${cache.boundingBoxWidth += 30}, ${cache.boundingBoxHeight})`)
     .attr('points', '5,0 5,5 0,5')
     .call(dragBehaviour)
 
@@ -221,57 +232,49 @@ class Node extends Primitives {
     return group
   }
 
-  nodeValue () {
+  nodeValue (valueID) {
     let group = this.group('nodeValue')
     let circle = this.circle('nodeValueAnchor')
     let dragBehaviour = d3.drag()
     dragBehaviour.on('start', () => {
-      d3.event.sourceEvent.stopPropagation() 
+      d3.event.sourceEvent.stopPropagation()
     })
-    dragBehaviour.on('drag', () => {
-      let mouse = d3.mouse(this.DOM)
-      d3.select(this.DOM).select('.nodeValue')
+    dragBehaviour.on('drag', (d, i, g) => {
+      let mouse = d3.mouse(g[i].parentNode.parentNode)
+      d3.select(g[i].parentNode)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
       // TODO: should add new value link
     })
-    dragBehaviour.on('end', () => {
+
+    if (valueID) {
       let mouse = d3.mouse(this.DOM.parentNode)
-      let id = `value-${this.getRandomValue()}`
-      let cache = this.data.detachedValue
-      cache[id] = {position: mouse}
-      
-      // TODO: should also detach boundingBox data
-      let value = d3.select(this.DOM).select('.nodeValue').remove().node()
-      d3.select(this.DOM.parentNode).append(() => value)
-      .attr('id', id)
-      .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
-      
-      // TODO: this new dragBehaviour is too nested
-      d3.select(value).select('circle').on('.drag', null)
-      let dragBehaviour = d3.drag()
-      dragBehaviour.on('start', (d, i, g) => {
-        d3.event.sourceEvent.stopPropagation() 
-      })
-      dragBehaviour.on('drag', (d, i, g) => {
-        let mouse = d3.mouse(g[i].parentNode.parentNode)
-        d3.select(g[i].parentNode).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
-        let id = g[i].parentNode.id
-
-        let cache = this.data.detachedValue
-        cache[id].position = mouse
-        this.data.detachedValue = cache
-      })
-      d3.select(value).select('circle').call(dragBehaviour)
-      d3.select(this.DOM).append(() => this.nodeValue())
+      d3.select(group).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
+      .attr('id', valueID)
       .attr('display', 'true')
-      this.getValue()
+      .append(() => circle)
+      .call(dragBehaviour)
+    }
 
-      this.data.detachedValue = cache
-    })
+    if (!valueID) {
+      dragBehaviour.on('end', () => {
+        let mouse = d3.mouse(this.DOM.parentNode)
+        let id = `value-${this.getRandomValue()}`
+        let cache = this.data.detachedValue
+        cache[id] = {position: mouse, boundingBoxWidth: this.data.boundingBoxWidth, boundingBoxHeight: this.data.boundingBoxHeight}
 
-    d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
-    .append(() => circle)
-    .call(dragBehaviour)
+        // TODO: should also detach boundingBox data
+        let value = this.nodeValue(id)
+        d3.select(this.DOM.parentNode).append(() => value)
+        d3.select(this.DOM).select('.nodeValue').remove()
+
+        this.data.detachedValue = cache
+        this.getValue(id)
+      })
+
+      d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
+      .append(() => circle)
+      .call(dragBehaviour)
+    }
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
