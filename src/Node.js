@@ -11,6 +11,7 @@ class Node extends Primitives {
     // this.data.boundingBoxHeight = 0
     this.data.fromLink = []
     this.data.toLink = []
+    this.data.attachedValue = {}
     this.data.detachedValue = {}
     this.links = {from: [], to: []}
 
@@ -132,11 +133,15 @@ class Node extends Primitives {
         let textLength = this.measureText(key)
         let size = valueID ? this.data.detachedValue[valueID] : {boundingBoxWidth: textLength.width, boundingBoxHeight: 0}
         let DOM = valueID ? document.querySelector(`#${valueID}`) : this.DOM.querySelector('.nodeValue')
-        this.data.valueKey = key
         let container = d3.select(DOM).append(() => this.nodeSizeHandle(size, valueID)).node().parentNode
         d3.select(DOM).select('text.valueLabel').text(key)
-        this.value = d[key]
-        this.wrapText(null, container.querySelector('.value'), size)
+        this.wrapText(d[key], container.querySelector('.value'), size)
+
+        let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
+        cache.valueKey = key
+        cache.value = d[key]
+        if (valueID) this.data.detachedValue[valueID] = cache
+        if (!valueID) this.data.attachedValue = cache
       }
     })
   }
@@ -144,8 +149,7 @@ class Node extends Primitives {
   wrapText (text, container, overflow) {
     let overflowWidth = overflow.boundingBoxWidth - 15
     let overflowHeight = overflow.boundingBoxHeight
-    if (text) this.value = text
-    let words = this.value.split(' ').reverse()
+    let words = text.split(' ').reverse()
     let lines = []
     let line = words.pop()
     let word = words.pop()
@@ -195,7 +199,7 @@ class Node extends Primitives {
 
       d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
 
-      if (cache.boundingBoxHeight > 0) this.wrapText(null, g[i].parentNode.querySelector('.value'), cache)
+      if (cache.boundingBoxHeight > 0) this.wrapText(this.data.attachedValue.value, g[i].parentNode.querySelector('.value'), cache)
       d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
 
       if (valueID) this.data.detachedValue[valueID] = cache
@@ -260,9 +264,13 @@ class Node extends Primitives {
         let mouse = d3.mouse(this.DOM.parentNode)
         let id = `value-${this.getRandomValue()}`
         let cache = this.data.detachedValue
-        cache[id] = {position: mouse, boundingBoxWidth: this.data.boundingBoxWidth, boundingBoxHeight: this.data.boundingBoxHeight}
+        cache[id] = {
+          position: mouse,
+          boundingBoxWidth: this.data.boundingBoxWidth,
+          boundingBoxHeight: this.data.boundingBoxHeight,
+          value: this.data.value
+        }
 
-        // TODO: should also detach boundingBox data
         let value = this.nodeValue(id)
         d3.select(this.DOM.parentNode).append(() => value)
         d3.select(this.DOM).select('.nodeValue').remove()
