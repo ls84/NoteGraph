@@ -13,7 +13,7 @@ class Node extends Primitives {
     this.data.toLink = []
     this.data.attachedValue = {}
     this.data.detachedValue = {}
-    this.links = {from: [], to: []}
+    this.links = {from: [], to: [], detachedValue: []}
 
     this.displayLevel = (function () {
       let counter = 0
@@ -56,6 +56,8 @@ class Node extends Primitives {
 
         this.links.from.forEach(this.updateAttachedLink('from', position))
         this.links.to.forEach(this.updateAttachedLink('to', position))
+        // this.links.detachedValue
+
       }
 
       if (d3.event.sourceEvent.shiftKey) {
@@ -204,7 +206,6 @@ class Node extends Primitives {
 
       if (valueID) this.data.detachedValue[valueID] = cache
       if (!valueID) this.data = cache
-
     })
 
     if (valueID) cache.boundingBoxWidth -= 30
@@ -240,27 +241,11 @@ class Node extends Primitives {
     let group = this.group('nodeValue')
     let circle = this.circle('nodeValueAnchor')
     let dragBehaviour = d3.drag()
-    dragBehaviour.on('start', () => {
-      d3.event.sourceEvent.stopPropagation()
-    })
-    dragBehaviour.on('drag', (d, i, g) => {
-      let mouse = d3.mouse(g[i].parentNode.parentNode)
-      d3.select(g[i].parentNode)
-      .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
-      // TODO: should add new value link
-    })
-
-    if (valueID) {
-      let mouse = d3.mouse(this.DOM.parentNode)
-      d3.select(group).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
-      .attr('id', valueID)
-      .attr('display', 'true')
-      .append(() => circle)
-      .call(dragBehaviour)
-    }
-
+    let shadowValueID
     if (!valueID) {
-      dragBehaviour.on('end', () => {
+      dragBehaviour.on('start', (d, i, g) => {
+        d3.event.sourceEvent.stopPropagation()
+
         let mouse = d3.mouse(this.DOM.parentNode)
         let id = `value-${this.getRandomValue()}`
         let cache = this.data.detachedValue
@@ -274,12 +259,60 @@ class Node extends Primitives {
         let value = this.nodeValue(id)
         d3.select(this.DOM.parentNode).append(() => value)
         d3.select(this.DOM).select('.nodeValue').remove()
-
-        this.data.detachedValue = cache
         this.getValue(id)
+        shadowValueID = id
+        this.data.detachedValue = cache
+
+        let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
+        Object.assign(link.data, {from: this.data.position, to: this.data.position})
+        link.resetHandle()
+        link.appendSelf()
+        .call((s) => this.canvas.setContext(s, 'link'))
+
+        link.toValue = id
+        this.links.detachedValue.push(link)
+      })
+
+      dragBehaviour.on('drag', () => {
+        let container = this.DOM.parentNode
+        let mouse = d3.mouse(container)
+        d3.select(container).select(`#${shadowValueID}`)
+        .attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
+        
+        let link = this.links.detachedValue[this.links.detachedValue.length -1]
+        link.drawLinkTo(mouse)
+
+        // let cache = this.data.detachedValue
+      })
+
+      dragBehaviour.on('end', () => {
+        //TODO: make sure it is dragged significantly 
       })
 
       d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
+      .append(() => circle)
+      .call(dragBehaviour)
+    }
+
+    if (valueID) {
+      dragBehaviour.on('start', () => {
+        d3.event.sourceEvent.stopPropagation()
+      })
+      dragBehaviour.on('drag', (d, i, g) => {
+        let id = g[i].parentNode.id
+        let container = this.DOM.parentNode
+        let mouse = d3.mouse(this.DOM.parentNode)
+        d3.select(g[i].parentNode)
+        .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
+
+        let cache = this.data.detachedValue
+        let link = this.links.detachedValue.filter((v) => v.toValue === id)[0]
+        link.drawLinkTo(mouse)
+      })
+      let mouse = d3.mouse(this.DOM.parentNode)
+      d3.select(group).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
+      .attr('id', valueID)
+      .attr('display', 'true')
       .append(() => circle)
       .call(dragBehaviour)
     }
