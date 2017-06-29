@@ -8,6 +8,7 @@ class Primitives {
   }
 
   circle (styleSelector) {
+    // TODO: need this, why not css
     let style = {
       'nodeValueAnchor': {
         'r': '5',
@@ -20,8 +21,13 @@ class Primitives {
         'stroke': 'white',
         'fill': 'whiteSmoke',
         'stroke-width': '10px'
+      },
+      'valueAnchorBackground': {
+        'stroke': 'white',
+        'fill': 'white'
       }
     }
+
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
     d3.select(circle)
     .attr('r', '10')

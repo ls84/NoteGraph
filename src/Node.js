@@ -269,8 +269,7 @@ class Node extends Primitives {
         let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
         Object.assign(link.data, {from: this.data.position, to: this.data.position})
         link.resetHandle()
-        link.appendSelf()
-        .call((s) => this.canvas.setContext(s, 'link'))
+        link.appendSelf(true)
 
         link.toValue = id
         this.links.detachedValue.push(link)
@@ -293,6 +292,9 @@ class Node extends Primitives {
       })
 
       d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
+      .append(() => this.circle('valueAnchorBackground'))
+      
+      d3.select(group)
       .append(() => circle)
       .call(dragBehaviour)
     }
@@ -317,6 +319,9 @@ class Node extends Primitives {
       d3.select(group).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
       .attr('id', valueID)
       .attr('display', 'true')
+      .append(() => this.circle('valueAnchorBackground'))
+      
+      d3.select(group)
       .append(() => circle)
       .call(dragBehaviour)
     }

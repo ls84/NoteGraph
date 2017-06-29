@@ -46,11 +46,13 @@ class Link {
     selection.call(dragBehaviour)
   }
 
-  path () {
+  path (simple) {
     let path = document.createElementNS(d3.namespaces.svg, 'path')
     d3.select(path)
     .attr('class', 'path').attr('id', `path.${this.data.id}`)
     .attr('d', this.pathDescription())
+
+    if (simple) d3.select(path).attr('class', 'path simple')
 
     return path
   }
@@ -88,16 +90,16 @@ class Link {
     return text
   }
 
-  SVGElement (origin) {
+  SVGElement (simple) {
     let id = this.data.id
     let group = document.createElementNS(d3.namespaces.svg, 'g')
     d3.select(group).attr('class', 'links').attr('id', id)
     .on('mousedown', () => { d3.event.stopPropagation() })
 
-    d3.select(group).append(() => this.path())
-    d3.select(group).append('rect').attr('class', 'textBackground')
-    d3.select(group).append(() => this.text())
-    d3.select(group).append(() => this.bezierHandle())
+    d3.select(group).append(() => this.path(simple))
+    if (!simple) d3.select(group).append('rect').attr('class', 'textBackground')
+    if (!simple) d3.select(group).append(() => this.text())
+    if (!simple) d3.select(group).append(() => this.bezierHandle())
 
     return group
   }
@@ -151,10 +153,10 @@ class Link {
     return pathDescription.toString()
   }
 
-  appendSelf () {
+  appendSelf (simple) {
     let DOM = d3.select('svg#Canvas #zoomTransform').selectAll('g.links')
     .data([this], (d) => d ? d.data.id : undefined).enter()
-    .insert(() => this.SVGElement(), ':first-child')
+    .insert(() => this.SVGElement(simple), ':first-child')
     .node()
 
     this.DOM = DOM
