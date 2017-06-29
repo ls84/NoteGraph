@@ -19,8 +19,9 @@ class Node extends Primitives {
       let counter = 0
       let level = ['minimal', 'showPath', 'showValue']
 
-      return function () {
+      return function (overwrite) {
         counter += 1
+        if (overwrite) counter = overwrite
         return level[counter % 3]
       }
     })()
@@ -289,6 +290,9 @@ class Node extends Primitives {
 
       dragBehaviour.on('end', () => {
         //TODO: make sure it is dragged significantly 
+        d3.select(this.DOM).append(() => this.nodeValue())
+        this.getValue()
+        this.toggleDisplayLevel(2)
       })
 
       d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
@@ -366,8 +370,8 @@ class Node extends Primitives {
     return d3.select(DOM)
   }
 
-  toggleDisplayLevel () {
-    this.data.displayLevel = this.displayLevel()
+  toggleDisplayLevel (level) {
+    this.data.displayLevel = this.displayLevel(level)
     switch (this.data.displayLevel) {
       case 'minimal':
         d3.select(this.DOM).select('.nodeLabel').text(this.data.path[0])
