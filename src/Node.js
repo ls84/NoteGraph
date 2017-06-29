@@ -56,8 +56,10 @@ class Node extends Primitives {
 
         this.links.from.forEach(this.updateAttachedLink('from', position))
         this.links.to.forEach(this.updateAttachedLink('to', position))
-        // this.links.detachedValue
-
+        this.links.detachedValue.forEach((v) => {
+          v.data.from = position
+          d3.select(v.DOM).select('.path').attr('d', v.pathDescription(true))
+        })
       }
 
       if (d3.event.sourceEvent.shiftKey) {
@@ -120,6 +122,7 @@ class Node extends Primitives {
   updateAttachedLink (key, position) {
     return (v) => {
       v.data[key] = position
+      //TODO: should update itself? it's acutally almost
       d3.select(v.DOM).select('.path').attr('d', v.pathDescription())
     }
   }
@@ -308,6 +311,7 @@ class Node extends Primitives {
         let cache = this.data.detachedValue
         let link = this.links.detachedValue.filter((v) => v.toValue === id)[0]
         link.drawLinkTo(mouse)
+
       })
       let mouse = d3.mouse(this.DOM.parentNode)
       d3.select(group).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
