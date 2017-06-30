@@ -140,7 +140,10 @@ class Node extends Primitives {
           remainedKey.delete(this.data.detachedValue[key].valueKey)
         }
         let key = remainedKey.values().next().value
-        //TODO: no more value??
+        if (!key) {
+          d3.select(this.DOM).select('.nodeValue').remove()
+          return false
+        }
         let textLength = this.measureText(key)
         let size = valueID ? this.data.detachedValue[valueID] : {boundingBoxWidth: textLength.width, boundingBoxHeight: 0}
         let DOM = valueID ? document.querySelector(`#${valueID}`) : this.DOM.querySelector('.nodeValue')
@@ -204,7 +207,7 @@ class Node extends Primitives {
       cache.boundingBoxWidth += d3.event.dx
       cache.boundingBoxHeight += d3.event.dy
 
-      let minimalWidth = this.measureText(this.data.valueKey, 'valueLabel').width + 30
+      let minimalWidth = this.measureText(cache.valueKey, 'valueLabel').width + 30
       cache.boundingBoxWidth = (cache.boundingBoxWidth < minimalWidth) ? minimalWidth : cache.boundingBoxWidth
       cache.boundingBoxHeight = (cache.boundingBoxHeight < 0) ? 0 : cache.boundingBoxHeight
 
@@ -296,6 +299,7 @@ class Node extends Primitives {
 
       dragBehaviour.on('end', () => {
         //TODO: make sure it is dragged significantly 
+        //TODO: should check if all value has been detached
         d3.select(this.DOM).append(() => this.nodeValue())
         this.getValue()
         this.toggleDisplayLevel(2)
