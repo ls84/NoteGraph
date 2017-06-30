@@ -135,7 +135,12 @@ class Node extends Primitives {
         if (typeof d[key] !== 'object') valueKey.push(key)
       }
       if (valueKey.length > 0) {
-        let key = valueKey[0]
+        let remainedKey = new Set(valueKey)
+        for (let key in this.data.detachedValue) {
+          remainedKey.delete(this.data.detachedValue[key].valueKey)
+        }
+        let key = remainedKey.values().next().value
+        //TODO: no more value??
         let textLength = this.measureText(key)
         let size = valueID ? this.data.detachedValue[valueID] : {boundingBoxWidth: textLength.width, boundingBoxHeight: 0}
         let DOM = valueID ? document.querySelector(`#${valueID}`) : this.DOM.querySelector('.nodeValue')
@@ -182,7 +187,7 @@ class Node extends Primitives {
   }
 
   nodeSizeHandle (size, valueID) {
-    let cache = valueID ? this.data.detachedValue[valueID] : this.data
+    let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
 
     if (size) {
       cache.boundingBoxWidth = size.boundingBoxWidth
@@ -205,11 +210,11 @@ class Node extends Primitives {
 
       d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
 
-      if (cache.boundingBoxHeight > 0) this.wrapText(this.data.attachedValue.value, g[i].parentNode.querySelector('.value'), cache)
+      if (cache.boundingBoxHeight > 0) this.wrapText(cache.value, g[i].parentNode.querySelector('.value'), cache)
       d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
 
       if (valueID) this.data.detachedValue[valueID] = cache
-      if (!valueID) this.data = cache
+      if (!valueID) this.data.attachedValue = cache
     })
 
     if (valueID) cache.boundingBoxWidth -= 30
@@ -255,17 +260,18 @@ class Node extends Primitives {
         let cache = this.data.detachedValue
         cache[id] = {
           position: mouse,
-          boundingBoxWidth: this.data.boundingBoxWidth,
-          boundingBoxHeight: this.data.boundingBoxHeight,
-          value: this.data.value
+          boundingBoxWidth: this.data.attachedValue.boundingBoxWidth,
+          boundingBoxHeight: this.data.attachedValue.boundingBoxHeight,
+          value: this.data.attachedValue.value
         }
+
+        this.data.detachedValue = cache
 
         let value = this.nodeValue(id)
         d3.select(this.DOM.parentNode).append(() => value)
         d3.select(this.DOM).select('.nodeValue').remove()
         this.getValue(id)
         shadowValueID = id
-        this.data.detachedValue = cache
 
         let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
         Object.assign(link.data, {from: this.data.position, to: this.data.position})
