@@ -28,6 +28,7 @@ class Node extends Primitives {
     this.getRandomValue = canvas.getRandomValue
     this.measureText = canvas.measureText
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
+    this.drawLinkedNodes = this.drawLinkedNodes.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
   }
 
@@ -88,6 +89,37 @@ class Node extends Primitives {
     })
 
     selection.call(dragBehaviour)
+  }
+
+  drawLinkedNodes (selection) {
+    // TODO: linked Nodes
+    var gun = this.gun
+    selection.on('dblclick', (d, i, g) => {
+      let orbit = d3.select(this.DOM).select('.nodeOrbit').node()
+      this.gun.val((d, k) => {
+        let nodeKey = []
+        for (let key in d) {
+          if (typeof d[key] === 'object' && key !== '_' && d[key] !== null) nodeKey.push(key)
+        }
+        if (nodeKey.length > 0) {
+          let svg = document.querySelector('svg#Canvas')
+          let nodeTranslate = this.DOM.getCTM()
+          let pt = svg.createSVGPoint()
+          let length = orbit.getTotalLength() / 2
+          let segment = length / nodeKey.length
+          let offset = length * 0.75
+          nodeKey.forEach((v, i) => {
+            let path = `${this.data.path}.${v}`
+            let position = orbit.getPointAtLength(offset + (segment * i))
+            pt.x = position.x
+            pt.y = position.y
+            pt = pt.matrixTransform(nodeTranslate)
+            this.canvas.props.getGunData(path)
+            let node =this.canvas.appendNode(path, [pt.x, pt.y])
+          })
+        }
+      })
+    })
   }
 
   setNodeTarget (selection) {
@@ -237,6 +269,7 @@ class Node extends Primitives {
     let circle = this.circle('nodeAnchor')
     d3.select(circle)
     .call(this.drawLinkBehaviour)
+    .call(this.drawLinkedNodes)
     .call(this.setNodeTarget)
     .call((s) => this.canvas.setContext(s, 'node'))
 
@@ -357,6 +390,7 @@ class Node extends Primitives {
     let group = this.group('nodes', id)
 
     d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
+    d3.select(group).append(() => this.circle('nodeOrbit'))
     d3.select(group).append(() => this.nodeAnchor())
     d3.select(group).append(() => this.nodeValue())
 

@@ -25,11 +25,17 @@ class Primitives {
       'valueAnchorBackground': {
         'stroke': 'white',
         'fill': 'white'
+      },
+      'nodeOrbit': {
+        'stroke': 'rgba(255,255,255,0)',
+        'fill': 'none',
+        'r': '100'
       }
     }
 
     let circle = document.createElementNS(d3.namespaces.svg, 'circle')
     d3.select(circle)
+    .attr('class', styleSelector)
     .attr('r', '10')
     .attr('stroke', 'black')
     .attr('stroke-width', 0.5)
