@@ -115,7 +115,7 @@ class Node extends Primitives {
             pt.y = position.y
             pt = pt.matrixTransform(nodeTranslate)
             this.canvas.props.getGunData(path)
-            let node =this.canvas.appendNode(path, [pt.x, pt.y])
+            let node =this.canvas.appendNode(path, [pt.x, pt.y], 1)
           })
         }
       })
@@ -158,6 +158,22 @@ class Node extends Primitives {
       //TODO: should update itself? it's acutally almost
       d3.select(v.DOM).select('.path').attr('d', v.pathDescription())
     }
+  }
+
+  displayNodeName () {
+    let name = this.data.displayName ? this.data.displayName : ''
+    d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(name)
+  }
+
+  initNode () {
+    this.gun.val((d, k) => {
+      let normalizedKey = d['_']['#']
+      this.data.normalizedKey = normalizedKey
+
+      let name = d['name']
+      if (name) this.data.displayName = name
+      this.displayNodeName()
+    })
   }
 
   getValue (valueID) {
@@ -277,7 +293,6 @@ class Node extends Primitives {
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
-    .text(path[0])
 
     return group
   }
@@ -409,6 +424,8 @@ class Node extends Primitives {
 
     // propagate data to child elements
     d3.select(this.DOM).select('.nodeAnchor circle')
+
+    this.initNode()
     this.getValue()
 
     return d3.select(DOM)
@@ -416,13 +433,14 @@ class Node extends Primitives {
 
   toggleDisplayLevel (level) {
     this.data.displayLevel = this.displayLevel(level)
+    let displayName = this.data.displayName ? this.data.displayName : ''
     switch (this.data.displayLevel) {
       case 'minimal':
-        d3.select(this.DOM).select('.nodeLabel').text(this.data.path[0])
+        d3.select(this.DOM).select('.nodeLabel').text(displayName[0])
         d3.select(this.DOM).select('.nodeValue').attr('display', 'none')
         break
       case 'showPath':
-        d3.select(this.DOM).select('.nodeLabel').text(this.data.path)
+        d3.select(this.DOM).select('.nodeLabel').text(displayName)
         break
       case 'showValue':
         d3.select(this.DOM).select('.nodeValue').attr('display', 'true')

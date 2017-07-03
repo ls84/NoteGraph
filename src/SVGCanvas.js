@@ -58,11 +58,12 @@ class SVGCanvas extends React.Component {
     return window.crypto.getRandomValues(a)
   }
 
-  appendNode (gunPath, position) {
+  appendNode (gunPath, position, displayLevel) {
     let node = new this.Node(`node-${this.getRandomValue()}`, this)
     node.data.position = position
     node.data.path = gunPath
     node.gun = this.props.gunData
+    if (displayLevel) node.displayLevel(displayLevel)
     node.appendSelf()
 
     return node
@@ -88,7 +89,7 @@ class SVGCanvas extends React.Component {
 
       let nodePath = this.nodeInteract.state.gunPath
       let position = this.cursorPoint(event)
-      this.appendNode(nodePath, position)
+      this.appendNode(nodePath, position, 1)
     })
     DropArea.addEventListener('click', (event) => {
       let NodeInteract = document.querySelector('div#NodeInteract')
@@ -168,7 +169,7 @@ class SVGCanvas extends React.Component {
       let path = cache.nodes[id].path
 
       this.props.getGunData(path)
-      let node = this.appendNode(path, position)
+      let node = this.appendNode(path, position, 1)
 
       NodeMapping[id] = node
     }
