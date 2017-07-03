@@ -96,6 +96,7 @@ class Node extends Primitives {
     var gun = this.gun
     selection.on('dblclick', (d, i, g) => {
       let orbit = d3.select(this.DOM).select('.nodeOrbit').node()
+      let nodes = []
       this.gun.val((d, k) => {
         let nodeKey = []
         for (let key in d) {
@@ -115,9 +116,23 @@ class Node extends Primitives {
             pt.y = position.y
             pt = pt.matrixTransform(nodeTranslate)
             this.canvas.props.getGunData(path)
-            let node =this.canvas.appendNode(path, [pt.x, pt.y], 1)
+            let node = this.canvas.appendNode(path, [pt.x, pt.y], 1)
+            nodes.push(node)
           })
         }
+        nodes.forEach((v) => {
+          let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
+          link.data.from = this.data.position
+          link.data.to = v.data.position
+          link.resetHandle()
+          link.appendSelf()
+          .call((s) => { this.canvas.setContext(s, 'link')})
+
+          let predicate = v.data.path.split('.').pop()
+          link.updatePredicate(predicate)
+          this.links.from.push(link)
+          v.links.to.push(link)
+        })
       })
     })
   }
@@ -157,6 +172,7 @@ class Node extends Primitives {
       v.data[key] = position
       //TODO: should update itself? it's acutally almost
       d3.select(v.DOM).select('.path').attr('d', v.pathDescription())
+      v.updateText()
     }
   }
 

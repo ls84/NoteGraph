@@ -29,7 +29,7 @@ class Primitives {
       'nodeOrbit': {
         'stroke': 'rgba(255,255,255,0)',
         'fill': 'none',
-        'r': '100'
+        'r': '220'
       }
     }
 

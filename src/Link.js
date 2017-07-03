@@ -119,7 +119,6 @@ class Link {
   updateText () {
     // let link = document.querySelector(`svg #${this.id}`)
     // skip when element is has not been added to DOM Tree
-    if (!this.DOM) return false
     let predicate = this.data.predicate
 
     let text = this.DOM.querySelector('.predicate')
@@ -148,8 +147,6 @@ class Link {
     pathDescription.moveTo(from[0], from[1])
     pathDescription.bezierCurveTo(controlFrom[0], controlFrom[1], controlTo[0], controlTo[1], to[0], to[1])
 
-    this.updateText()
-
     return pathDescription.toString()
   }
 
@@ -160,6 +157,7 @@ class Link {
     .node()
 
     this.DOM = DOM
+    this.updateText()
     return d3.select(DOM)
   }
 
@@ -167,6 +165,7 @@ class Link {
     this.data.to = position
     let link = d3.select(this.DOM)
     link.select('.path').attr('d', this.pathDescription(true))
+    this.updateText()
     link.select('.controlFrom').attr('cx', this.data.controlFrom[0]).attr('cy', this.data.controlFrom[1])
     link.select('.controlTo').attr('cx', this.data.controlTo[0]).attr('cy', this.data.controlTo[1])
   }
