@@ -159,7 +159,8 @@ class SVGCanvas extends React.Component {
 
   loadCache () {
     // let cache = {"nodes":{"node-4210259129":{"fromLink":["link-1976719957"],"toLink":["link-3501817744"],"position":[451,158],"path":"a"},"node-3650578120":{"fromLink":["link-2478644371"],"toLink":["link-1976719957"],"position":[256,425],"path":"b"},"node-4053994535":{"fromLink":["link-3501817744"],"toLink":["link-2478644371"],"position":[638,426],"path":"c"}},"links":{"link-1976719957":{"predicate":"","from":[451,158],"to":[256,425],"controlFrom":[418.5,202.5],"controlTo":[288.5,380.5],"fromNode":"node-4210259129","toNode":"node-3650578120"},"link-2478644371":{"predicate":"","from":[256,425],"to":[638,426],"controlFrom":[322,531],"controlTo":[563,521],"fromNode":"node-3650578120","toNode":"node-4053994535"},"link-3501817744":{"predicate":"","from":[638,426],"to":[451,158],"controlFrom":[606.8333333333334,381.3333333333333],"controlTo":[482.1666666666667,202.66666666666666],"fromNode":"node-4053994535","toNode":"node-4210259129"}}}
-    let cache = {"nodes":{"node-2222167242":{"fromLink":[],"toLink":[],"position":[414,118],"path":"test"}},"links":{}}
+    // let cache = {"nodes":{"node-2222167242":{"fromLink":[],"toLink":[],"position":[414,118],"path":"test"}},"links":{}}
+    let cache = {"nodes":{"node-1929895751":{"fromLink":[],"toLink":[],"position":[253,214],"path":"test","normalizedKey":"LppE0z1iME59sHwnbncBRz1e"}},"links":{}}
 
     let NodeMapping = {}
     let LinkMapping = {}
