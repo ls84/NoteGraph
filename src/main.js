@@ -4,9 +4,11 @@ class Main extends React.Component {
   constructor (props) {
     super(props)
     this.state = {}
-    this.gun = Gun().get('app')
+    this.gun = Gun()
+    window.gun = this.gun
 
     this.getGunData = this.getGunData.bind(this)
+    this.putNewNode = this.putNewNode.bind(this)
   }
 
   componentDidMount () {
@@ -49,14 +51,18 @@ class Main extends React.Component {
   }
 
   getGunData (path) {
-    let data = this.gun.path(path)
+    let data = this.gun.get('app').path(path)
     if (path === '') data = this.gun
 
     this.setState({data: data})
   }
 
+  putNewNode (path) {
+   this.gun.get('app').path(path).put({})
+  }
+
   render () {
-    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} />)
+    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} />)
   }
 }
 

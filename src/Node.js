@@ -190,9 +190,19 @@ class Node extends Primitives {
       if (name) this.data.displayName = name
       this.displayNodeName()
     })
+    
+    this.gun.not((k) => {
+      this.canvas.props.putNewNode(k)
+    }).val((d, k) => {
+      let normalizedKey = d['_']['#']
+      this.data.normalizedKey = normalizedKey
+
+      this.displayNodeName()
+    })
   }
 
   getValue (valueID) {
+    //TODO: getValue might be in conflict with initNode 
     this.gun.val((d, k) => {
       let valueKey = []
       for (let key in d) {
@@ -408,8 +418,6 @@ class Node extends Primitives {
     .attr('transform', 'translate(15,4)')
     d3.select(group).append('text').attr('class', 'value')
     .attr('transform', 'translate(15, 25)')
-
-    // TODO: this.gun.not()
 
     return group
   }
