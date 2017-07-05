@@ -9,6 +9,7 @@ class Main extends React.Component {
 
     this.getGunData = this.getGunData.bind(this)
     this.putNewNode = this.putNewNode.bind(this)
+    this.removeNode = this.removeNode.bind(this)
   }
 
   componentDidMount () {
@@ -61,8 +62,12 @@ class Main extends React.Component {
    this.gun.get('app').path(path).put({})
   }
 
+  removeNode (path) {
+   this.gun.get('app').path(path).put(null)
+  }
+
   render () {
-    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} />)
+    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} removeNode={this.removeNode} />)
   }
 }
 
