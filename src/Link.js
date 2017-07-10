@@ -2,6 +2,7 @@ let bindLinkToCanvasCache = require('./bindLinkToCanvasCache.js')
 
 class Link {
   constructor (id, canvas) {
+    this.canvas = canvas
     this.data = new Proxy({}, bindLinkToCanvasCache(canvas))
     this.data.id = id
     this.data.predicate = ''
@@ -26,6 +27,7 @@ class Link {
   }
 
   updatePredicate (predicate) {
+    if (!this.data.predicate && predicate !== '') this.canvas.props.connectNode(this.fromNode.data.path, predicate, this.toNode.data.path)
     this.data.predicate = predicate
     // TODO: should update gun when predicate is updated and not empty
     this.updateText()

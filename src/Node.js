@@ -84,6 +84,8 @@ class Node extends Primitives {
       if (target && target.data.id !== this.data.id) {
         link.data.fromNode = this.data.id
         link.data.toNode = target.data.id
+        link.fromNode = this
+        link.toNode = target
         target.addToLink(link)
       }
     })

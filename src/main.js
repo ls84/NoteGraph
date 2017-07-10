@@ -10,6 +10,7 @@ class Main extends React.Component {
     this.getGunData = this.getGunData.bind(this)
     this.putNewNode = this.putNewNode.bind(this)
     this.removeNode = this.removeNode.bind(this)
+    this.connectNode = this.connectNode.bind(this)
   }
 
   componentDidMount () {
@@ -66,8 +67,13 @@ class Main extends React.Component {
    this.gun.get('app').path(path).put(null)
   }
 
+  connectNode (fromPath, predicate, toPath) {
+    let toNode = this.gun.get('app').path(toPath)
+    this.gun.get('app').path(`${fromPath}.${predicate}`).put(toNode)
+  }
+
   render () {
-    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} removeNode={this.removeNode} />)
+    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} removeNode={this.removeNode} connectNode={this.connectNode}/>)
   }
 }
 
