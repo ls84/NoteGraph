@@ -1,5 +1,6 @@
 let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused-vars
 let NodeInteract = require('./NodeInteract.js') // eslint-disable-line no-unused-vars
+let Interaction = require('./Interaction.js') //eslint-disable-line no-unused-vars
 
 class SVGCanvas extends React.Component {
   constructor (props) {
@@ -131,6 +132,7 @@ class SVGCanvas extends React.Component {
     let commands = (event) => {
       if (event.key === 'p') this.target.gun.val((data, key) => { console.log(data, key) })
       if (event.key === 's') this.target.toggleDisplayLevel()
+      if (event.key === 'n') this.interaction.nodeName(this.target)
       if (event.key === 'Backspace') this.props.removeNode(this.target)
 
     }
@@ -214,6 +216,7 @@ class SVGCanvas extends React.Component {
         <svg id='preRender'></svg>
         <NodeInteract ref={(c) => { this.nodeInteract = c }} getGunData={this.props.getGunData} />
         <LinkInteract ref={(c) => { this.linkInteract = c }} />
+        <Interaction ref={(c) => { this.interaction = c }} />
       </div>
     )
   }

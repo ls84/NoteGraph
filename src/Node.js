@@ -145,7 +145,7 @@ class Node extends Primitives {
     selection.on('mouseenter.setTarget', (d, i, g) => { this.canvas.targetNode = this })
     selection.on('mouseleave.setTarget', (d, i, g) => { this.canvas.targetNode = null })
   }
-
+  // TODO: can binding of links and nodes be aggregated into one function?
   addToLink (link) {
     this.links.to.push(link)
     let cache = this.data.toLink
