@@ -63,8 +63,15 @@ class Main extends React.Component {
    this.gun.get('app').path(path).put({})
   }
 
-  removeNode (path) {
-   this.gun.get('app').path(path).put(null)
+  removeNode (node) {
+    if (node.links.to) {
+      node.links.to.forEach((l) => {
+        if (l.data.predicate !== '') {
+          let path = `${l.fromNode.data.path}.${l.data.predicate}` 
+          this.gun.get('app').path(path).put(null)
+        }
+      })
+    }
   }
 
   connectNode (fromPath, predicate, toPath) {

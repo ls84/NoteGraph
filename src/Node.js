@@ -126,6 +126,8 @@ class Node extends Primitives {
           let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
           link.data.from = this.data.position
           link.data.to = v.data.position
+          link.fromNode = this
+          link.toNode = v
           link.resetHandle()
           link.appendSelf()
           .call((s) => { this.canvas.setContext(s, 'link')})
