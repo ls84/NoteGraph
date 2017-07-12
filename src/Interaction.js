@@ -18,34 +18,51 @@ class Interaction extends React.Component {
 
   nodeName (node) {
     this.target = node
-    let position = {
+    let interaction = {
       display: 'block',
       top: node.data.position[1],
       left: node.data.position[0]
     }
-    this.setState(position)
+    let pathInput = {
+      // display: 'block'
+    }
+    let valueInput = {
+      display: 'none'
+    }
+    let state = {
+      interaction,
+      pathInput,
+      valueInput
+    }
+    this.setState(state)
     this.f = 'setDisplayName'
-    let input = document.querySelector('div#Interaction input')
+    let input = document.querySelector('div#Interaction #pathInput')
     input.focus()
   }
 
   componentDidMount () {
-    let input = document.querySelector('div#Interaction input')
-    input.addEventListener('keyup', (event) => {
+    let pathInput = document.querySelector('div#Interaction #pathInput')
+    pathInput.addEventListener('keyup', (event) => {
       event.stopPropagation()
       if (event.key === 'Enter') {
         this[this.f](event.target.value)
 
-        this.setState({display: 'none'})
+        this.setState({interaction:{display: 'none'}})
         event.target.value = ''
       }
+    })
+
+    let valueInput = document.querySelector('div#Interaction #valueInput')
+    valueInput.addEventListener('keyup', (event) => {
+      event.stopPropagation()
     })
   }
 
   render () {
     return (
-      <div id="Interaction" style={this.state} >
-        <input type='text' id="PathInput" />
+      <div id="Interaction" style={this.state.interaction} >
+        <input type='text' id="pathInput" style={this.state.pathInput} />
+        <textArea id="valueInput" style={this.state.valueInput} />
       </div>
     )
   }

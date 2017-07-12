@@ -210,7 +210,7 @@ class Node extends Primitives {
     this.gun.val((d, k) => {
       let valueKey = []
       for (let key in d) {
-        if (typeof d[key] !== 'object') valueKey.push(key)
+        if (typeof d[key] !== 'object' && key !== 'name') valueKey.push(key)
       }
       if (valueKey.length > 0) {
         let remainedKey = new Set(valueKey)
