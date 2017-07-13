@@ -10,21 +10,17 @@ class Interaction extends React.Component {
     this.target = undefined
   }
 
-  setDisplayName (name) {
-    this.target.gun.path('name').put(name)
-    this.target.data.displayName = name
-    this.target.toggleDisplayLevel(1)
-  }
-
   nodeName (node) {
     this.target = node
+    this.f = 'setDisplayName'
+
     let interaction = {
       display: 'block',
       top: node.data.position[1],
       left: node.data.position[0]
     }
     let pathInput = {
-      // display: 'block'
+      display: 'block'
     }
     let valueInput = {
       display: 'none'
@@ -35,26 +31,66 @@ class Interaction extends React.Component {
       valueInput
     }
     this.setState(state)
-    this.f = 'setDisplayName'
-    let input = document.querySelector('div#Interaction #pathInput')
-    input.focus()
+    this.pathInput.focus()
+  }
+
+  nodeValue (node) {
+    this.target = node
+    this.f = 'addNodeValue'
+
+    let interaction = {
+      display: 'block',
+      top: node.data.position[1],
+      left: node.data.position[0]
+    }
+    let pathInput = {
+      display: 'block'
+    }
+    let valueInput = {
+      display: 'block'
+    }
+    let state = {
+      interaction,
+      pathInput,
+      valueInput
+    }
+    this.setState(state)
+    this.pathInput.focus()
+    
   }
 
   componentDidMount () {
-    let pathInput = document.querySelector('div#Interaction #pathInput')
-    pathInput.addEventListener('keyup', (event) => {
+    this.pathInput = document.querySelector('div#Interaction #pathInput')
+    this.pathInput.addEventListener('keyup', (event) => {
       event.stopPropagation()
       if (event.key === 'Enter') {
-        this[this.f](event.target.value)
+        if (this.f === 'setDisplayName') {
+          this.target.gun.path('name').put(name)
+          this.target.data.displayName = name
+          this.target.toggleDisplayLevel(1)
+          
+          this.setState({interaction:{display: 'none'}})
+          this.pathInput.value = ''
+        }
 
-        this.setState({interaction:{display: 'none'}})
-        event.target.value = ''
+        if (this.f === 'addNodeValue') {
+          this.valueInput.focus()
+        }
       }
     })
 
-    let valueInput = document.querySelector('div#Interaction #valueInput')
-    valueInput.addEventListener('keyup', (event) => {
+    this.valueInput = document.querySelector('div#Interaction #valueInput')
+    this.valueInput.addEventListener('keyup', (event) => {
       event.stopPropagation()
+      if (event.key === 'Enter') {
+        let path = this.pathInput.value
+        let value = this.valueInput.value
+        this.target.gun.path(path).put(value)
+
+        this.setState({interaction:{display: 'none'}})
+        this.pathInput.value = ''
+        this.valueInput.value = ''
+      }
     })
   }
 
