@@ -103,6 +103,7 @@ class SVGCanvas extends React.Component {
     if (value === 'canvas') this.applyCanvasContext()
     if (value === 'link') this.applyLinkContext()
     if (value === 'node') this.applyNodeContext()
+    if (value === 'value') this.applyValueContext()
     return value
   }
 
@@ -110,6 +111,10 @@ class SVGCanvas extends React.Component {
     selection.on('mouseenter', (d) => {
       this.target = d
       this.context = context
+      if (context === 'value') {
+        this.valueDOM = selection.node().parentNode
+        this.valuePath = this.valueDOM.querySelector('.valueLabel').innerHTML
+      }
     })
 
     selection.on('mouseleave', () => {
@@ -136,6 +141,16 @@ class SVGCanvas extends React.Component {
       if (event.key === 'v') this.interaction.nodeValue(this.target)
       if (event.key === 'Backspace') this.props.removeNode(this.target)
 
+    }
+
+    window.onkeyup = commands
+  }
+
+  applyValueContext (selection) {
+    let commands = (event) => {
+      if (event.key === 'Backspace') {
+        this.target.gun.path(this.valuePath).put(null)
+      }
     }
 
     window.onkeyup = commands

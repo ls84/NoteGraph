@@ -349,7 +349,11 @@ class Node extends Primitives {
         this.data.detachedValue = cache
 
         let value = this.nodeValue(id)
+        d3.select(value).datum(this)
+        d3.select(value).select('.nodeValueAnchor')
+        .call((s) => {this.canvas.setContext(s, 'value')})
         d3.select(this.DOM.parentNode).append(() => value)
+
         d3.select(this.DOM).select('.nodeValue').remove()
         this.getValue(id)
         shadowValueID = id
@@ -389,6 +393,7 @@ class Node extends Primitives {
       d3.select(group)
       .append(() => circle)
       .call(dragBehaviour)
+      .call((s) => {this.canvas.setContext(s, 'value')})
     }
 
     if (valueID) {
@@ -416,6 +421,7 @@ class Node extends Primitives {
       d3.select(group)
       .append(() => circle)
       .call(dragBehaviour)
+      .call((s) => {this.canvas.setContext(s, 'value')})
     }
 
     d3.select(group).append('text').attr('class', 'valueLabel')
@@ -450,12 +456,13 @@ class Node extends Primitives {
 
     this.DOM = DOM
 
-    // propagate data to child elements
-    d3.select(this.DOM).select('.nodeAnchor circle')
-
     this.initNode()
     this.getValue()
 
+    // propagate data to child elements
+    d3.select(this.DOM).select('.nodeAnchor circle')
+    d3.select(this.DOM).select('.nodeValue .nodeValueAnchor')
+    
     return d3.select(DOM)
   }
 

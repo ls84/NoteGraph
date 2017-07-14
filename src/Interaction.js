@@ -88,6 +88,7 @@ class Interaction extends React.Component {
         let path = this.pathInput.value
         let value = this.valueInput.value
         this.target.gun.path(path).put(value)
+        this.target.getValue()
 
         this.setState({interaction:{display: 'none'}})
         this.pathInput.value = ''
