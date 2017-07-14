@@ -65,6 +65,8 @@ class Interaction extends React.Component {
       event.stopPropagation()
       if (event.key === 'Enter') {
         if (this.f === 'setDisplayName') {
+          let name = this.pathInput.value
+
           this.target.gun.path('name').put(name)
           this.target.data.displayName = name
           this.target.toggleDisplayLevel(1)
