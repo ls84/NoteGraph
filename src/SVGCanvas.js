@@ -66,6 +66,17 @@ class SVGCanvas extends React.Component {
     node.gun = this.props.gunData
     if (displayLevel) node.displayLevel(displayLevel)
     node.appendSelf()
+    node._getValue((d, k) => {
+      if (d) {
+        if (k.length === 0) return d3.select(node.DOM).select('.nodeValue').remove()
+        let key = k[0]
+        node.updateAttachedValue(key, d[key])
+        node.toggleDisplayLevel(2)
+      }
+      if (!d) {
+        node._initNode(k)
+      }
+    })
 
     return node
   }
@@ -140,7 +151,6 @@ class SVGCanvas extends React.Component {
       if (event.key === 'n') this.interaction.nodeName(this.target)
       if (event.key === 'v') this.interaction.nodeValue(this.target)
       if (event.key === 'Backspace') this.props.removeNode(this.target)
-
     }
 
     window.onkeyup = commands

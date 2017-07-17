@@ -85,10 +85,17 @@ class Interaction extends React.Component {
     this.valueInput.addEventListener('keyup', (event) => {
       event.stopPropagation()
       if (event.key === 'Enter') {
+        // TODO: event.preventDefault()
+        let node = this.target
         let path = this.pathInput.value
         let value = this.valueInput.value
-        this.target.gun.path(path).put(value)
-        this.target.getValue()
+        node.gun.path(path).put(value)
+
+        if (Object.keys(node.data.attachedValue).length === 0) {
+          d3.select(node.DOM).append(() => node.nodeValue())
+          node.updateAttachedValue(path, value)
+          node.toggleDisplayLevel(2)
+        }
 
         this.setState({interaction:{display: 'none'}})
         this.pathInput.value = ''

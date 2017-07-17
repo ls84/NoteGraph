@@ -180,12 +180,34 @@ class Node extends Primitives {
     }
   }
 
-  displayNodeName () {
-    let name = this.data.displayName ? this.data.displayName : ''
-    d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(name)
+  displayNodeName (name) {
+    if (name) this.data.displayName = name
+    d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(this.data.displayName)
+  }
+
+  updateAttachedValue (key, value) {
+    let textLength = this.measureText(key)
+    let size = { boundingBoxWidth: textLength.width, boundingBoxHeight: 0 }
+    let DOM = this.DOM.querySelector('.nodeValue')
+    let container = d3.select(DOM).append(() => this.nodeSizeHandle(size)).node().parentNode
+    d3.select(DOM).select('text.valueLabel').text(key)
+    this.wrapText(value, container.querySelector('.value'), size)
+    
+    let cache = this.data.attachedValue
+    cache.valueKey = key
+    cache.value = value
+    this.data.attachedValue = cache
+  }
+
+  _initNode (k) {
+    this.gun.val((d, k) => {
+      this.displayNodeName()
+    })
+    this.canvas.props.putNewNode(k)
   }
 
   initNode () {
+    console.log('init a new node')
     this.gun.val((d, k) => {
       let normalizedKey = d['_']['#']
       this.data.normalizedKey = normalizedKey
@@ -205,12 +227,46 @@ class Node extends Primitives {
     })
   }
 
+  _getValue (cb) {
+    this.gun.val((d, k) => {
+      let name = d['name']
+      if (name) {
+        this.displayNodeName(name)
+      }
+
+      let valueKey = []
+      for (let key in d) {
+        valueKey.push(key)
+      }
+
+      valueKey = valueKey.filter((v) => {
+        if (typeof d[v] === 'object') return false
+        if (d[v] === null) return false
+        if (v === 'name') return false
+        if (this.data.detachedValue[v]) return false
+        return true
+      })
+
+      cb(d, valueKey)
+    })
+
+    this.gun.not((k) => {
+      console.log('getValue has no value')
+      cb(null, k)
+    })
+  }
+
   getValue (valueID) {
     //TODO: getValue might be in conflict with initNode 
     this.gun.val((d, k) => {
       let valueKey = []
+      let emptyKey = []
       for (let key in d) {
-        if (typeof d[key] !== 'object' && key !== 'name') valueKey.push(key)
+        if (typeof d[key] !== 'object' && d[key] !== null  && key !== 'name') valueKey.push(key)
+      }
+      if (valueKey.length === 0) {
+        d3.select(this.DOM).select('.nodeValue').remove()
+        return false
       }
       if (valueKey.length > 0) {
         let remainedKey = new Set(valueKey)
@@ -218,6 +274,8 @@ class Node extends Primitives {
           remainedKey.delete(this.data.detachedValue[key].valueKey)
         }
         let key = remainedKey.values().next().value
+        console.log('key has', key)
+        
         if (!key) {
           d3.select(this.DOM).select('.nodeValue').remove()
           return false
@@ -456,10 +514,6 @@ class Node extends Primitives {
 
     this.DOM = DOM
 
-    this.initNode()
-    this.getValue()
-
-    // propagate data to child elements
     d3.select(this.DOM).select('.nodeAnchor circle')
     d3.select(this.DOM).select('.nodeValue .nodeValueAnchor')
     
