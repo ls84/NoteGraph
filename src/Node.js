@@ -251,7 +251,6 @@ class Node extends Primitives {
     })
 
     this.gun.not((k) => {
-      console.log('getValue has no value')
       cb(null, k)
     })
   }

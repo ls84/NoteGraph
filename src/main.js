@@ -4,7 +4,11 @@ class Main extends React.Component {
   constructor (props) {
     super(props)
     this.state = {}
-    this.gun = Gun()
+    let root = Gun()
+    this.gun = root.get('data').on((d, k) => {
+      console.log('change on:', k)
+    })
+
     window.gun = this.gun
 
     this.getGunData = this.getGunData.bind(this)
@@ -53,14 +57,14 @@ class Main extends React.Component {
   }
 
   getGunData (path) {
-    let data = this.gun.get('app').path(path)
+    let data = this.gun.path(path)
     if (path === '') data = this.gun
 
     this.setState({data: data})
   }
 
   putNewNode (path) {
-   this.gun.get('app').path(path).put({})
+    this.gun.path(path).put({})
   }
 
   removeNode (node) {
