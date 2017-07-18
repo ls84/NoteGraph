@@ -228,6 +228,11 @@ class Node extends Primitives {
   }
 
   _getValue (cb) {
+    // in order for '.not' to be called, it has to preceds 'val'
+    this.gun.not((k) => {
+      cb(null, k)
+    })
+
     this.gun.val((d, k) => {
       let name = d['name']
       if (name) {
@@ -246,12 +251,7 @@ class Node extends Primitives {
         if (this.data.detachedValue[v]) return false
         return true
       })
-
       cb(d, valueKey)
-    })
-
-    this.gun.not((k) => {
-      cb(null, k)
     })
   }
 

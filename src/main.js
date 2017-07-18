@@ -79,8 +79,8 @@ class Main extends React.Component {
   }
 
   connectNode (fromPath, predicate, toPath) {
-    let toNode = this.gun.get('app').path(toPath)
-    this.gun.get('app').path(`${fromPath}.${predicate}`).put(toNode)
+    let toNode = this.gun.path(toPath)
+    this.gun.path(`${fromPath}.${predicate}`).put(toNode)
   }
 
   render () {
