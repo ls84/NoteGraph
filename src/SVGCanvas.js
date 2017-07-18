@@ -74,7 +74,7 @@ class SVGCanvas extends React.Component {
         node.toggleDisplayLevel(2)
       }
       if (!d) {
-        node._initNode(k)
+        node._initNode(gunPath)
       }
     })
 

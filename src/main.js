@@ -6,8 +6,8 @@ class Main extends React.Component {
     this.state = {}
     let root = Gun()
     this.gun = root.get('data').on((d, k) => {
-      console.log('change on:', k)
-    })
+      console.log('change on data:', d)
+    }, true)
 
     window.gun = this.gun
 
