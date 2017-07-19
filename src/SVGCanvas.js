@@ -68,10 +68,10 @@ class SVGCanvas extends React.Component {
     node.appendSelf()
     node._getValue((d, k) => {
       if (d) {
-        if (k.length === 0) return d3.select(node.DOM).select('.nodeValue').remove()
+        if (k.length === 0) return node.toggleDisplayLevel(1, true)
         let key = k[0]
         node.updateAttachedValue(key, d[key])
-        node.toggleDisplayLevel(2)
+        node.toggleDisplayLevel(2, false)
       }
       if (!d) {
         node._initNode(gunPath)

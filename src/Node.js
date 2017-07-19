@@ -18,11 +18,15 @@ class Node extends Primitives {
     this.displayLevel = (function () {
       let counter = 0
       let level = ['minimal', 'showPath', 'showValue']
+      let divider = 3
 
-      return function (overwrite) {
+      return function (overwrite, empty) {
         counter += 1
+        console.log(empty)
+        if (empty === true) divider = 2
+        if (empty === false) divider = 3
         if (overwrite) counter = overwrite
-        return level[counter % 3]
+        return level[counter % divider]
       }
     })()
     this.getRandomValue = canvas.getRandomValue
@@ -519,8 +523,8 @@ class Node extends Primitives {
     return d3.select(DOM)
   }
 
-  toggleDisplayLevel (level) {
-    this.data.displayLevel = this.displayLevel(level)
+  toggleDisplayLevel (level, empty) {
+    this.data.displayLevel = this.displayLevel(level, empty)
     let displayName = this.data.displayName ? this.data.displayName : ''
     switch (this.data.displayLevel) {
       case 'minimal':

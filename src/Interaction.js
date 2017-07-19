@@ -91,11 +91,8 @@ class Interaction extends React.Component {
         let value = this.valueInput.value
         node.gun.path(path).put(value)
 
-        if (Object.keys(node.data.attachedValue).length === 0) {
-          d3.select(node.DOM).append(() => node.nodeValue())
-          node.updateAttachedValue(path, value)
-          node.toggleDisplayLevel(2)
-        }
+        node.updateAttachedValue(path, value)
+        node.toggleDisplayLevel(2, false)
 
         this.setState({interaction:{display: 'none'}})
         this.pathInput.value = ''
