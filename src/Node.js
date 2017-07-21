@@ -218,32 +218,11 @@ class Node extends Primitives {
     // this.data.detachedValue = cache
   }
 
-  _initNode (k) {
+  initNode (k) {
     this.gun.val((d, k) => {
       this.displayNodeName()
     })
     this.canvas.props.putNewNode(k)
-  }
-
-  initNode () {
-    console.log('init a new node')
-    this.gun.val((d, k) => {
-      let normalizedKey = d['_']['#']
-      this.data.normalizedKey = normalizedKey
-
-      let name = d['name']
-      if (name) this.data.displayName = name
-      this.displayNodeName()
-    })
-    
-    this.gun.not((k) => {
-      this.canvas.props.putNewNode(k)
-    }).val((d, k) => {
-      let normalizedKey = d['_']['#']
-      this.data.normalizedKey = normalizedKey
-
-      this.displayNodeName()
-    })
   }
 
   getValue (cb) {
