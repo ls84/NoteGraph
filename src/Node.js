@@ -22,7 +22,6 @@ class Node extends Primitives {
 
       return function (overwrite, empty) {
         counter += 1
-        console.log(empty)
         if (empty === true) divider = 2
         if (empty === false) divider = 3
         if (overwrite) counter = overwrite
@@ -247,7 +246,7 @@ class Node extends Primitives {
     })
   }
 
-  _getValue (cb) {
+  getValue (cb) {
     // in order for '.not' to be called, it has to preceds 'val'
     this.gun.not((k) => {
       cb(null, k)
@@ -272,45 +271,6 @@ class Node extends Primitives {
         return true
       })
       cb(d, valueKey)
-    })
-  }
-
-  getValue (valueID) {
-    //TODO: getValue might be in conflict with initNode 
-    this.gun.val((d, k) => {
-      let valueKey = []
-      let emptyKey = []
-      for (let key in d) {
-        if (typeof d[key] !== 'object' && d[key] !== null  && key !== 'name') valueKey.push(key)
-      }
-      if (valueKey.length === 0) {
-        d3.select(this.DOM).select('.nodeValue').remove()
-        return false
-      }
-      if (valueKey.length > 0) {
-        let remainedKey = new Set(valueKey)
-        for (let key in this.data.detachedValue) {
-          remainedKey.delete(this.data.detachedValue[key].valueKey)
-        }
-        let key = remainedKey.values().next().value
-        
-        if (!key) {
-          d3.select(this.DOM).select('.nodeValue').remove()
-          return false
-        }
-        let textLength = this.measureText(key)
-        let size = valueID ? this.data.detachedValue[valueID] : {boundingBoxWidth: textLength.width, boundingBoxHeight: 0}
-        let DOM = valueID ? document.querySelector(`#${valueID}`) : this.DOM.querySelector('.nodeValue')
-        let container = d3.select(DOM).append(() => this.nodeSizeHandle(size, valueID)).node().parentNode
-        d3.select(DOM).select('text.valueLabel').text(key)
-        this.wrapText(d[key], container.querySelector('.value'), size)
-
-        let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
-        cache.valueKey = key
-        cache.value = d[key]
-        if (valueID) this.data.detachedValue[valueID] = cache
-        if (!valueID) this.data.attachedValue = cache
-      }
     })
   }
 
@@ -463,7 +423,7 @@ class Node extends Primitives {
       //TODO: make sure it is dragged significantly 
       //TODO: should check if all value has been detached
       d3.select(this.DOM).append(() => this.nodeAttachedValue())
-      this._getValue((d, k) => {
+      this.getValue((d, k) => {
         if (d) {
           if (k.length === 0) return this.toggleDisplayLevel(1, true)
           let key = k[0]
@@ -519,111 +479,6 @@ class Node extends Primitives {
     .append(() => circle)
     .call(dragBehaviour)
     .call((s) => {this.canvas.setContext(s, 'value')})
-
-    d3.select(group).append('text').attr('class', 'valueLabel')
-    .attr('transform', 'translate(15,4)')
-    d3.select(group).append('text').attr('class', 'value')
-    .attr('transform', 'translate(15, 25)')
-
-    return group
-  }
-
-  nodeValue (valueID) {
-    let group = this.group('nodeValue')
-    let circle = this.circle('nodeValueAnchor')
-    let dragBehaviour = d3.drag()
-    let shadowValueID
-    if (!valueID) {
-      dragBehaviour.on('start', (d, i, g) => {
-        d3.event.sourceEvent.stopPropagation()
-
-        let mouse = d3.mouse(this.DOM.parentNode)
-        let id = `value-${this.getRandomValue()}`
-        let cache = this.data.detachedValue
-        cache[id] = {
-          position: mouse,
-          boundingBoxWidth: this.data.attachedValue.boundingBoxWidth,
-          boundingBoxHeight: this.data.attachedValue.boundingBoxHeight,
-          value: this.data.attachedValue.value
-        }
-
-        this.data.detachedValue = cache
-
-        let value = this.nodeValue(id)
-        d3.select(value).datum(this)
-        d3.select(value).select('.nodeValueAnchor')
-        .call((s) => {this.canvas.setContext(s, 'value')})
-        d3.select(this.DOM.parentNode).append(() => value)
-
-        d3.select(this.DOM).select('.nodeValue').remove()
-        this.getValue(id)
-        shadowValueID = id
-
-        let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
-        Object.assign(link.data, {from: this.data.position, to: this.data.position})
-        link.resetHandle()
-        link.appendSelf(true)
-
-        link.toValue = id
-        this.links.detachedValue.push(link)
-      })
-
-      dragBehaviour.on('drag', () => {
-        let container = this.DOM.parentNode
-        let mouse = d3.mouse(container)
-        d3.select(container).select(`#${shadowValueID}`)
-        .attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
-        
-        let link = this.links.detachedValue[this.links.detachedValue.length -1]
-        link.drawLinkTo(mouse)
-
-        // let cache = this.data.detachedValue
-      })
-
-      dragBehaviour.on('end', () => {
-        //TODO: make sure it is dragged significantly 
-        //TODO: should check if all value has been detached
-        d3.select(this.DOM).append(() => this.nodeValue())
-        this.getValue()
-        this.toggleDisplayLevel(2)
-      })
-
-      d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
-      .append(() => this.circle('valueAnchorBackground'))
-      
-      d3.select(group)
-      .append(() => circle)
-      .call(dragBehaviour)
-      .call((s) => {this.canvas.setContext(s, 'value')})
-    }
-
-    if (valueID) {
-      dragBehaviour.on('start', () => {
-        d3.event.sourceEvent.stopPropagation()
-      })
-      dragBehaviour.on('drag', (d, i, g) => {
-        let id = g[i].parentNode.id
-        let container = this.DOM.parentNode
-        let mouse = d3.mouse(this.DOM.parentNode)
-        d3.select(g[i].parentNode)
-        .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
-
-        let cache = this.data.detachedValue
-        let link = this.links.detachedValue.filter((v) => v.toValue === id)[0]
-        link.drawLinkTo(mouse)
-
-      })
-      let mouse = d3.mouse(this.DOM.parentNode)
-      d3.select(group).attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
-      .attr('id', valueID)
-      .attr('display', 'true')
-      .append(() => this.circle('valueAnchorBackground'))
-      
-      d3.select(group)
-      .append(() => circle)
-      .call(dragBehaviour)
-      .call((s) => {this.canvas.setContext(s, 'value')})
-    }
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')

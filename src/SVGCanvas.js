@@ -66,7 +66,7 @@ class SVGCanvas extends React.Component {
     node.gun = this.props.gunData
     if (displayLevel) node.displayLevel(displayLevel)
     node.appendSelf()
-    node._getValue((d, k) => {
+    node.getValue((d, k) => {
       if (d) {
         if (k.length === 0) return node.toggleDisplayLevel(1, true)
         let key = k[0]
