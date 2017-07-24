@@ -14,6 +14,7 @@ class Main extends React.Component {
     this.getGunData = this.getGunData.bind(this)
     this.putNewNode = this.putNewNode.bind(this)
     this.removeNode = this.removeNode.bind(this)
+    this.removeLink = this.removeLink.bind(this)
     this.connectNode = this.connectNode.bind(this)
   }
 
@@ -67,15 +68,16 @@ class Main extends React.Component {
     this.gun.path(path).put({})
   }
 
-  removeNode (node) {
-    if (node.links.to) {
-      node.links.to.forEach((l) => {
-        if (l.data.predicate !== '') {
-          let path = `${l.fromNode.data.path}.${l.data.predicate}` 
-          this.gun.get('app').path(path).put(null)
-        }
-      })
-    }
+  removeNode (node, reset) {
+    if (reset) node.gun.put(null)
+    if (node.links.from) node.links.from.forEach((l) => l.DOM.remove())
+    if (node.links.to) node.links.to.forEach((l) => l.DOM.remove())
+    node.DOM.remove()
+  }
+
+  removeLink (link, reset) {
+    if (reset) link.fromNode.gun.path(`${link.data.predicate}`).put(null)
+    link.DOM.remove()
   }
 
   connectNode (fromPath, predicate, toPath) {
@@ -84,7 +86,7 @@ class Main extends React.Component {
   }
 
   render () {
-    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} removeNode={this.removeNode} connectNode={this.connectNode}/>)
+    return (<SVGCanvas getGunData={this.getGunData} gunData={this.state.data} putNewNode={this.putNewNode} removeNode={this.removeNode} removeLink={this.removeLink} connectNode={this.connectNode} />)
   }
 }
 

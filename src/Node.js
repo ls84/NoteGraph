@@ -232,11 +232,10 @@ class Node extends Primitives {
     })
 
     this.gun.val((d, k) => {
-      let name = d['name']
-      if (name) {
-        this.displayNodeName(name)
+      if (d !== null) {
+        let name = d['name']
+        if (name) this.displayNodeName(name)
       }
-
       let valueKey = []
       for (let key in d) {
         valueKey.push(key)

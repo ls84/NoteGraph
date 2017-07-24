@@ -150,7 +150,7 @@ class SVGCanvas extends React.Component {
       if (event.key === 's') this.target.toggleDisplayLevel()
       if (event.key === 'n') this.interaction.nodeName(this.target)
       if (event.key === 'v') this.interaction.nodeValue(this.target)
-      if (event.key === 'Backspace') this.props.removeNode(this.target)
+      if (event.key === 'Backspace') this.props.removeNode(this.target, event.shiftKey)
     }
 
     window.onkeyup = commands
@@ -170,6 +170,7 @@ class SVGCanvas extends React.Component {
     let commands = (event) => {
       if (event.key === 'c') this.target.edit()
       if (event.key === 'n') this.linkInteract.show(this.target)
+      if (event.key === 'Backspace') this.props.removeLink(this.target, event.shiftKey)
     }
 
     window.onkeyup = commands
