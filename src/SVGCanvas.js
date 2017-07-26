@@ -115,6 +115,7 @@ class SVGCanvas extends React.Component {
     if (value === 'link') this.applyLinkContext()
     if (value === 'node') this.applyNodeContext()
     if (value === 'value') this.applyValueContext()
+    if (value === 'attachedValue') this.applyAttachedValueContext()
     return value
   }
 
@@ -122,7 +123,7 @@ class SVGCanvas extends React.Component {
     selection.on('mouseenter', (d) => {
       this.target = d
       this.context = context
-      if (context === 'value') {
+      if (context === 'value' || context === 'attachedValue') {
         this.valueDOM = selection.node().parentNode
         this.valuePath = this.valueDOM.querySelector('.valueLabel').innerHTML
       }
@@ -159,8 +160,21 @@ class SVGCanvas extends React.Component {
   applyValueContext (selection) {
     let commands = (event) => {
       if (event.key === 'Backspace') {
-        this.target.gun.path(this.valuePath).put(null)
+        let valueID = this.valueDOM.id
+        let link = this.target.links.detachedValue.filter((l) => l.toValue === valueID)[0]
+        this.valueDOM.remove()
+        link.DOM.remove()
+        if (event.shiftKey) this.target.gun.path(this.valuePath).put(null)
       }
+    }
+
+    window.onkeyup = commands
+  }
+
+  applyAttachedValueContext (selection) {
+    let commands = (event) => {
+      // if (event.key === 'ArrowRight')
+      // if (event.key === 'ArrowLeft')
     }
 
     window.onkeyup = commands

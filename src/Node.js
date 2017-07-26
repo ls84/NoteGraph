@@ -419,7 +419,7 @@ class Node extends Primitives {
     d3.select(group)
     .append(() => circle)
     .call(dragBehaviour)
-    .call((s) => {this.canvas.setContext(s, 'value')})
+    .call((s) => {this.canvas.setContext(s, 'attachedValue')})
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
