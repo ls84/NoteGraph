@@ -10,6 +10,7 @@ class SVGCanvas extends React.Component {
     this.targetNode = null
 
     this.state = { cache: { nodes: {}, links: {} } }
+    this.nodes = []
 
     this.Node = require('./Node.js')
     this.Link = require('./Link.js')
@@ -65,16 +66,30 @@ class SVGCanvas extends React.Component {
     node.data.path = gunPath
     node.gun = this.props.gunData
     if (displayLevel) node.displayLevel(displayLevel)
-    node.appendSelf()
     node.getValue((d, k) => {
       if (d) {
-        if (k.length === 0) return node.toggleDisplayLevel(1, true)
-        let key = k[0]
-        node.updateAttachedValue(key, d[key])
-        node.toggleDisplayLevel(2, false)
+        let normalizedPath = node.normalizedPath
+        let existNode = this.nodes.filter((v) => v.normalizedPath === normalizedPath)[0]
+        if (!existNode) {
+          node.appendSelf()
+          this.nodes.push(node)
+
+          if (k.length === 0) return node.toggleDisplayLevel(1, true)
+          let key = k[0]
+          node.updateAttachedValue(key, d[key])
+          node.toggleDisplayLevel(2, false)
+        } 
+        if (existNode) {
+          console.log('duplicate nodes', existNode)
+        }
       }
       if (!d) {
-        node.initNode(gunPath)
+        // after gun.put will trigger gun.val inside getValue()
+        this.props.putNewNode(gunPath)
+        // node.initNode(gunPath, () => {
+        //   let normalizedPath = node.normalizedPath
+        //   console.log(normalizedPath)
+        // })
       }
     })
 
