@@ -1,37 +1,29 @@
 {
   "name": "GunGraphFrontEnd",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "export NODE_ENV=test && ./node_modules/.bin/karma start ./karma.conf.js",
-    "build": "webpack --progress && lessc ./style/main.less ./build/main.css"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watchLESS": "autoless ./style/ ./dist/style",
+    "dev": "webpack-dev-server",
+    "build": "webpack --progress && autoless --no-watch ./style/main.less ./dist/style/main.css"
   },
   "author": "Liu Shuo",
   "license": "ISC",
   "devDependencies": {
+    "autoless": "^0.1.7",
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
-    "babel-plugin-istanbul": "^4.0.0",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.23.0",
-    "css-loader": "^0.27.3",
     "eslint": "^3.12.2",
     "eslint-config-standard": "^6.2.1",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
-    "extract-text-webpack-plugin": "^2.0.0-rc.3",
-    "karma": "^1.3.0",
-    "karma-coverage": "^1.1.1",
-    "karma-less-preprocessor": "^0.3.3",
-    "karma-mocha": "^1.3.0",
-    "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^2.0.3",
-    "less": "^2.7.2",
-    "less-loader": "^3.0.0",
-    "mocha": "^3.1.2",
     "source-map-loader": "^0.2.0",
-    "webpack": "^2.5.1"
+    "webpack": "^2.5.1",
+    "webpack-dev-server": "^2.8.2"
   }
 }

@@ -1,0 +1,140 @@
+div#NodeInteract {
+  transition: bottom 300ms cubic-bezier(0.19, 1, 0.22, 1);
+  position: fixed;
+  bottom: -51px;
+  width: 100%;
+}
+div#NodeInteract div.center {
+  margin-left: auto;
+  margin-right: auto;
+  height: 51px;
+  width: 276px;
+}
+div#NodeInteract div.center #NodeSymbol {
+  float: left;
+  height: 51px;
+  width: 51px;
+}
+div#NodeInteract div.center #NodeSymbol svg {
+  width: 51px;
+  height: 51px;
+}
+div#NodeInteract div.center input#PathInput {
+  position: relative;
+  left: 10px;
+  height: 45px;
+  display: block;
+  float: left;
+  font-size: 20px;
+}
+div#NodeInteract.show {
+  transition: bottom 300ms cubic-bezier(0.19, 1, 0.22, 1);
+  bottom: 51px;
+}
+div#LinkInteract {
+  transition: bottom 300ms cubic-bezier(0.19, 1, 0.22, 1);
+  position: fixed;
+  bottom: -51px;
+  width: 100%;
+  font-family: san-serif;
+}
+div#LinkInteract div.center {
+  margin-left: auto;
+  margin-right: auto;
+  height: 51px;
+  width: 300px;
+}
+div#LinkInteract div.center input {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: 180px;
+  height: 45px;
+  font-size: 20px;
+}
+div#LinkInteract.show {
+  transition: bottom 300ms cubic-bezier(0.19, 1, 0.22, 1);
+  position: fixed;
+  bottom: calc(var(--windowHeight) * 0.5);
+}
+div#Interaction {
+  position: absolute;
+}
+div#Interaction #pathInput {
+  width: 136px;
+}
+div#Interaction #valueInput {
+  position: absolute;
+  top: 30px;
+  left: 0px;
+}
+svg g.links path.path {
+  stroke: white;
+  stroke-width: 9px;
+  stroke-dasharray: none;
+  fill: none;
+}
+svg g.links path.path.simple {
+  stroke: #484848;
+  stroke-width: 0.5px;
+  stroke-dasharray: none;
+  fill: none;
+}
+svg g.links text {
+  pointer-events: none;
+  fill: black;
+  font-family: monospace;
+}
+svg g.nodes g.nodeAnchor circle {
+  stroke: white;
+  fill: whitesmoke;
+  stroke-width: 10px;
+}
+svg g.nodes g.nodeAnchor .nodeLabel {
+  pointer-events: none;
+  font-family: monospace;
+  font-size: 24px;
+}
+svg g.nodes g.nodeValue {
+  width: 100px;
+}
+svg g.nodes g.nodeValue .valueLabel {
+  font-family: sans-serif;
+  font-weight: 100;
+}
+svg g.nodes g.nodeValue .value {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: 100;
+  fill: #404040;
+}
+svg g.Value {
+  width: 100px;
+}
+svg g.Value .valueLabel {
+  font-family: sans-serif;
+  font-weight: 100;
+}
+svg g.Value .value {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: 100;
+  fill: #404040;
+}
+svg g.Value .valueAnchorBackground {
+  fill: white;
+}
+svg#preRender {
+  position: relative;
+  top: 36px;
+}
+svg#preRender.value {
+  font-size: 12px;
+  font-family: sans-serif;
+  font-weight: 100;
+}
+svg#preRender.valueLabel {
+  font-size: 16px;
+  font-family: sans-serif;
+  font-weight: 100;
+}

@@ -90,4 +90,7 @@ class Main extends React.Component {
   }
 }
 
+let container = document.querySelector('div#main')
+ReactDOM.render(<Main />, container)
+
 module.exports = Main

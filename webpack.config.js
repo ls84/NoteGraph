@@ -1,9 +1,8 @@
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
 module.exports = {
   entry: './src/main.js',
   output: {
     filename: 'app.js',
-    path: './build'
+    path: __dirname + '/dist/bundle'
   },
   externals: {
     'd3': 'd3',
@@ -23,15 +22,14 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules)/,
         loader: 'source-map-loader!babel-loader'
-      },
-      {
-        test: /\.less$/,
-	      loader: ExtractTextPlugin.extract('css-loader?sourceMap!less-loader?sourceMap')
       }
     ]
   },
-  devtool: 'inline-source-map',
-  plugins: [
-    new ExtractTextPlugin({ filename: 'main.css', allChunks: true })
-  ]
+  devServer:{
+    host: '0.0.0.0',
+    contentBase: __dirname + '/dist',
+    publicPath: '/bundle/',
+    watchContentBase: true
+  },
+  devtool: 'inline-source-map'
 }
