@@ -98,7 +98,7 @@ class Node extends Primitives {
 
   drawLinkedNodes (selection) {
     // TODO: linked Nodes
-    var gun = this.gun
+    // var gun = this.gun
     selection.on('dblclick', (d, i, g) => {
       let orbit = d3.select(this.DOM).select('.nodeOrbit').node()
       let nodes = []
@@ -133,7 +133,7 @@ class Node extends Primitives {
           link.toNode = v
           link.resetHandle()
           link.appendSelf()
-          .call((s) => { this.canvas.setContext(s, 'link')})
+          .call((s) => { this.canvas.setContext(s, 'link') })
 
           let predicate = v.data.path.split('.').pop()
           link.updatePredicate(predicate)
@@ -177,7 +177,7 @@ class Node extends Primitives {
   updateAttachedLink (key, position) {
     return (v) => {
       v.data[key] = position
-      //TODO: should update itself? it's acutally almost
+      // TODO: should update itself? it's acutally almost
       d3.select(v.DOM).select('.path').attr('d', v.pathDescription())
       v.updateText()
     }
@@ -195,7 +195,7 @@ class Node extends Primitives {
     let container = d3.select(DOM).append(() => this.nodeSizeHandle(size)).node().parentNode
     d3.select(DOM).select('text.valueLabel').text(key)
     this.wrapText(value, container.querySelector('.value'), size)
-    
+
     let cache = this.data.attachedValue
     cache.valueKey = key
     cache.value = value
@@ -209,7 +209,7 @@ class Node extends Primitives {
     let container = d3.select(DOM).append(() => this.nodeSizeHandle(size)).node().parentNode
     d3.select(DOM).select('text.valueLabel').text(key)
     this.wrapText(value, container.querySelector('.value'), size)
-    
+
     // let cache = this.data.detachedValue
     // cache[key] = {}
     // cache[key].value = value
@@ -328,7 +328,7 @@ class Node extends Primitives {
   }
 
   nodeAnchor () {
-    let path = this.data.path
+    // let path = this.data.path
 
     let group = this.group('nodeAnchor')
     let circle = this.circle('nodeAnchor')
@@ -361,7 +361,7 @@ class Node extends Primitives {
       let value = this.nodeDetachedValue(id)
       d3.select(value).datum(this)
       d3.select(value).select('.nodeValueAnchor')
-      .call((s) => {this.canvas.setContext(s, 'value')})
+      .call((s) => { this.canvas.setContext(s, 'value') })
       d3.select(this.DOM.parentNode).append(() => value)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
 
@@ -396,15 +396,15 @@ class Node extends Primitives {
       let mouse = d3.mouse(container)
       d3.select(`.Value#${shadowValueID}`)
       .attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
-      
-      let link = this.links.detachedValue[this.links.detachedValue.length -1]
+
+      let link = this.links.detachedValue[this.links.detachedValue.length - 1]
       link.drawLinkTo(mouse)
       // TODO: update detachedValue Cache
     })
 
     dragBehaviour.on('end', () => {
-      //TODO: make sure it is dragged significantly 
-      //TODO: should check if all value has been detached
+      // TODO: make sure it is dragged significantly
+      // TODO: should check if all value has been detached
       d3.select(this.DOM).append(() => this.nodeAttachedValue())
       this.getValue((d, k) => {
         if (d) {
@@ -420,11 +420,11 @@ class Node extends Primitives {
 
     d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
     .append(() => this.circle('valueAnchorBackground'))
-    
+
     d3.select(group)
     .append(() => circle)
     .call(dragBehaviour)
-    .call((s) => {this.canvas.setContext(s, 'attachedValue')})
+    .call((s) => { this.canvas.setContext(s, 'attachedValue') })
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
@@ -444,24 +444,23 @@ class Node extends Primitives {
     })
     dragBehaviour.on('drag', (d, i, g) => {
       let id = g[i].parentNode.id
-      let container = this.DOM.parentNode
+      // let container = this.DOM.parentNode
       let mouse = d3.mouse(this.DOM.parentNode)
       d3.select(g[i].parentNode)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
 
-      let cache = this.data.detachedValue
+      // let cache = this.data.detachedValue
       let link = this.links.detachedValue.filter((v) => v.toValue === id)[0]
       link.drawLinkTo(mouse)
-
     })
 
     d3.select(group).attr('transform', 'translate(0,40)').attr('id', valueID)
     .append(() => this.circle('valueAnchorBackground'))
-    
+
     d3.select(group)
     .append(() => circle)
     .call(dragBehaviour)
-    .call((s) => {this.canvas.setContext(s, 'value')})
+    .call((s) => { this.canvas.setContext(s, 'value') })
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
@@ -498,7 +497,7 @@ class Node extends Primitives {
 
     d3.select(this.DOM).select('.nodeAnchor circle')
     d3.select(this.DOM).select('.nodeValue .nodeValueAnchor')
-    
+
     return d3.select(DOM)
   }
 

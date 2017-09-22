@@ -5,7 +5,7 @@ class Interaction extends React.Component {
     this.state = {
       position: 'absolute'
     }
-    
+
     this.f = undefined
     this.target = undefined
   }
@@ -56,7 +56,6 @@ class Interaction extends React.Component {
     }
     this.setState(state)
     this.pathInput.focus()
-    
   }
 
   componentDidMount () {
@@ -70,8 +69,8 @@ class Interaction extends React.Component {
           this.target.gun.path('name').put(name)
           this.target.data.displayName = name
           this.target.toggleDisplayLevel(1)
-          
-          this.setState({interaction:{display: 'none'}})
+
+          this.setState({interaction: {display: 'none'}})
           this.pathInput.value = ''
         }
 
@@ -94,7 +93,7 @@ class Interaction extends React.Component {
         node.updateAttachedValue(path, value)
         node.toggleDisplayLevel(2, false)
 
-        this.setState({interaction:{display: 'none'}})
+        this.setState({interaction: {display: 'none'}})
         this.pathInput.value = ''
         this.valueInput.value = ''
       }

@@ -1,6 +1,6 @@
 let LinkInteract = require('./LinkInteract.js') // eslint-disable-line no-unused-vars
 let NodeInteract = require('./NodeInteract.js') // eslint-disable-line no-unused-vars
-let Interaction = require('./Interaction.js') //eslint-disable-line no-unused-vars
+let Interaction = require('./Interaction.js') // eslint-disable-line no-unused-vars
 
 class SVGCanvas extends React.Component {
   constructor (props) {
@@ -48,7 +48,7 @@ class SVGCanvas extends React.Component {
   measureText (text, style) {
     d3.select('svg#preRender').attr('class', style)
     let renderedText = d3.select('svg#preRender').append('text').text(text).node()
-    
+
     let size = renderedText.getBBox()
     renderedText.remove()
 
@@ -78,7 +78,7 @@ class SVGCanvas extends React.Component {
           let key = k[0]
           node.updateAttachedValue(key, d[key])
           node.toggleDisplayLevel(2, false)
-        } 
+        }
         if (existNode) {
           console.log('duplicate nodes', existNode)
         }
@@ -105,7 +105,7 @@ class SVGCanvas extends React.Component {
     })
 
     d3.select(canvas).call(zoom)
-    .on("dblclick.zoom", null)
+    .on('dblclick.zoom', null)
 
     let DropArea = document.querySelector('#DropArea')
     DropArea.addEventListener('dragover', (event) => {
@@ -153,8 +153,8 @@ class SVGCanvas extends React.Component {
   applyCanvasContext (selection) {
     let commands = (event) => {
       if (event.key === 'n') this.nodeInteract.show()
-      // if (event.key === 's') this.saveCache()
-      // if (event.key === 'l') this.loadCache()
+      if (event.key === 's') this.saveCache()
+      if (event.key === 'l') this.loadCache()
     }
 
     window.onkeyup = commands
@@ -218,9 +218,7 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    // let cache = {"nodes":{"node-4210259129":{"fromLink":["link-1976719957"],"toLink":["link-3501817744"],"position":[451,158],"path":"a"},"node-3650578120":{"fromLink":["link-2478644371"],"toLink":["link-1976719957"],"position":[256,425],"path":"b"},"node-4053994535":{"fromLink":["link-3501817744"],"toLink":["link-2478644371"],"position":[638,426],"path":"c"}},"links":{"link-1976719957":{"predicate":"","from":[451,158],"to":[256,425],"controlFrom":[418.5,202.5],"controlTo":[288.5,380.5],"fromNode":"node-4210259129","toNode":"node-3650578120"},"link-2478644371":{"predicate":"","from":[256,425],"to":[638,426],"controlFrom":[322,531],"controlTo":[563,521],"fromNode":"node-3650578120","toNode":"node-4053994535"},"link-3501817744":{"predicate":"","from":[638,426],"to":[451,158],"controlFrom":[606.8333333333334,381.3333333333333],"controlTo":[482.1666666666667,202.66666666666666],"fromNode":"node-4053994535","toNode":"node-4210259129"}}}
-    // let cache = {"nodes":{"node-2222167242":{"fromLink":[],"toLink":[],"position":[414,118],"path":"test"}},"links":{}}
-    // let cache = {"nodes":{"node-1929895751":{"fromLink":[],"toLink":[],"position":[253,214],"path":"test","normalizedKey":"LppE0z1iME59sHwnbncBRz1e"}},"links":{}}
+    let cache = {}
 
     let NodeMapping = {}
     let LinkMapping = {}
