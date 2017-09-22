@@ -228,8 +228,8 @@ class Node extends Primitives {
   }
 
   getValue (cb) {
-    let name = this.gun._.field
-    this.displayNodeName(name)
+    // let name = this.gun._.field
+    // this.displayNodeName(name)
     // in order for '.not' to be called, it has to preceds 'val'
     this.gun.not((k) => {
       cb(null, k)

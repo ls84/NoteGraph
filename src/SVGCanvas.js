@@ -75,6 +75,10 @@ class SVGCanvas extends React.Component {
           this.nodes.push(node)
 
           if (k.length === 0) return node.toggleDisplayLevel(1, true)
+
+          let name = node.gun._.field
+          node.displayNodeName(name)
+
           let key = k[0]
           node.updateAttachedValue(key, d[key])
           node.toggleDisplayLevel(2, false)
@@ -218,10 +222,12 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    let cache = {}
+    // a single node
+    let cache = {'nodes': {'node-1543010922': {'fromLink': [], 'toLink': [], 'position': [270, 237], 'path': 'a'}}, 'links': {}}
+    // let cache = {'nodes': {'node-946551123': {'fromLink': ['link-3001275430'], 'toLink': [], 'position': [279, 193], 'path': 'a'}, 'node-2934964471': {'fromLink': [], 'toLink': ['link-3001275430'], 'position': [813, 235], 'path': 'b'}}, 'links': {'link-3001275430': {'predicate': '', 'from': [279, 193], 'to': [813, 235], 'controlFrom': [330.5, 221.66666666666666], 'controlTo': [536.5, 336.3333333333333], 'fromNode': 'node-946551123', 'toNode': 'node-2934964471'}}}
 
     let NodeMapping = {}
-    let LinkMapping = {}
+    // let LinkMapping = {}
 
     for (let id in cache.nodes) {
       let position = cache.nodes[id].position
@@ -233,30 +239,30 @@ class SVGCanvas extends React.Component {
       NodeMapping[id] = node
     }
 
-    for (let id in cache.links) {
-      let data = cache.links[id]
-      let link = new this.Link(this.getRandomValue(), this)
-      Object.assign(link.data, data)
-      link.data.fromNode = NodeMapping[data.fromNode]
-      link.data.toNode = NodeMapping[data.toNode]
-      link.appendSelf()
-      .call((s) => { this.interaction.setContext(s, 'link') })
-      link.updateText()
+    // for (let id in cache.links) {
+    //   let data = cache.links[id]
+    //   let link = new this.Link(this.getRandomValue(), this)
+    //   Object.assign(link.data, data)
+    //   link.data.fromNode = NodeMapping[data.fromNode]
+    //   link.data.toNode = NodeMapping[data.toNode]
+    //   link.appendSelf()
+    //   .call((s) => { this.setContext(s, 'link') })
+    //   link.updateText()
 
-      LinkMapping[id] = link
-    }
+    //   LinkMapping[id] = link
+    // }
 
-    for (let id in cache.nodes) {
-      let fromLinks = cache.nodes[id].fromLink.map((v) => {
-        return LinkMapping[v]
-      })
-      NodeMapping[id].links.from = fromLinks
+    // for (let id in cache.nodes) {
+    //   let fromLinks = cache.nodes[id].fromLink.map((v) => {
+    //     return LinkMapping[v]
+    //   })
+    //   NodeMapping[id].links.from = fromLinks
 
-      let toLinks = cache.nodes[id].toLink.map((v) => {
-        return LinkMapping[v]
-      })
-      NodeMapping[id].links.to = toLinks
-    }
+    //   let toLinks = cache.nodes[id].toLink.map((v) => {
+    //     return LinkMapping[v]
+    //   })
+    //   NodeMapping[id].links.to = toLinks
+    // }
   }
 
   render () {
