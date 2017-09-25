@@ -250,7 +250,9 @@ class Node extends Primitives {
         if (typeof d[v] === 'object') return false
         if (d[v] === null) return false
         if (v === 'name') return false
-        if (this.data.detachedValue[v]) return false
+        for (let value in this.data.detachedValue) {
+          if (this.data.detachedValue[value].key === v) return false
+        }
         return true
       })
       cb(d, valueKey)
@@ -372,9 +374,9 @@ class Node extends Primitives {
       d3.select(this.DOM).select('.nodeValue').remove()
 
       let cache = this.data.detachedValue
-      cache[k] = {
+      cache[id] = {
+        key: k,
         position: mouse,
-        value: v,
         boundingBoxWidth: this.data.attachedValue.boundingBoxWidth,
         boundingBoxHeight: this.data.attachedValue.boundingBoxHeight
       }
@@ -386,6 +388,8 @@ class Node extends Primitives {
       Object.assign(link.data, {from: this.data.position, to: this.data.position})
       link.resetHandle()
       link.appendSelf(true)
+
+      node.getValue
 
       link.toValue = id
       this.links.detachedValue.push(link)
@@ -399,7 +403,10 @@ class Node extends Primitives {
 
       let link = this.links.detachedValue[this.links.detachedValue.length - 1]
       link.drawLinkTo(mouse)
-      // TODO: update detachedValue Cache
+
+      let cache = this.data.detachedValue
+      cache[shadowValueID].position = mouse
+      this.data.detachedValue = cache
     })
 
     dragBehaviour.on('end', () => {
@@ -439,19 +446,25 @@ class Node extends Primitives {
     let circle = this.circle('nodeValueAnchor')
     let dragBehaviour = d3.drag()
 
-    dragBehaviour.on('start', () => {
+    dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
     })
     dragBehaviour.on('drag', (d, i, g) => {
       let id = g[i].parentNode.id
-      // let container = this.DOM.parentNode
       let mouse = d3.mouse(this.DOM.parentNode)
-      d3.select(g[i].parentNode)
+
+      d3.select(`#${valueID}`)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
 
+      console.log(this.links)
       // let cache = this.data.detachedValue
       let link = this.links.detachedValue.filter((v) => v.toValue === id)[0]
+
       link.drawLinkTo(mouse)
+
+      let cache = this.data.detachedValue
+      cache[valueID].position = mouse
+      this.data.detachedValue = cache
     })
 
     d3.select(group).attr('transform', 'translate(0,40)').attr('id', valueID)
@@ -479,7 +492,6 @@ class Node extends Primitives {
     d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
     d3.select(group).append(() => this.circle('nodeOrbit'))
     d3.select(group).append(() => this.nodeAnchor())
-    // d3.select(group).append(() => this.nodeValue())
     d3.select(group).append(() => this.nodeAttachedValue())
 
     return group
@@ -495,6 +507,7 @@ class Node extends Primitives {
 
     this.DOM = DOM
 
+    // propagate d3 data to children
     d3.select(this.DOM).select('.nodeAnchor circle')
     d3.select(this.DOM).select('.nodeValue .nodeValueAnchor')
 

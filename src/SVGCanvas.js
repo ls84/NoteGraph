@@ -222,9 +222,7 @@ class SVGCanvas extends React.Component {
   }
 
   loadCache () {
-    // a single node
-    let cache = {'nodes': {'node-1543010922': {'fromLink': [], 'toLink': [], 'position': [270, 237], 'path': 'a'}}, 'links': {}}
-    // let cache = {'nodes': {'node-946551123': {'fromLink': ['link-3001275430'], 'toLink': [], 'position': [279, 193], 'path': 'a'}, 'node-2934964471': {'fromLink': [], 'toLink': ['link-3001275430'], 'position': [813, 235], 'path': 'b'}}, 'links': {'link-3001275430': {'predicate': '', 'from': [279, 193], 'to': [813, 235], 'controlFrom': [330.5, 221.66666666666666], 'controlTo': [536.5, 336.3333333333333], 'fromNode': 'node-946551123', 'toNode': 'node-2934964471'}}}
+    let cache = {'nodes': {'node-1304310805': {'fromLink': [], 'toLink': [], 'detachedValue': {'value-2004115383': {'key': 'value', 'position': [213, 370], 'boundingBoxWidth': 64.640625, 'boundingBoxHeight': 0}}, 'position': [354, 247], 'path': 'a'}}, 'links': {'link-1174333554': {'predicate': '', 'from': [354, 247], 'to': [213, 370], 'controlFrom': [330.5, 267.5], 'controlTo': [236.5, 349.5]}}}
 
     let NodeMapping = {}
     // let LinkMapping = {}
@@ -235,6 +233,28 @@ class SVGCanvas extends React.Component {
 
       this.props.getGunData(path)
       let node = this.appendNode(path, position, 1)
+
+      let detachedValue = cache.nodes[id].detachedValue
+      if (Object.keys(detachedValue).length > 0) {
+        for (let dv in detachedValue) {
+          let valueID = `value-${this.getRandomValue()}`
+          let detachedValueDOM = node.nodeDetachedValue(valueID)
+          node.DOM.parentNode.appendChild(detachedValueDOM)
+          let position = detachedValue[dv].position
+          d3.select(`#${valueID}`)
+          .attr('transform', `translate(${position[0]}, ${position[1]})`)
+
+          // TODO: should fetch new value for valueKey
+
+          let link = new this.Link(`link-${this.getRandomValue()}`, this)
+          Object.assign(link.data, {from: node.data.position, to: position})
+          link.resetHandle()
+          link.appendSelf(true)
+          .call((s) => this.setContext(s, 'link'))
+          node.addFromLink(link)
+          node.addToLink(link)
+        }
+      }
 
       NodeMapping[id] = node
     }

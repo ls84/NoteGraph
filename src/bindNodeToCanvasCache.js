@@ -8,6 +8,7 @@ function bindNodeToCanvasCache (canvas) {
     if (p === 'path') cache[t.id].path = v
     if (p === 'fromLink') cache[t.id].fromLink = v
     if (p === 'toLink') cache[t.id].toLink = v
+    if (p === 'detachedValue') cache[t.id].detachedValue = v
 
     return Reflect.set(t, p, v, r)
   }
