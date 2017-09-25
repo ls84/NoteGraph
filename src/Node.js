@@ -13,7 +13,7 @@ class Node extends Primitives {
     this.data.toLink = []
     this.data.attachedValue = {}
     this.data.detachedValue = {}
-    this.links = {from: [], to: [], detachedValue: []}
+    this.links = {from: {}, to: {}, detachedValue: {}}
 
     this.displayLevel = (function () {
       let counter = 0
@@ -37,16 +37,18 @@ class Node extends Primitives {
 
   drawLinkBehaviour (selection) {
     let dragBehaviour = d3.drag()
+    let linkID
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
 
       if (d3.event.sourceEvent.shiftKey) {
-        let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
+        linkID = `link-${this.getRandomValue()}`
+        let link = new this.canvas.Link(linkID, this.canvas)
         Object.assign(link.data, {from: this.data.position, to: this.data.position})
         link.resetHandle()
         link.appendSelf()
         .call((s) => this.canvas.setContext(s, 'link'))
-        this.addFromLink(link)
+        this.links.from[linkID] = link
       }
     })
 
@@ -59,16 +61,23 @@ class Node extends Primitives {
         this.data.position = position
         d3.select(this.DOM).attr('transform', `translate(${position[0]}, ${position[1]})`)
 
-        this.links.from.forEach(this.updateAttachedLink('from', position))
-        this.links.to.forEach(this.updateAttachedLink('to', position))
-        this.links.detachedValue.forEach((v) => {
-          v.data.from = position
-          d3.select(v.DOM).select('.path').attr('d', v.pathDescription(true))
-        })
+        for (let link in this.links.from) {
+          this.updateAttachedLink.call(this.links.from[link], 'from', position)
+        }
+        for (let link in this.links.to) {
+          this.updateAttachedLink.call(this.links.to[link], 'to', position)
+        }
+
+        // this.links.from.forEach(this.updateAttachedLink('from', position))
+        // this.links.to.forEach(this.updateAttachedLink('to', position))
+        // this.links.detachedValue.forEach((v) => {
+        //   v.data.from = position
+        //   d3.select(v.DOM).select('.path').attr('d', v.pathDescription(true))
+        // })
       }
 
       if (d3.event.sourceEvent.shiftKey) {
-        let link = this.links.from[this.links.from.length - 1]
+        let link = this.links.from[linkID]
         if (this.canvas.targetNode) position = this.canvas.targetNode.data.position
         link.drawLinkTo(position)
       }
@@ -76,11 +85,11 @@ class Node extends Primitives {
 
     dragBehaviour.on('end', (d, i, g) => {
       let target = this.canvas.targetNode
-      let link = this.links.from[this.links.from.length - 1]
+      let link = this.links.from[linkID]
       if (!target) {
         d3.select(link.DOM).remove()
         link.data.destory = link.data.id
-        this.popLastLink()
+        delete this.links.from[linkID]
         this.canvas.target = null
         this.canvas.context = 'canvas'
       }
@@ -89,7 +98,7 @@ class Node extends Primitives {
         link.data.toNode = target.data.id
         link.fromNode = this
         link.toNode = target
-        target.addToLink(link)
+        target.links.to[linkID] = link
       }
     })
 
@@ -175,12 +184,9 @@ class Node extends Primitives {
   }
 
   updateAttachedLink (key, position) {
-    return (v) => {
-      v.data[key] = position
-      // TODO: should update itself? it's acutally almost
-      d3.select(v.DOM).select('.path').attr('d', v.pathDescription())
-      v.updateText()
-    }
+    this.data[key] = position
+    d3.select(this.DOM).select('.path').attr('d', this.pathDescription())
+    this.updateText()
   }
 
   displayNodeName (name) {
@@ -388,8 +394,6 @@ class Node extends Primitives {
       Object.assign(link.data, {from: this.data.position, to: this.data.position})
       link.resetHandle()
       link.appendSelf(true)
-
-      node.getValue
 
       link.toValue = id
       this.links.detachedValue.push(link)
