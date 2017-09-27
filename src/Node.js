@@ -355,16 +355,15 @@ class Node extends Primitives {
     let group = this.group('nodeValue')
     let circle = this.circle('nodeValueAnchor')
     let dragBehaviour = d3.drag()
-    let shadowValueID
+    let valueID
 
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
 
       let mouse = d3.mouse(this.DOM.parentNode)
-      // TODO: use ValueID
-      let id = `value-${this.getRandomValue()}`
+      valueID = `value-${this.getRandomValue()}`
 
-      let value = this.nodeDetachedValue(id)
+      let value = this.nodeDetachedValue(valueID)
       d3.select(value).datum(this)
       d3.select(value).select('.nodeValueAnchor')
       .call((s) => { this.canvas.setContext(s, 'value') })
@@ -374,11 +373,11 @@ class Node extends Primitives {
       let k = this.data.attachedValue.valueKey
       let v = this.data.attachedValue.value
 
-      this.updateDetachedValue(id, k, v)
+      this.updateDetachedValue(valueID, k, v)
       d3.select(this.DOM).select('.nodeValue').remove()
 
       let cache = this.data.detachedValue
-      cache[id] = {
+      cache[valueID] = {
         key: k,
         position: mouse,
         boundingBoxWidth: this.data.attachedValue.boundingBoxWidth,
@@ -386,29 +385,26 @@ class Node extends Primitives {
       }
       this.data.detachedValue = cache
 
-      shadowValueID = id
-
       let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
       Object.assign(link.data, {from: this.data.position, to: this.data.position})
       link.resetHandle()
       link.appendSelf(true)
 
-      link.toValue = id
-      this.links.detachedValue[id] = link
-      // this.links.detachedValue.push(link)
+      link.toValue = valueID
+      this.links.detachedValue[valueID] = link
     })
 
     dragBehaviour.on('drag', () => {
       let container = this.DOM.parentNode
       let mouse = d3.mouse(container)
-      d3.select(`.Value#${shadowValueID}`)
+      d3.select(`.Value#${valueID}`)
       .attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
 
-      let link = this.links.detachedValue[shadowValueID]
+      let link = this.links.detachedValue[valueID]
       link.drawLinkTo(mouse)
 
       let cache = this.data.detachedValue
-      cache[shadowValueID].position = mouse
+      cache[valueID].position = mouse
       this.data.detachedValue = cache
     })
 
