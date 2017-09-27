@@ -251,6 +251,8 @@ class SVGCanvas extends React.Component {
           link.resetHandle()
           link.appendSelf(true)
           .call((s) => this.setContext(s, 'link'))
+
+          console.log(node)
           // node.addFromLink(link)
           // node.addToLink(link)
         }

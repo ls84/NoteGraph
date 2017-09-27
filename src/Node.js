@@ -68,12 +68,9 @@ class Node extends Primitives {
           this.updateAttachedLink.call(this.links.to[link], 'to', position)
         }
 
-        // this.links.from.forEach(this.updateAttachedLink('from', position))
-        // this.links.to.forEach(this.updateAttachedLink('to', position))
-        // this.links.detachedValue.forEach((v) => {
-        //   v.data.from = position
-        //   d3.select(v.DOM).select('.path').attr('d', v.pathDescription(true))
-        // })
+        for (let link in this.links.detachedValue) {
+          this.updateAttachedLink.call(this.links.detachedValue[link], 'from', position, true)
+        }
       }
 
       if (d3.event.sourceEvent.shiftKey) {
@@ -183,9 +180,9 @@ class Node extends Primitives {
     this.data.fromLink = cache
   }
 
-  updateAttachedLink (key, position) {
+  updateAttachedLink (key, position, calculateHandle) {
     this.data[key] = position
-    d3.select(this.DOM).select('.path').attr('d', this.pathDescription())
+    d3.select(this.DOM).select('.path').attr('d', this.pathDescription(calculateHandle))
     this.updateText()
   }
 
@@ -364,6 +361,7 @@ class Node extends Primitives {
       d3.event.sourceEvent.stopPropagation()
 
       let mouse = d3.mouse(this.DOM.parentNode)
+      // TODO: use ValueID
       let id = `value-${this.getRandomValue()}`
 
       let value = this.nodeDetachedValue(id)
@@ -396,7 +394,8 @@ class Node extends Primitives {
       link.appendSelf(true)
 
       link.toValue = id
-      this.links.detachedValue.push(link)
+      this.links.detachedValue[id] = link
+      // this.links.detachedValue.push(link)
     })
 
     dragBehaviour.on('drag', () => {
@@ -405,7 +404,7 @@ class Node extends Primitives {
       d3.select(`.Value#${shadowValueID}`)
       .attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
 
-      let link = this.links.detachedValue[this.links.detachedValue.length - 1]
+      let link = this.links.detachedValue[shadowValueID]
       link.drawLinkTo(mouse)
 
       let cache = this.data.detachedValue
@@ -454,16 +453,12 @@ class Node extends Primitives {
       d3.event.sourceEvent.stopPropagation()
     })
     dragBehaviour.on('drag', (d, i, g) => {
-      let id = g[i].parentNode.id
       let mouse = d3.mouse(this.DOM.parentNode)
 
       d3.select(`#${valueID}`)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
 
-      console.log(this.links)
-      // let cache = this.data.detachedValue
-      let link = this.links.detachedValue.filter((v) => v.toValue === id)[0]
-
+      let link = this.links.detachedValue[valueID]
       link.drawLinkTo(mouse)
 
       let cache = this.data.detachedValue
