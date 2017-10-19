@@ -37,18 +37,17 @@ class Node extends Primitives {
 
   drawLinkBehaviour (selection) {
     let dragBehaviour = d3.drag()
-    let linkID
+    let link
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
 
       if (d3.event.sourceEvent.shiftKey) {
-        linkID = `link-${this.getRandomValue()}`
-        let link = new this.canvas.Link(linkID, this.canvas)
+        let linkID = `link-${this.getRandomValue()}`
+        link = new this.canvas.Link(linkID, this.canvas)
         Object.assign(link.data, {from: this.data.position, to: this.data.position})
         link.resetHandle()
         link.appendSelf()
         .call((s) => this.canvas.setContext(s, 'link'))
-        this.links.from[linkID] = link
       }
     })
 
@@ -74,7 +73,6 @@ class Node extends Primitives {
       }
 
       if (d3.event.sourceEvent.shiftKey) {
-        let link = this.links.from[linkID]
         if (this.canvas.targetNode) position = this.canvas.targetNode.data.position
         link.drawLinkTo(position)
       }
@@ -82,11 +80,9 @@ class Node extends Primitives {
 
     dragBehaviour.on('end', (d, i, g) => {
       let target = this.canvas.targetNode
-      let link = this.links.from[linkID]
       if (!target) {
         d3.select(link.DOM).remove()
         link.data.destory = link.data.id
-        delete this.links.from[linkID]
         this.canvas.target = null
         this.canvas.context = 'canvas'
       }
@@ -95,7 +91,10 @@ class Node extends Primitives {
         link.data.toNode = target.data.id
         link.fromNode = this
         link.toNode = target
-        target.links.to[linkID] = link
+        target.links.to[this.data.id] = link
+        this.links.from[target.data.id] = link
+
+        console.log(this, target)
       }
     })
 
@@ -200,16 +199,17 @@ class Node extends Primitives {
     this.wrapText(value, container.querySelector('.value'), size)
 
     let cache = this.data.attachedValue
-    cache.valueKey = key
+    cache.key = key
     cache.value = value
     this.data.attachedValue = cache
   }
 
   updateDetachedValue (valueID, key, value) {
+    // TODO: fetch new value for key if value is absent
     let textLength = this.measureText(key)
     let size = { boundingBoxWidth: textLength.width, boundingBoxHeight: 0 }
     let DOM = document.querySelector(`.Value#${valueID}`)
-    let container = d3.select(DOM).append(() => this.nodeSizeHandle(size)).node().parentNode
+    let container = d3.select(DOM).append(() => this.nodeSizeHandle(size, valueID)).node().parentNode
     d3.select(DOM).select('text.valueLabel').text(key)
     this.wrapText(value, container.querySelector('.value'), size)
 
@@ -309,12 +309,11 @@ class Node extends Primitives {
       cache.boundingBoxWidth += d3.event.dx
       cache.boundingBoxHeight += d3.event.dy
 
-      let minimalWidth = this.measureText(cache.valueKey, 'valueLabel').width + 30
+      let minimalWidth = this.measureText(cache.key, 'valueLabel').width + 30
       cache.boundingBoxWidth = (cache.boundingBoxWidth < minimalWidth) ? minimalWidth : cache.boundingBoxWidth
       cache.boundingBoxHeight = (cache.boundingBoxHeight < 0) ? 0 : cache.boundingBoxHeight
 
       d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
-
       if (cache.boundingBoxHeight > 0) this.wrapText(cache.value, g[i].parentNode.querySelector('.value'), cache)
       d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
 
@@ -322,7 +321,7 @@ class Node extends Primitives {
       if (!valueID) this.data.attachedValue = cache
     })
 
-    if (valueID) cache.boundingBoxWidth -= 30
+    // if (valueID) cache.boundingBoxWidth -= 30
     let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
     d3.select(handle).attr('class', 'boundingBoxHandle')
     .attr('transform', `translate(${cache.boundingBoxWidth += 30}, ${cache.boundingBoxHeight})`)
@@ -370,20 +369,21 @@ class Node extends Primitives {
       d3.select(this.DOM.parentNode).append(() => value)
       .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
 
-      let k = this.data.attachedValue.valueKey
+      let k = this.data.attachedValue.key
       let v = this.data.attachedValue.value
-
-      this.updateDetachedValue(valueID, k, v)
-      d3.select(this.DOM).select('.nodeValue').remove()
 
       let cache = this.data.detachedValue
       cache[valueID] = {
         key: k,
+        value: v,
         position: mouse,
         boundingBoxWidth: this.data.attachedValue.boundingBoxWidth,
         boundingBoxHeight: this.data.attachedValue.boundingBoxHeight
       }
       this.data.detachedValue = cache
+
+      this.updateDetachedValue(valueID, k, v)
+      d3.select(this.DOM).select('.nodeValue').remove()
 
       let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
       Object.assign(link.data, {from: this.data.position, to: this.data.position})
