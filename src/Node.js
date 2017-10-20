@@ -205,7 +205,6 @@ class Node extends Primitives {
   }
 
   updateDetachedValue (valueID, key, value) {
-    // TODO: fetch new value for key if value is absent
     let textLength = this.measureText(key)
     let size = { boundingBoxWidth: textLength.width, boundingBoxHeight: 0 }
     let DOM = document.querySelector(`.Value#${valueID}`)
@@ -213,12 +212,10 @@ class Node extends Primitives {
     d3.select(DOM).select('text.valueLabel').text(key)
     this.wrapText(value, container.querySelector('.value'), size)
 
-    // let cache = this.data.detachedValue
-    // cache[key] = {}
-    // cache[key].value = value
-    // // cache.valueKey = key
-    // // cache.value = value
-    // this.data.detachedValue = cache
+    let cache = this.data.detachedValue
+    cache[valueID].key = key
+    cache[valueID].value = value
+    this.data.detachedValue = cache
   }
 
   initNode (k, cb) {

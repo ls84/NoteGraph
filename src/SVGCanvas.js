@@ -60,7 +60,7 @@ class SVGCanvas extends React.Component {
     return window.crypto.getRandomValues(a)
   }
 
-  appendNode (gunPath, position, displayLevel) {
+  appendNode (gunPath, position, displayLevel, cache) {
     let node = new this.Node(`node-${this.getRandomValue()}`, this)
     node.data.position = position
     node.data.path = gunPath
@@ -71,14 +71,48 @@ class SVGCanvas extends React.Component {
         let normalizedPath = node.normalizedPath
         let existNode = this.nodes.filter((v) => v.normalizedPath === normalizedPath)[0]
         if (!existNode) {
+          // should have detachedValue cache first
+          if (cache) {
+            if (Object.keys(cache.detachedValue).length > 0) {
+              for (let dv in cache.detachedValue) {
+                let valueID = `value-${this.getRandomValue()}`
+                node.data.detachedValue[valueID] = cache.detachedValue[dv]
+
+                let value = node.nodeDetachedValue(valueID)
+                d3.select(value).datum(node)
+
+                d3.select(value).select('.nodeValueAnchor')
+                .call((s) => { this.setContext(s, 'value') })
+
+                let position = cache.detachedValue[dv].position
+                d3.select('#Canvas #zoomTransform').append(() => value)
+                .attr('transform', `translate(${position[0]},${position[1]})`)
+
+                // TODO: should update this value with gun
+                let valueText = 'haha'
+                node.updateDetachedValue(valueID, cache.detachedValue[dv].key, valueText)
+
+                let link = new this.Link(`link-${this.getRandomValue()}`, this)
+                Object.assign(link.data, {from: node.data.position, to: position})
+                link.resetHandle()
+                link.appendSelf(true)
+                .call((s) => this.setContext(s, 'link'))
+
+                node.links.detachedValue[valueID] = link
+              }
+            }
+          }
+
           node.appendSelf()
           this.nodes.push(node)
 
           if (k.length === 0) return node.toggleDisplayLevel(1, true)
+          // TODO: will have to compare with detachedValue
 
           let name = node.gun._.field
           node.displayNodeName(name)
 
+          // Attached Value Updates here
           let key = k[0]
           node.updateAttachedValue(key, d[key])
           node.toggleDisplayLevel(2, false)
@@ -218,45 +252,66 @@ class SVGCanvas extends React.Component {
   }
 
   saveCache () {
-    console.log(JSON.stringify(this.state.cache))
+    console.log(JSON.stringify(this.state.cache, null, 2))
   }
 
   loadCache () {
-    let cache = {'nodes': {'node-1304310805': {'fromLink': [], 'toLink': [], 'detachedValue': {'value-2004115383': {'key': 'value', 'position': [213, 370], 'boundingBoxWidth': 64.640625, 'boundingBoxHeight': 0}}, 'position': [354, 247], 'path': 'a'}}, 'links': {'link-1174333554': {'predicate': '', 'from': [354, 247], 'to': [213, 370], 'controlFrom': [330.5, 267.5], 'controlTo': [236.5, 349.5]}}}
+    let cache = {
+      'nodes': {
+        'node-785102137': {
+          'fromLink': [],
+          'toLink': [],
+          'detachedValue': {
+            'value-3024047024': {
+              'key': 'value',
+              'position': [
+                287,
+                256
+              ],
+              'boundingBoxWidth': 64.640625,
+              'boundingBoxHeight': 0
+            }
+          },
+          'position': [
+            398,
+            157
+          ],
+          'path': 'a'
+        }
+      },
+      'links': {
+        'link-686812326': {
+          'predicate': '',
+          'from': [
+            398,
+            157
+          ],
+          'to': [
+            287,
+            256
+          ],
+          'controlFrom': [
+            379.5,
+            173.5
+          ],
+          'controlTo': [
+            305.5,
+            239.5
+          ]
+        }
+      }
+    }
 
     let NodeMapping = {}
     // let LinkMapping = {}
 
     for (let id in cache.nodes) {
-      let position = cache.nodes[id].position
-      let path = cache.nodes[id].path
+      let nodeCache = cache.nodes[id]
+      let position = nodeCache.position
+      let path = nodeCache.path
 
       this.props.getGunData(path)
-      let node = this.appendNode(path, position, 1)
-
-      let detachedValue = cache.nodes[id].detachedValue
-      if (Object.keys(detachedValue).length > 0) {
-        for (let dv in detachedValue) {
-          let valueID = `value-${this.getRandomValue()}`
-          let detachedValueDOM = node.nodeDetachedValue(valueID)
-          node.DOM.parentNode.appendChild(detachedValueDOM)
-          let position = detachedValue[dv].position
-          d3.select(`#${valueID}`)
-          .attr('transform', `translate(${position[0]}, ${position[1]})`)
-
-          // TODO: should fetch new value for valueKey
-
-          let link = new this.Link(`link-${this.getRandomValue()}`, this)
-          Object.assign(link.data, {from: node.data.position, to: position})
-          link.resetHandle()
-          link.appendSelf(true)
-          .call((s) => this.setContext(s, 'link'))
-
-          console.log(node)
-          // node.addFromLink(link)
-          // node.addToLink(link)
-        }
-      }
+      let node = this.appendNode(path, position, 1, nodeCache)
 
       NodeMapping[id] = node
     }
