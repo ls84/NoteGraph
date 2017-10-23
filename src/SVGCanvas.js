@@ -62,7 +62,7 @@ class SVGCanvas extends React.Component {
 
   appendNode (gunPath, position, displayLevel, cache) {
     let node = new this.Node(`node-${this.getRandomValue()}`, this)
-    node.data.position = position
+    // node.data.position = position
     node.data.path = gunPath
     node.gun = this.props.gunData
     if (displayLevel) node.displayLevel(displayLevel)
@@ -104,6 +104,7 @@ class SVGCanvas extends React.Component {
           }
 
           node.appendSelf()
+          node.data.position = position
           this.nodes.push(node)
 
           if (k.length === 0) return node.toggleDisplayLevel(1, true)

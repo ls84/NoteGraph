@@ -5,7 +5,7 @@ class Node extends Primitives {
   constructor (id, canvas) {
     super()
     this.canvas = canvas
-    this.data = new Proxy({}, bindNodeToCanvasCache(canvas))
+    this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
     // this.data.boundingBoxWidth = 0
     // this.data.boundingBoxHeight = 0
@@ -58,7 +58,7 @@ class Node extends Primitives {
 
       if (!d3.event.sourceEvent.shiftKey) {
         this.data.position = position
-        d3.select(this.DOM).attr('transform', `translate(${position[0]}, ${position[1]})`)
+        // d3.select(this.DOM).attr('transform', `translate(${position[0]}, ${position[1]})`)
 
         for (let link in this.links.from) {
           this.updateAttachedLink.call(this.links.from[link], 'from', position)
@@ -477,11 +477,11 @@ class Node extends Primitives {
 
   SVGElement () {
     let id = this.data.id
-    let position = this.data.position
+    // let position = this.data.position
 
     let group = this.group('nodes', id)
 
-    d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
+    // d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
     d3.select(group).append(() => this.circle('nodeOrbit'))
     d3.select(group).append(() => this.nodeAnchor())
     d3.select(group).append(() => this.nodeAttachedValue())
@@ -492,7 +492,7 @@ class Node extends Primitives {
   appendSelf () {
     let DOM = d3.select('#Canvas #zoomTransform').selectAll('.nodes')
     .data([this], (d) => d ? d.data.path : undefined)
-    .attr('transform', `translate(${this.data.position[0]}, ${this.data.position[1]})`)
+    // .attr('transform', `translate(${this.data.position[0]}, ${this.data.position[1]})`)
     .enter()
     .append(() => this.SVGElement())
     .node()
