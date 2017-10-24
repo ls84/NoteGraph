@@ -7,12 +7,31 @@ class Node extends Primitives {
     this.canvas = canvas
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
-    // this.data.boundingBoxWidth = 0
-    // this.data.boundingBoxHeight = 0
     this.data.fromLink = []
     this.data.toLink = []
     this.data.attachedValue = {}
-    this.data.detachedValue = {}
+    this.data.detachedValue = new Proxy({}, {
+      set: (t, p, v, r) => {
+        // TODO: assert p should always be a value id
+        let value = this.nodeDetachedValue(p)
+        d3.select(value).datum(this)
+        d3.select(value).select('.nodeValueAnchor')
+        .call((s) => { this.canvas.setContext(s, 'value') })
+        d3.select(this.DOM.parentNode).append(() => value)
+
+        // append link to this detachedValue
+        let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
+        Object.assign(link.data, {from: this.data.position, to: this.data.position})
+        link.resetHandle()
+        link.appendSelf(true)
+
+        link.toValue = p
+        this.links.detachedValue[p] = link
+
+        return Reflect.set(t, p, v, r)
+      }
+    })
+
     this.links = {from: {}, to: {}, detachedValue: {}}
 
     this.displayLevel = (function () {
@@ -210,12 +229,12 @@ class Node extends Primitives {
     let DOM = document.querySelector(`.Value#${valueID}`)
     let container = d3.select(DOM).append(() => this.nodeSizeHandle(size, valueID)).node().parentNode
     d3.select(DOM).select('text.valueLabel').text(key)
-    this.wrapText(value, container.querySelector('.value'), size)
+    if (value) this.wrapText(value, container.querySelector('.value'), size)
 
-    let cache = this.data.detachedValue
-    cache[valueID].key = key
-    cache[valueID].value = value
-    this.data.detachedValue = cache
+    // let cache = this.data.detachedValue
+    // cache[valueID].key = key
+    // cache[valueID].value = value
+    // this.data.detachedValue = cache
   }
 
   initNode (k, cb) {
@@ -289,6 +308,7 @@ class Node extends Primitives {
   }
 
   nodeSizeHandle (size, valueID) {
+    // Note: why use cache here ?
     let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
 
     if (size) {
@@ -358,51 +378,22 @@ class Node extends Primitives {
 
       let mouse = d3.mouse(this.DOM.parentNode)
       valueID = `value-${this.getRandomValue()}`
+      this.bindActionToDetachedValueData(valueID)
 
-      let value = this.nodeDetachedValue(valueID)
-      d3.select(value).datum(this)
-      d3.select(value).select('.nodeValueAnchor')
-      .call((s) => { this.canvas.setContext(s, 'value') })
-      d3.select(this.DOM.parentNode).append(() => value)
-      .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
+      let attachedValueData = this.data.attachedValue
+      this.data.detachedValue[valueID].position = mouse
+      this.data.detachedValue[valueID].key = attachedValueData.key
+      this.data.detachedValue[valueID].value = attachedValueData.value
+      this.data.detachedValue[valueID].boundingBoxWidth = attachedValueData.boundingBoxWidth
+      this.data.detachedValue[valueID].boundingBoxHeight = attachedValueData.boundingBoxHeight
 
-      let k = this.data.attachedValue.key
-      let v = this.data.attachedValue.value
-
-      let cache = this.data.detachedValue
-      cache[valueID] = {
-        key: k,
-        value: v,
-        position: mouse,
-        boundingBoxWidth: this.data.attachedValue.boundingBoxWidth,
-        boundingBoxHeight: this.data.attachedValue.boundingBoxHeight
-      }
-      this.data.detachedValue = cache
-
-      this.updateDetachedValue(valueID, k, v)
       d3.select(this.DOM).select('.nodeValue').remove()
-
-      let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
-      Object.assign(link.data, {from: this.data.position, to: this.data.position})
-      link.resetHandle()
-      link.appendSelf(true)
-
-      link.toValue = valueID
-      this.links.detachedValue[valueID] = link
     })
 
     dragBehaviour.on('drag', () => {
       let container = this.DOM.parentNode
       let mouse = d3.mouse(container)
-      d3.select(`.Value#${valueID}`)
-      .attr('transform', `translate(${mouse[0]}, ${mouse[1]})`)
-
-      let link = this.links.detachedValue[valueID]
-      link.drawLinkTo(mouse)
-
-      let cache = this.data.detachedValue
-      cache[valueID].position = mouse
-      this.data.detachedValue = cache
+      this.data.detachedValue[valueID].position = mouse
     })
 
     dragBehaviour.on('end', () => {
@@ -435,6 +426,26 @@ class Node extends Primitives {
     .attr('transform', 'translate(15, 25)')
 
     return group
+  }
+
+  bindActionToDetachedValueData (valueID) {
+    let set = (t, p, v, r) => {
+      if (p === 'position') {
+        d3.select(`.Value#${valueID}`)
+        .attr('transform', `translate(${v[0]}, ${v[1]})`)
+
+        let link = this.links.detachedValue[valueID]
+        link.drawLinkTo(v)
+      }
+
+      if (p === 'key') {
+        this.updateDetachedValue(valueID, v, t.value)
+      }
+
+      return Reflect.set(t, p, v, r)
+    }
+    // NOTE: this actually calls nodeDetachedValue
+    this.data.detachedValue[valueID] = new Proxy({}, { set })
   }
 
   nodeDetachedValue (valueID) {
