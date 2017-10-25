@@ -10,6 +10,20 @@ class Node extends Primitives {
     this.data.fromLink = []
     this.data.toLink = []
     this.data.attachedValue = {}
+    this.data.attachedValue = new Proxy({}, {
+      set: (t, p, v, r) => {
+        if (p === 'boundingBoxDimension') {
+          let minimalWidth = this.measureText(t.key, 'valueLabel').width + 30
+          v[0] = (v[0] < minimalWidth) ? minimalWidth : v[0]
+          v[1] = (v[1] < 0) ? 0 : v[1]
+
+          d3.select(this.DOM).select('.boundingBoxHandle').attr('transform', `translate(${v[0]}, ${v[1]})`)
+          if (v[1] > 0) this.wrapText(t.value, this.DOM.querySelector(`.value`), v)
+        }
+
+        return Reflect.set(t, p, v, r)
+      }
+    })
     this.data.detachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
         // TODO: assert p should always be a value id
@@ -279,8 +293,8 @@ class Node extends Primitives {
   }
 
   wrapText (text, container, overflow) {
-    let overflowWidth = overflow.boundingBoxWidth - 15
-    let overflowHeight = overflow.boundingBoxHeight
+    let overflowWidth = overflow[0] - 15
+    let overflowHeight = overflow[1]
     let words = text.split(' ').reverse()
     let lines = []
     let line = words.pop()
@@ -312,8 +326,9 @@ class Node extends Primitives {
     let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
 
     if (size) {
-      cache.boundingBoxWidth = size.boundingBoxWidth
-      cache.boundingBoxHeight = size.boundingBoxHeight
+      cache.boundingBoxDimension = [size.boundingBoxWidth, size.boundingBoxHeight]
+      // cache.boundingBoxWidth = size.boundingBoxWidth
+      // cache.boundingBoxHeight = size.boundingBoxHeight
     }
 
     let dragBehaviour = d3.drag()
@@ -323,25 +338,13 @@ class Node extends Primitives {
 
     dragBehaviour.on('drag', (d, i, g) => {
       // d3.event.sourceEvent.stopPropagation()
-      cache.boundingBoxWidth += d3.event.dx
-      cache.boundingBoxHeight += d3.event.dy
-
-      let minimalWidth = this.measureText(cache.key, 'valueLabel').width + 30
-      cache.boundingBoxWidth = (cache.boundingBoxWidth < minimalWidth) ? minimalWidth : cache.boundingBoxWidth
-      cache.boundingBoxHeight = (cache.boundingBoxHeight < 0) ? 0 : cache.boundingBoxHeight
-
-      d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
-      if (cache.boundingBoxHeight > 0) this.wrapText(cache.value, g[i].parentNode.querySelector('.value'), cache)
-      d3.select(g[i]).attr('transform', `translate(${cache.boundingBoxWidth}, ${cache.boundingBoxHeight})`)
-
-      if (valueID) this.data.detachedValue[valueID] = cache
-      if (!valueID) this.data.attachedValue = cache
+      let dimension = [cache.boundingBoxDimension[0] += d3.event.dx, cache.boundingBoxDimension[1] += d3.event.dy]
+      cache.boundingBoxDimension = dimension
     })
 
-    // if (valueID) cache.boundingBoxWidth -= 30
     let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
     d3.select(handle).attr('class', 'boundingBoxHandle')
-    .attr('transform', `translate(${cache.boundingBoxWidth += 30}, ${cache.boundingBoxHeight})`)
+    .attr('transform', `translate(${cache.boundingBoxDimension[0] += 30}, ${cache.boundingBoxDimension[1]})`)
     .attr('points', '5,0 5,5 0,5')
     .call(dragBehaviour)
 
@@ -376,16 +379,17 @@ class Node extends Primitives {
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
 
-      let mouse = d3.mouse(this.DOM.parentNode)
       valueID = `value-${this.getRandomValue()}`
-      this.bindActionToDetachedValueData(valueID)
+      let detachedValueData = this.bindActionToDetachedValueData(valueID)
+      // NOTE: this actually calls nodeDetachedValue
+      this.data.detachedValue[valueID] = detachedValueData
 
+      let mouse = d3.mouse(this.DOM.parentNode)
       let attachedValueData = this.data.attachedValue
       this.data.detachedValue[valueID].position = mouse
       this.data.detachedValue[valueID].key = attachedValueData.key
       this.data.detachedValue[valueID].value = attachedValueData.value
-      this.data.detachedValue[valueID].boundingBoxWidth = attachedValueData.boundingBoxWidth
-      this.data.detachedValue[valueID].boundingBoxHeight = attachedValueData.boundingBoxHeight
+      this.data.detachedValue[valueID].boundingBoxDimension = attachedValueData.boundingBoxDimension
 
       d3.select(this.DOM).select('.nodeValue').remove()
     })
@@ -442,10 +446,18 @@ class Node extends Primitives {
         this.updateDetachedValue(valueID, v, t.value)
       }
 
+      if (p === 'boundingBoxDimension') {
+        let minimalWidth = this.measureText(t.key, 'valueLabel').width + 30
+        v[0] = (v[0] < minimalWidth) ? minimalWidth : v[0]
+        v[1] = (v[1] < 0) ? 0 : v[1]
+
+        d3.select(`.Value#${valueID} .boundingBoxHandle`).attr('transform', `translate(${v[0]}, ${v[1]})`)
+        if (v[1] > 0) this.wrapText(t.value, document.querySelector(`.Value#${valueID} .value`), v)
+      }
       return Reflect.set(t, p, v, r)
     }
-    // NOTE: this actually calls nodeDetachedValue
-    this.data.detachedValue[valueID] = new Proxy({}, { set })
+
+    return new Proxy({}, { set })
   }
 
   nodeDetachedValue (valueID) {
