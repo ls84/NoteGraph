@@ -7,9 +7,8 @@ class Node extends Primitives {
     this.canvas = canvas
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
-    this.data.fromLink = []
-    this.data.toLink = []
-    this.data.attachedValue = {}
+    // this.data.fromLink = []
+    // this.data.toLink = []
     this.data.attachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
         if (p === 'boundingBoxDimension') {
@@ -126,8 +125,6 @@ class Node extends Primitives {
         link.toNode = target
         target.links.to[this.data.id] = link
         this.links.from[target.data.id] = link
-
-        console.log(this, target)
       }
     })
 
@@ -186,31 +183,6 @@ class Node extends Primitives {
     selection.on('mouseenter.setTarget', (d, i, g) => { this.canvas.targetNode = this })
     selection.on('mouseleave.setTarget', (d, i, g) => { this.canvas.targetNode = null })
   }
-  // TODO: can binding of links and nodes be aggregated into one function?
-  addToLink (link) {
-    this.links.to.push(link)
-    let cache = this.data.toLink
-    cache.push(link.data.id)
-    this.data.toLink = cache
-
-    return true
-  }
-
-  addFromLink (link) {
-    this.links.from.push(link)
-    let cache = this.data.fromLink
-    cache.push(link.data.id)
-    this.data.fromLink = cache
-
-    return true
-  }
-
-  popLastLink () {
-    this.links.from.pop()
-    let cache = this.data.fromLink
-    cache.pop()
-    this.data.fromLink = cache
-  }
 
   updateAttachedLink (key, position, calculateHandle) {
     this.data[key] = position
@@ -249,15 +221,6 @@ class Node extends Primitives {
     // cache[valueID].key = key
     // cache[valueID].value = value
     // this.data.detachedValue = cache
-  }
-
-  initNode (k, cb) {
-    // this.gun.val((d, k) => {
-    //   this.normalizedPath = d['_']['#']
-    //   this.displayNodeName()
-    //   cb()
-    // })
-    this.canvas.props.putNewNode(k)
   }
 
   getValue (cb) {
@@ -322,13 +285,10 @@ class Node extends Primitives {
   }
 
   nodeSizeHandle (size, valueID) {
-    // Note: why use cache here ?
     let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
 
     if (size) {
       cache.boundingBoxDimension = [size.boundingBoxWidth, size.boundingBoxHeight]
-      // cache.boundingBoxWidth = size.boundingBoxWidth
-      // cache.boundingBoxHeight = size.boundingBoxHeight
     }
 
     let dragBehaviour = d3.drag()
@@ -381,7 +341,7 @@ class Node extends Primitives {
 
       valueID = `value-${this.getRandomValue()}`
       let detachedValueData = this.bindActionToDetachedValueData(valueID)
-      // NOTE: this actually calls nodeDetachedValue
+      // NOTE: this actually calls nodeDetachedValue and link
       this.data.detachedValue[valueID] = detachedValueData
 
       let mouse = d3.mouse(this.DOM.parentNode)
@@ -470,16 +430,7 @@ class Node extends Primitives {
     })
     dragBehaviour.on('drag', (d, i, g) => {
       let mouse = d3.mouse(this.DOM.parentNode)
-
-      d3.select(`#${valueID}`)
-      .attr('transform', `translate(${mouse[0]},${mouse[1]})`)
-
-      let link = this.links.detachedValue[valueID]
-      link.drawLinkTo(mouse)
-
-      let cache = this.data.detachedValue
-      cache[valueID].position = mouse
-      this.data.detachedValue = cache
+      this.data.detachedValue[valueID].position = mouse
     })
 
     d3.select(group).attr('transform', 'translate(0,40)').attr('id', valueID)
