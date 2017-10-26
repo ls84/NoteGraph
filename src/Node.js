@@ -76,6 +76,8 @@ class Node extends Primitives {
       if (d3.event.sourceEvent.shiftKey) {
         let linkID = `link-${this.getRandomValue()}`
         link = new this.canvas.Link(linkID, this.canvas)
+        link.data.cache = true
+        link.data.id = linkID
         Object.assign(link.data, {from: this.data.position, to: this.data.position})
         link.resetHandle()
         link.appendSelf()

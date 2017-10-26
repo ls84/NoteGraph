@@ -78,7 +78,6 @@ class SVGCanvas extends React.Component {
           if (cache) {
             if (Object.keys(cache.detachedValue).length > 0) {
               for (let dv in cache.detachedValue) {
-                console.log('detachedValue:', cache.detachedValue[dv])
                 let valueID = `value-${this.getRandomValue()}`
                 let detachedValueData = node.bindActionToDetachedValueData(valueID)
                 node.data.detachedValue[valueID] = detachedValueData
@@ -247,16 +246,16 @@ class SVGCanvas extends React.Component {
   loadCache () {
     let cache = {
       'nodes': {
-        'node-3739980629': {
+        'node-1470029948': {
           'detachedValue': {
-            'value-932079070': {
+            'value-1631442626': {
               'position': [
-                391,
-                208
+                283,
+                271
               ],
               'boundingBoxDimension': [
-                84.234375,
-                0
+                110.234375,
+                30
               ],
               'key': 'value is',
               'value': 'a is for apple\n'
@@ -264,30 +263,39 @@ class SVGCanvas extends React.Component {
           },
           'path': 'a',
           'position': [
-            473,
-            123
+            468,
+            113
+          ]
+        },
+        'node-3712712113': {
+          'detachedValue': {},
+          'path': 'b',
+          'position': [
+            732,
+            367
           ]
         }
       },
       'links': {
-        'link-3842448953': {
-          'predicate': '',
+        'link-3153688785': {
           'from': [
-            473,
-            123
+            468,
+            113
           ],
           'to': [
-            391,
-            208
+            732,
+            367
           ],
           'controlFrom': [
-            459.3333333333333,
-            137.16666666666666
+            646,
+            89
           ],
           'controlTo': [
-            404.6666666666667,
-            193.83333333333334
-          ]
+            561,
+            415
+          ],
+          'fromNode': 'node-1470029948',
+          'toNode': 'node-3712712113'
         }
       }
     }
@@ -306,30 +314,21 @@ class SVGCanvas extends React.Component {
       NodeMapping[id] = node
     }
 
-    // for (let id in cache.links) {
-    //   let data = cache.links[id]
-    //   let link = new this.Link(this.getRandomValue(), this)
-    //   Object.assign(link.data, data)
-    //   link.data.fromNode = NodeMapping[data.fromNode]
-    //   link.data.toNode = NodeMapping[data.toNode]
-    //   link.appendSelf()
-    //   .call((s) => { this.setContext(s, 'link') })
-    //   link.updateText()
+    for (let id in cache.links) {
+      let linkID = `link-${this.getRandomValue()}`
+      let link = new this.Link(linkID, this)
+      link.data.cache = true
+      link.data.id = linkID
+      let cacheData = cache.links[id]
+      Object.assign(link.data, {from: cacheData.from, controlFrom: cacheData.controlFrom, to: cacheData.to, controlTo: cacheData.controlTo})
+      link.appendSelf()
+      .call((s) => this.setContext(s, 'link'))
 
-    //   LinkMapping[id] = link
-    // }
-
-    // for (let id in cache.nodes) {
-    //   let fromLinks = cache.nodes[id].fromLink.map((v) => {
-    //     return LinkMapping[v]
-    //   })
-    //   NodeMapping[id].links.from = fromLinks
-
-    //   let toLinks = cache.nodes[id].toLink.map((v) => {
-    //     return LinkMapping[v]
-    //   })
-    //   NodeMapping[id].links.to = toLinks
-    // }
+      let fromNode = NodeMapping[cacheData.fromNode]
+      let toNode = NodeMapping[cacheData.toNode]
+      fromNode.links.from[toNode.data.id] = link
+      toNode.links.to[fromNode.data.id] = link
+    }
   }
 
   render () {
