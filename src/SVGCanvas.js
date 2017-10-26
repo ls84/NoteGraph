@@ -72,39 +72,27 @@ class SVGCanvas extends React.Component {
         let existNode = this.nodes.filter((v) => v.normalizedPath === normalizedPath)[0]
         if (!existNode) {
           // should have detachedValue cache first
+          node.appendSelf()
+          node.data.position = position
+          let detachedKey = []
           if (cache) {
             if (Object.keys(cache.detachedValue).length > 0) {
               for (let dv in cache.detachedValue) {
+                console.log('detachedValue:', cache.detachedValue[dv])
                 let valueID = `value-${this.getRandomValue()}`
-                node.data.detachedValue[valueID] = cache.detachedValue[dv]
+                let detachedValueData = node.bindActionToDetachedValueData(valueID)
+                node.data.detachedValue[valueID] = detachedValueData
 
-                let value = node.nodeDetachedValue(valueID)
-                d3.select(value).datum(node)
+                node.data.detachedValue[valueID].position = cache.detachedValue[dv].position
+                node.data.detachedValue[valueID].key = cache.detachedValue[dv].key
+                node.data.detachedValue[valueID].value = cache.detachedValue[dv].value
+                node.data.detachedValue[valueID].boundingBoxDimension = cache.detachedValue[dv].boundingBoxDimension
 
-                d3.select(value).select('.nodeValueAnchor')
-                .call((s) => { this.setContext(s, 'value') })
-
-                let position = cache.detachedValue[dv].position
-                d3.select('#Canvas #zoomTransform').append(() => value)
-                .attr('transform', `translate(${position[0]},${position[1]})`)
-
-                // TODO: should update this value with gun
-                let valueText = 'haha'
-                node.updateDetachedValue(valueID, cache.detachedValue[dv].key, valueText)
-
-                let link = new this.Link(`link-${this.getRandomValue()}`, this)
-                Object.assign(link.data, {from: node.data.position, to: position})
-                link.resetHandle()
-                link.appendSelf(true)
-                .call((s) => this.setContext(s, 'link'))
-
-                node.links.detachedValue[valueID] = link
+                detachedKey.push(cache.detachedValue[dv].key)
               }
             }
           }
 
-          node.appendSelf()
-          node.data.position = position
           this.nodes.push(node)
 
           if (k.length === 0) return node.toggleDisplayLevel(1, true)
@@ -259,45 +247,46 @@ class SVGCanvas extends React.Component {
   loadCache () {
     let cache = {
       'nodes': {
-        'node-785102137': {
-          'fromLink': [],
-          'toLink': [],
+        'node-3739980629': {
           'detachedValue': {
-            'value-3024047024': {
-              'key': 'value',
+            'value-932079070': {
               'position': [
-                287,
-                256
+                391,
+                208
               ],
-              'boundingBoxWidth': 64.640625,
-              'boundingBoxHeight': 0
+              'boundingBoxDimension': [
+                84.234375,
+                0
+              ],
+              'key': 'value is',
+              'value': 'a is for apple\n'
             }
           },
+          'path': 'a',
           'position': [
-            398,
-            157
-          ],
-          'path': 'a'
+            473,
+            123
+          ]
         }
       },
       'links': {
-        'link-686812326': {
+        'link-3842448953': {
           'predicate': '',
           'from': [
-            398,
-            157
+            473,
+            123
           ],
           'to': [
-            287,
-            256
+            391,
+            208
           ],
           'controlFrom': [
-            379.5,
-            173.5
+            459.3333333333333,
+            137.16666666666666
           ],
           'controlTo': [
-            305.5,
-            239.5
+            404.6666666666667,
+            193.83333333333334
           ]
         }
       }
