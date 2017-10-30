@@ -49,7 +49,8 @@ class Node extends Primitives {
 
     this.displayLevel = (function () {
       let counter = 0
-      let level = ['minimal', 'showPath', 'showValue']
+      // let level = ['minimal', 'showPath', 'showValue']
+      let level = [0, 1, 2]
       let divider = 3
 
       return function (overwrite, empty) {
@@ -408,6 +409,10 @@ class Node extends Primitives {
         this.updateDetachedValue(valueID, v, t.value)
       }
 
+      if (p === 'key' && t.value === 'undefined') {
+        console.log('value is undefined')
+      }
+
       if (p === 'boundingBoxDimension') {
         let minimalWidth = this.measureText(t.key, 'valueLabel').width + 30
         v[0] = (v[0] < minimalWidth) ? minimalWidth : v[0]
@@ -486,14 +491,14 @@ class Node extends Primitives {
     this.data.displayLevel = this.displayLevel(level, empty)
     let displayName = this.data.displayName ? this.data.displayName : ''
     switch (this.data.displayLevel) {
-      case 'minimal':
+      case 0:
         d3.select(this.DOM).select('.nodeLabel').text(displayName[0])
         d3.select(this.DOM).select('.nodeValue').attr('display', 'none')
         break
-      case 'showPath':
+      case 1:
         d3.select(this.DOM).select('.nodeLabel').text(displayName)
         break
-      case 'showValue':
+      case 2:
         d3.select(this.DOM).select('.nodeValue').attr('display', 'true')
         break
     }
