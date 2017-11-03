@@ -11,6 +11,14 @@ class Node extends Primitives {
     // this.data.toLink = []
     this.data.attachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
+        if (p === 'key') {
+          this.gun.val((d, k) => {
+            d3.select(this.DOM).append(() => this.nodeAttachedValue()).select('.nodeValueAnchor').call((s) => this.canvas.setContext(s, 'attachedValue'))
+            this.updateAttachedValue(v, d[v])
+            if (d[v]) this.toggleDisplayLevel(2)
+          })
+        }
+
         if (p === 'boundingBoxDimension') {
           let minimalWidth = this.measureText(t.key, 'valueLabel').width + 30
           v[0] = (v[0] < minimalWidth) ? minimalWidth : v[0]
@@ -61,6 +69,8 @@ class Node extends Primitives {
         return level[counter % divider]
       }
     })()
+
+    this.valueFilter = new Set(['_'])
     this.getRandomValue = canvas.getRandomValue
     this.measureText = canvas.measureText
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
@@ -206,10 +216,10 @@ class Node extends Primitives {
     d3.select(DOM).select('text.valueLabel').text(key)
     this.wrapText(value, container.querySelector('.value'), size)
 
-    let cache = this.data.attachedValue
-    cache.key = key
-    cache.value = value
-    this.data.attachedValue = cache
+    // let cache = this.data.attachedValue
+    // cache.key = key
+    // cache.value = value
+    // this.data.attachedValue = cache
   }
 
   updateDetachedValue (valueID, key, value) {
@@ -385,7 +395,7 @@ class Node extends Primitives {
     d3.select(group)
     .append(() => circle)
     .call(dragBehaviour)
-    .call((s) => { this.canvas.setContext(s, 'attachedValue') })
+    // .call((s) => { this.canvas.setContext(s, 'attachedValue') })
 
     d3.select(group).append('text').attr('class', 'valueLabel')
     .attr('transform', 'translate(15,4)')
@@ -465,7 +475,7 @@ class Node extends Primitives {
     // d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
     d3.select(group).append(() => this.circle('nodeOrbit'))
     d3.select(group).append(() => this.nodeAnchor())
-    d3.select(group).append(() => this.nodeAttachedValue())
+    // d3.select(group).append(() => this.nodeAttachedValue())
 
     return group
   }

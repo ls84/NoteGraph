@@ -60,66 +60,55 @@ class SVGCanvas extends React.Component {
     return window.crypto.getRandomValues(a)
   }
 
-  appendNode (gunPath, position, displayLevel, cache) {
+  appendNode (gunPath, position, cache) {
     let node = new this.Node(`node-${this.getRandomValue()}`, this)
-    // node.data.position = position
     node.data.path = gunPath
     node.gun = this.props.gunData
-    if (displayLevel) node.displayLevel(displayLevel)
-    node.getValue((d, k) => {
-      if (d) {
-        let normalizedPath = node.normalizedPath
-        let existNode = this.nodes.filter((v) => v.normalizedPath === normalizedPath)[0]
-        if (!existNode) {
-          // should have detachedValue cache first
-          node.appendSelf()
-          node.data.position = position
-          let detachedKey = []
-          if (cache) {
-            if (Object.keys(cache.detachedValue).length > 0) {
-              for (let dv in cache.detachedValue) {
-                let valueID = `value-${this.getRandomValue()}`
-                let detachedValueData = node.bindActionToDetachedValueData(valueID)
-                node.data.detachedValue[valueID] = detachedValueData
 
-                node.data.detachedValue[valueID].position = cache.detachedValue[dv].position
-                node.data.detachedValue[valueID].key = cache.detachedValue[dv].key
-                node.data.detachedValue[valueID].value = cache.detachedValue[dv].value
-                node.data.detachedValue[valueID].boundingBoxDimension = cache.detachedValue[dv].boundingBoxDimension
-
-                detachedKey.push(cache.detachedValue[dv].key)
-              }
-            }
-          }
-
-          this.nodes.push(node)
-
-          if (k.length === 0) return node.toggleDisplayLevel(1, true)
-          // TODO: will have to compare with detachedValue
-
-          let name = node.gun._.field
-          node.displayNodeName(name)
-
-          // Attached Value Updates here
-          let key = k[0]
-          node.updateAttachedValue(key, d[key])
-          node.toggleDisplayLevel(2, false)
-        }
-        if (existNode) {
-          console.log('duplicate nodes', existNode)
-        }
-      }
-      if (!d) {
-        // after gun.put will trigger gun.val inside getValue()
-        this.props.putNewNode(gunPath)
-        // node.initNode(gunPath, () => {
-        //   let normalizedPath = node.normalizedPath
-        //   console.log(normalizedPath)
-        // })
-      }
+    node.gun.not((k) => {
+      this.props.putNewNode(gunPath)
+      node.appendSelf()
+      node.data.position = position
     })
 
-    return node
+    node.gun.val((d, k) => {
+      // TODO: more should be done when node is already appended
+      let existNode = this.nodes.filter((v) => v.data.path === gunPath)[0]
+      if (existNode) {
+        console.log('node exists on canvas')
+      }
+      if (!existNode) {
+        node.appendSelf()
+        node.toggleDisplayLevel(2)
+        node.data.position = position
+
+        if (cache && Object.keys(cache.detachedValue).length > 0) {
+          for (let valueID in cache.detachedValue) {
+            let data = cache.detachedValue[valueID]
+            let detachedValueData = node.bindActionToDetachedValueData(valueID)
+            node.data.detachedValue[valueID] = detachedValueData
+
+            node.data.detachedValue[valueID].position = data.position
+            node.data.detachedValue[valueID].key = data.key
+            // node.data.detachedValue[valueID].value = cache.detachedValue[dv].value
+            node.data.detachedValue[valueID].boundingBoxDimension = data.boundingBoxDimension
+
+            node.valueFilter.add(data.key)
+          }
+        }
+
+        if (cache && cache.attachedValue.key) {
+          node.data.attachedValue.key = cache.attachedValue.key
+        }
+
+        if (!cache) {
+          let availableValueList = Object.keys(d).filter(v => !node.valueFilter.has(v))
+          let attachedValueKey = availableValueList[0]
+
+          node.data.attachedValue.key = attachedValueKey
+        }
+      }
+    })
   }
 
   addInteractions () {
@@ -142,7 +131,7 @@ class SVGCanvas extends React.Component {
 
       let nodePath = this.nodeInteract.state.gunPath
       let position = this.cursorPoint(event)
-      this.appendNode(nodePath, position, 1)
+      this.appendNode(nodePath, position)
     })
     DropArea.addEventListener('click', (event) => {
       let NodeInteract = document.querySelector('div#NodeInteract')
