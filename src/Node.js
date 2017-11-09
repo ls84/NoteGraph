@@ -41,6 +41,8 @@ class Node extends Primitives {
         this.detachedValue[p].data.position = v.position
         this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
 
+        this.valueFilter.add(v.key)
+
         return Reflect.set(t, p, v, r)
       }
     })

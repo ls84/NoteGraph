@@ -126,6 +126,15 @@ class Value extends Primitives {
       detachedValue.data.position = mouse
     })
 
+    dragBehaviour.on('end', () => {
+      this.node.gun.val((d, k) => {
+        let valueKeys = new Set(Object.keys(d))
+        this.node.valueFilter.forEach((v) => valueKeys.delete(v))
+        let key = valueKeys.values().next().value
+        if (key) this.node.data.attachedValue.key = key
+      })
+    })
+
     d3.select(this.DOM).select('.nodeValueAnchor')
     .call(dragBehaviour)
     .call((s) => this.node.canvas.setContext(s, 'attachedValue'))
