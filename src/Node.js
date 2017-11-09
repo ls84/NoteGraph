@@ -1,5 +1,6 @@
 let Primitives = require('./Primitives.js')
 let bindNodeToCanvasCache = require('./bindNodeToCanvasCache.js')
+let Value = require('./Value.js')
 
 class Node extends Primitives {
   constructor (id, canvas) {
@@ -7,57 +8,49 @@ class Node extends Primitives {
     this.canvas = canvas
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
-    // this.data.fromLink = []
-    // this.data.toLink = []
     this.data.attachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
         if (p === 'key') {
           this.gun.val((d, k) => {
-            d3.select(this.DOM).append(() => this.nodeAttachedValue()).select('.nodeValueAnchor').call((s) => this.canvas.setContext(s, 'attachedValue'))
-            this.updateAttachedValue(v, d[v])
-            if (d[v]) this.toggleDisplayLevel(2)
+            if (d[v]) {
+              let value = new Value(v, d[v], this)
+              this.attachedValue = value
+              this.attachedValue.appendAttachedValue()
+              this.toggleDisplayLevel(2)
+            }
           })
         }
 
-        if (p === 'boundingBoxDimension') {
-          let minimalWidth = this.measureText(t.key, 'valueLabel').width + 30
-          v[0] = (v[0] < minimalWidth) ? minimalWidth : v[0]
-          v[1] = (v[1] < 0) ? 0 : v[1]
-
-          d3.select(this.DOM).select('.boundingBoxHandle').attr('transform', `translate(${v[0]}, ${v[1]})`)
-          if (v[1] > 0) this.wrapText(t.value, this.DOM.querySelector(`.value`), v)
-        }
-
         return Reflect.set(t, p, v, r)
       }
     })
+
     this.data.detachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
-        // TODO: assert p should always be a value id
-        let value = this.nodeDetachedValue(p)
-        d3.select(value).datum(this)
-        d3.select(value).select('.nodeValueAnchor')
-        .call((s) => { this.canvas.setContext(s, 'value') })
-        d3.select(this.DOM.parentNode).append(() => value)
-
-        // append link to this detachedValue
+        // must append link first
         let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
-        Object.assign(link.data, {from: this.data.position, to: this.data.position})
+        Object.assign(link.data, {from: this.data.position, to: v.position})
         link.resetHandle()
         link.appendSelf(true)
-
         link.toValue = p
         this.links.detachedValue[p] = link
 
+        let value = new Value(v.key, v.value, this)
+        this.detachedValue[p] = value
+        this.detachedValue[p].appendDetachedValue(p)
+        this.detachedValue[p].data.position = v.position
+        this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
+
         return Reflect.set(t, p, v, r)
       }
     })
 
+    this.attachedValue = {}
+    this.detachedValue = {}
     this.links = {from: {}, to: {}, detachedValue: {}}
 
     this.displayLevel = (function () {
       let counter = 0
-      // let level = ['minimal', 'showPath', 'showValue']
       let level = [0, 1, 2]
       let divider = 3
 
@@ -71,8 +64,6 @@ class Node extends Primitives {
     })()
 
     this.valueFilter = new Set(['_'])
-    this.getRandomValue = canvas.getRandomValue
-    this.measureText = canvas.measureText
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.drawLinkedNodes = this.drawLinkedNodes.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
@@ -208,122 +199,6 @@ class Node extends Primitives {
     d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(this.data.displayName)
   }
 
-  updateAttachedValue (key, value) {
-    let textLength = this.measureText(key)
-    let size = { boundingBoxWidth: textLength.width, boundingBoxHeight: 0 }
-    let DOM = this.DOM.querySelector('.nodeValue')
-    let container = d3.select(DOM).append(() => this.nodeSizeHandle(size)).node().parentNode
-    d3.select(DOM).select('text.valueLabel').text(key)
-    this.wrapText(value, container.querySelector('.value'), size)
-
-    // let cache = this.data.attachedValue
-    // cache.key = key
-    // cache.value = value
-    // this.data.attachedValue = cache
-  }
-
-  updateDetachedValue (valueID, key, value) {
-    let textLength = this.measureText(key)
-    let size = { boundingBoxWidth: textLength.width, boundingBoxHeight: 0 }
-    let DOM = document.querySelector(`.Value#${valueID}`)
-    let container = d3.select(DOM).append(() => this.nodeSizeHandle(size, valueID)).node().parentNode
-    d3.select(DOM).select('text.valueLabel').text(key)
-    if (value) this.wrapText(value, container.querySelector('.value'), size)
-
-    // let cache = this.data.detachedValue
-    // cache[valueID].key = key
-    // cache[valueID].value = value
-    // this.data.detachedValue = cache
-  }
-
-  getValue (cb) {
-    // let name = this.gun._.field
-    // this.displayNodeName(name)
-    // in order for '.not' to be called, it has to preceds 'val'
-    this.gun.not((k) => {
-      cb(null, k)
-    })
-
-    this.gun.val((d, k) => {
-      this.normalizedPath = d['_']['#']
-      // if (d !== null) {
-      //   let name = d['name']
-      //   if (name) this.displayNodeName(name)
-      // }
-      let valueKey = []
-      for (let key in d) {
-        valueKey.push(key)
-      }
-
-      valueKey = valueKey.filter((v) => {
-        if (typeof d[v] === 'object') return false
-        if (d[v] === null) return false
-        if (v === 'name') return false
-        for (let value in this.data.detachedValue) {
-          if (this.data.detachedValue[value].key === v) return false
-        }
-        return true
-      })
-      cb(d, valueKey)
-    })
-  }
-
-  wrapText (text, container, overflow) {
-    let overflowWidth = overflow[0] - 15
-    let overflowHeight = overflow[1]
-    let words = text.split(' ').reverse()
-    let lines = []
-    let line = words.pop()
-    let word = words.pop()
-    while (word) {
-      let linePreview = line
-      linePreview += ` ${word}`
-      let overflow = (this.measureText(linePreview, 'value').width > overflowWidth)
-      if (!overflow) line += ` ${word}`
-      if (overflow) {
-        lines.push(line)
-        line = `${word}`
-      }
-      word = words.pop()
-    }
-    lines.push(line)
-    d3.select(container).selectAll('tspan').remove()
-    lines.forEach((v, i) => {
-      if (((i + 1) * 13) < (overflowHeight)) {
-        d3.select(container)
-        .append('tspan').attr('x', 0).attr('y', `${i * 13}`)
-        .text(v)
-      }
-    })
-  }
-
-  nodeSizeHandle (size, valueID) {
-    let cache = valueID ? this.data.detachedValue[valueID] : this.data.attachedValue
-
-    if (size) {
-      cache.boundingBoxDimension = [size.boundingBoxWidth, size.boundingBoxHeight]
-    }
-
-    let dragBehaviour = d3.drag()
-    dragBehaviour.on('start', (d, i, g) => {
-      d3.event.sourceEvent.stopPropagation()
-    })
-
-    dragBehaviour.on('drag', (d, i, g) => {
-      // d3.event.sourceEvent.stopPropagation()
-      let dimension = [cache.boundingBoxDimension[0] += d3.event.dx, cache.boundingBoxDimension[1] += d3.event.dy]
-      cache.boundingBoxDimension = dimension
-    })
-
-    let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
-    d3.select(handle).attr('class', 'boundingBoxHandle')
-    .attr('transform', `translate(${cache.boundingBoxDimension[0] += 30}, ${cache.boundingBoxDimension[1]})`)
-    .attr('points', '5,0 5,5 0,5')
-    .call(dragBehaviour)
-
-    return handle
-  }
-
   nodeAnchor () {
     // let path = this.data.path
 
@@ -339,129 +214,6 @@ class Node extends Primitives {
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
-
-    return group
-  }
-
-  nodeAttachedValue () {
-    let group = this.group('nodeValue')
-    let circle = this.circle('nodeValueAnchor')
-    let dragBehaviour = d3.drag()
-    let valueID
-
-    dragBehaviour.on('start', (d, i, g) => {
-      d3.event.sourceEvent.stopPropagation()
-
-      valueID = `value-${this.getRandomValue()}`
-      let detachedValueData = this.bindActionToDetachedValueData(valueID)
-      // NOTE: this actually calls nodeDetachedValue and link
-      this.data.detachedValue[valueID] = detachedValueData
-
-      let mouse = d3.mouse(this.DOM.parentNode)
-      let attachedValueData = this.data.attachedValue
-      this.data.detachedValue[valueID].position = mouse
-      this.data.detachedValue[valueID].key = attachedValueData.key
-      this.data.detachedValue[valueID].value = attachedValueData.value
-      this.data.detachedValue[valueID].boundingBoxDimension = attachedValueData.boundingBoxDimension
-
-      d3.select(this.DOM).select('.nodeValue').remove()
-    })
-
-    dragBehaviour.on('drag', () => {
-      let container = this.DOM.parentNode
-      let mouse = d3.mouse(container)
-      this.data.detachedValue[valueID].position = mouse
-    })
-
-    dragBehaviour.on('end', () => {
-      // TODO: make sure it is dragged significantly
-      // TODO: should check if all value has been detached
-      d3.select(this.DOM).append(() => this.nodeAttachedValue())
-      this.getValue((d, k) => {
-        if (d) {
-          if (k.length === 0) return this.toggleDisplayLevel(1, true)
-          let key = k[0]
-          this.updateAttachedValue(key, d[key])
-          this.toggleDisplayLevel(2, false)
-        }
-        if (!d) {
-        }
-      })
-    })
-
-    d3.select(group).attr('transform', 'translate(0,40)').attr('display', 'none')
-    .append(() => this.circle('valueAnchorBackground'))
-
-    d3.select(group)
-    .append(() => circle)
-    .call(dragBehaviour)
-    // .call((s) => { this.canvas.setContext(s, 'attachedValue') })
-
-    d3.select(group).append('text').attr('class', 'valueLabel')
-    .attr('transform', 'translate(15,4)')
-    d3.select(group).append('text').attr('class', 'value')
-    .attr('transform', 'translate(15, 25)')
-
-    return group
-  }
-
-  bindActionToDetachedValueData (valueID) {
-    let set = (t, p, v, r) => {
-      if (p === 'position') {
-        d3.select(`.Value#${valueID}`)
-        .attr('transform', `translate(${v[0]}, ${v[1]})`)
-
-        let link = this.links.detachedValue[valueID]
-        link.drawLinkTo(v)
-      }
-
-      if (p === 'key') {
-        this.updateDetachedValue(valueID, v, t.value)
-      }
-
-      if (p === 'key' && t.value === 'undefined') {
-        console.log('value is undefined')
-      }
-
-      if (p === 'boundingBoxDimension') {
-        let minimalWidth = this.measureText(t.key, 'valueLabel').width + 30
-        v[0] = (v[0] < minimalWidth) ? minimalWidth : v[0]
-        v[1] = (v[1] < 0) ? 0 : v[1]
-
-        d3.select(`.Value#${valueID} .boundingBoxHandle`).attr('transform', `translate(${v[0]}, ${v[1]})`)
-        if (v[1] > 0) this.wrapText(t.value, document.querySelector(`.Value#${valueID} .value`), v)
-      }
-      return Reflect.set(t, p, v, r)
-    }
-
-    return new Proxy({}, { set })
-  }
-
-  nodeDetachedValue (valueID) {
-    let group = this.group('Value')
-    let circle = this.circle('nodeValueAnchor')
-    let dragBehaviour = d3.drag()
-
-    dragBehaviour.on('start', (d, i, g) => {
-      d3.event.sourceEvent.stopPropagation()
-    })
-    dragBehaviour.on('drag', (d, i, g) => {
-      let mouse = d3.mouse(this.DOM.parentNode)
-      this.data.detachedValue[valueID].position = mouse
-    })
-
-    d3.select(group).attr('transform', 'translate(0,40)').attr('id', valueID)
-    .append(() => this.circle('valueAnchorBackground'))
-
-    d3.select(group)
-    .append(() => circle)
-    .call(dragBehaviour)
-    .call((s) => { this.canvas.setContext(s, 'value') })
-
-    d3.select(group).append('text').attr('class', 'valueLabel')
-    .attr('transform', 'translate(15,4)')
-    d3.select(group).append('text').attr('class', 'value')
-    .attr('transform', 'translate(15, 25)')
 
     return group
   }

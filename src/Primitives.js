@@ -46,6 +46,21 @@ class Primitives {
 
     return circle
   }
+
+  getRandomValue () {
+    let a = new Uint32Array(1)
+    return window.crypto.getRandomValues(a)
+  }
+
+  measureText (text, style) {
+    d3.select('svg#preRender').attr('class', style)
+    let renderedText = d3.select('svg#preRender').append('text').text(text).node()
+
+    let size = renderedText.getBBox()
+    renderedText.remove()
+
+    return size
+  }
 }
 
 module.exports = Primitives
