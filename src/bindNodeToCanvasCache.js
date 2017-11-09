@@ -12,6 +12,7 @@ function bindNodeToCanvasCache (canvas, thisNode) {
       cache[t.id].displayLevel = v
     }
     if (p === 'path') cache[t.id].path = v
+    if (p === 'attachedValue') cache[t.id].attachedValue = v
     if (p === 'detachedValue') cache[t.id].detachedValue = v
     return Reflect.set(t, p, v, r)
   }

@@ -90,7 +90,6 @@ class SVGCanvas extends React.Component {
 
             node.data.detachedValue[valueID].position = data.position
             node.data.detachedValue[valueID].key = data.key
-            // node.data.detachedValue[valueID].value = cache.detachedValue[dv].value
             node.data.detachedValue[valueID].boundingBoxDimension = data.boundingBoxDimension
 
             node.valueFilter.add(data.key)
@@ -235,58 +234,20 @@ class SVGCanvas extends React.Component {
   loadCache () {
     let cache = {
       'nodes': {
-        'node-1470029948': {
-          'detachedValue': {
-            'value-1631442626': {
-              'position': [
-                283,
-                271
-              ],
-              'boundingBoxDimension': [
-                110.234375,
-                30
-              ],
-              'key': 'value is',
-              'value': 'a is for apple\n'
-            }
+        'node-2738730525': {
+          'attachedValue': {
+            'key': 'value'
           },
-          'path': 'a',
-          'position': [
-            468,
-            113
-          ]
-        },
-        'node-3712712113': {
           'detachedValue': {},
-          'path': 'b',
+          'path': 'a',
+          'displayLevel': 2,
           'position': [
-            732,
-            367
+            603,
+            232
           ]
         }
       },
-      'links': {
-        'link-3153688785': {
-          'from': [
-            468,
-            113
-          ],
-          'to': [
-            732,
-            367
-          ],
-          'controlFrom': [
-            646,
-            89
-          ],
-          'controlTo': [
-            561,
-            415
-          ],
-          'fromNode': 'node-1470029948',
-          'toNode': 'node-3712712113'
-        }
-      }
+      'links': {}
     }
 
     let NodeMapping = {}
@@ -298,7 +259,7 @@ class SVGCanvas extends React.Component {
       let path = nodeCache.path
 
       this.props.getGunData(path)
-      let node = this.appendNode(path, position, 1, nodeCache)
+      let node = this.appendNode(path, position, nodeCache)
 
       NodeMapping[id] = node
     }
