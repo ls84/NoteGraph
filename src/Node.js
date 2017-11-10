@@ -16,6 +16,7 @@ class Node extends Primitives {
               let value = new Value(v, d[v], this)
               this.attachedValue = value
               this.attachedValue.appendAttachedValue()
+              this.attachedValue.data.boundingBoxDimension = t.boundingBoxDimension
               this.toggleDisplayLevel(2)
             }
           })

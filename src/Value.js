@@ -23,7 +23,6 @@ class Value extends Primitives {
         if (p === 'position') {
           d3.select(this.DOM)
           .attr('transform', `translate(${v[0]}, ${v[1]})`)
-
           let link = this.node.links.detachedValue[this.valueID]
           link.drawLinkTo(v)
         }
@@ -73,6 +72,9 @@ class Value extends Primitives {
     dragBehaviour.on('drag', (d, i, g) => {
       let dimension = [this.data.boundingBoxDimension[0] += d3.event.dx, this.data.boundingBoxDimension[1] += d3.event.dy]
       this.data.boundingBoxDimension = dimension
+
+      if (this.valueID) this.node.data.detachedValue[this.valueID].boundingBoxDimension = dimension
+      if (!this.valueID) this.node.data.attachedValue.boundingBoxDimension = dimension
     })
 
     let handle = document.createElementNS(d3.namespaces.svg, 'polygon')
@@ -155,6 +157,8 @@ class Value extends Primitives {
     dragBehaviour.on('drag', (d, i, g) => {
       let mouse = d3.mouse(this.canvasDOM)
       this.data.position = mouse
+
+      this.node.data.detachedValue[this.valueID].position = mouse
     })
 
     d3.select(this.DOM).select('.nodeValueAnchor')

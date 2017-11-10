@@ -84,19 +84,13 @@ class SVGCanvas extends React.Component {
 
         if (cache && Object.keys(cache.detachedValue).length > 0) {
           for (let valueID in cache.detachedValue) {
-            let data = cache.detachedValue[valueID]
-            let detachedValueData = node.bindActionToDetachedValueData(valueID)
-            node.data.detachedValue[valueID] = detachedValueData
-
-            node.data.detachedValue[valueID].position = data.position
-            node.data.detachedValue[valueID].key = data.key
-            node.data.detachedValue[valueID].boundingBoxDimension = data.boundingBoxDimension
-
-            node.valueFilter.add(data.key)
+            node.data.detachedValue[valueID] = cache.detachedValue[valueID]
           }
         }
 
         if (cache && cache.attachedValue.key) {
+          // must add boundingBoxDimension first
+          node.data.attachedValue.boundingBoxDimension = cache.attachedValue.boundingBoxDimension
           node.data.attachedValue.key = cache.attachedValue.key
         }
 
@@ -234,16 +228,32 @@ class SVGCanvas extends React.Component {
   loadCache () {
     let cache = {
       'nodes': {
-        'node-2738730525': {
+        'node-952296069': {
           'attachedValue': {
-            'key': 'value'
+            'boundingBoxDimension': [
+              125,
+              23
+            ],
+            'key': 'another value'
           },
-          'detachedValue': {},
+          'detachedValue': {
+            'value-2116150067': {
+              'key': 'value',
+              'value': 'a is for apple',
+              'boundingBoxDimension': [
+                124,
+                33
+              ],
+              'position': [
+                502,
+                395
+              ]
+            }
+          },
           'path': 'a',
-          'displayLevel': 2,
           'position': [
-            603,
-            232
+            580,
+            311
           ]
         }
       },
