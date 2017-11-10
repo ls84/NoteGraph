@@ -60,47 +60,52 @@ class SVGCanvas extends React.Component {
     return window.crypto.getRandomValues(a)
   }
 
-  appendNode (gunPath, position, cache) {
-    let node = new this.Node(`node-${this.getRandomValue()}`, this)
-    node.data.path = gunPath
-    node.gun = this.props.gunData
+  appendNode (gunPath, position, cache, id) {
+    return new Promise((resolve, reject) => {
+      let node = new this.Node(id || `node-${this.getRandomValue()}`, this)
+      node.data.path = gunPath
+      node.gun = this.props.gunData
 
-    node.gun.not((k) => {
-      this.props.putNewNode(gunPath)
-      node.appendSelf()
-      node.data.position = position
-    })
-
-    node.gun.val((d, k) => {
-      // TODO: more should be done when node is already appended
-      let existNode = this.nodes.filter((v) => v.data.path === gunPath)[0]
-      if (existNode) {
-        console.log('node exists on canvas')
-      }
-      if (!existNode) {
+      node.gun.not((d, k) => {
+        this.props.putNewNode(gunPath)
         node.appendSelf()
-        node.toggleDisplayLevel(2)
         node.data.position = position
+        resolve()
+      })
 
-        if (cache && Object.keys(cache.detachedValue).length > 0) {
-          for (let valueID in cache.detachedValue) {
-            node.data.detachedValue[valueID] = cache.detachedValue[valueID]
+      node.gun.val((d, k) => {
+        let existNode = this.nodes.filter((v) => v.data.path === gunPath)[0]
+        if (existNode) {
+          console.log('node exists on canvas')
+          reject('node exists on canvas')
+        }
+        if (!existNode) {
+          node.appendSelf()
+          node.toggleDisplayLevel(2)
+          node.data.position = position
+
+          if (cache && Object.keys(cache.detachedValue).length > 0) {
+            for (let valueID in cache.detachedValue) {
+              node.data.detachedValue[valueID] = cache.detachedValue[valueID]
+            }
           }
-        }
 
-        if (cache && cache.attachedValue.key) {
-          // must add boundingBoxDimension first
-          node.data.attachedValue.boundingBoxDimension = cache.attachedValue.boundingBoxDimension
-          node.data.attachedValue.key = cache.attachedValue.key
-        }
+          if (cache && cache.attachedValue.key) {
+            // must add boundingBoxDimension first
+            node.data.attachedValue.boundingBoxDimension = cache.attachedValue.boundingBoxDimension
+            node.data.attachedValue.key = cache.attachedValue.key
+          }
 
-        if (!cache) {
-          let availableValueList = Object.keys(d).filter(v => !node.valueFilter.has(v))
-          let attachedValueKey = availableValueList[0]
+          if (!cache) {
+            let availableValueList = Object.keys(d).filter(v => !node.valueFilter.has(v))
+            let attachedValueKey = availableValueList[0]
 
-          node.data.attachedValue.key = attachedValueKey
+            node.data.attachedValue.key = attachedValueKey
+          }
+          this.nodes.push(node)
+          resolve()
         }
-      }
+      })
     })
   }
 
@@ -228,7 +233,7 @@ class SVGCanvas extends React.Component {
   loadCache () {
     let cache = {
       'nodes': {
-        'node-952296069': {
+        'node-3805295699': {
           'attachedValue': {
             'boundingBoxDimension': [
               125,
@@ -250,44 +255,80 @@ class SVGCanvas extends React.Component {
             }
           },
           'path': 'a',
+          'displayLevel': 2,
           'position': [
             580,
             311
           ]
+        },
+        'node-99756589': {
+          'attachedValue': {
+            'key': 'value',
+            'boundingBoxDimension': [
+              117.640625,
+              25
+            ]
+          },
+          'detachedValue': {},
+          'path': 'b',
+          'displayLevel': 2,
+          'position': [
+            898,
+            421
+          ]
         }
       },
-      'links': {}
+      'links': {
+        'link-1225459392': {
+          'from': [
+            580,
+            311
+          ],
+          'to': [
+            898,
+            421
+          ],
+          'controlFrom': [
+            641,
+            269
+          ],
+          'controlTo': [
+            858,
+            295
+          ],
+          'fromNode': 'node-3805295699',
+          'toNode': 'node-99756589'
+        }
+      }
     }
 
-    let NodeMapping = {}
-    // let LinkMapping = {}
-
+    let appends = []
     for (let id in cache.nodes) {
       let nodeCache = cache.nodes[id]
       let position = nodeCache.position
       let path = nodeCache.path
 
       this.props.getGunData(path)
-      let node = this.appendNode(path, position, nodeCache)
-
-      NodeMapping[id] = node
+      appends.push(this.appendNode(path, position, nodeCache, id))
     }
 
-    for (let id in cache.links) {
-      let linkID = `link-${this.getRandomValue()}`
-      let link = new this.Link(linkID, this)
-      link.data.cache = true
-      link.data.id = linkID
-      let cacheData = cache.links[id]
-      Object.assign(link.data, {from: cacheData.from, controlFrom: cacheData.controlFrom, to: cacheData.to, controlTo: cacheData.controlTo})
-      link.appendSelf()
-      .call((s) => this.setContext(s, 'link'))
+    Promise.all([appends]).then(() => {
+      for (let id in cache.links) {
+        let linkID = `link-${this.getRandomValue()}`
+        let link = new this.Link(linkID, this)
+        link.data.cache = true
+        link.data.id = linkID
+        let cacheData = cache.links[id]
+        Object.assign(link.data, {from: cacheData.from, controlFrom: cacheData.controlFrom, to: cacheData.to, controlTo: cacheData.controlTo})
+        link.appendSelf()
+        .call((s) => this.setContext(s, 'link'))
 
-      let fromNode = NodeMapping[cacheData.fromNode]
-      let toNode = NodeMapping[cacheData.toNode]
-      fromNode.links.from[toNode.data.id] = link
-      toNode.links.to[fromNode.data.id] = link
-    }
+        let fromNode = this.nodes.find((v) => v.data.id === cacheData.fromNode)
+        let toNode = this.nodes.find((v) => v.data.id === cacheData.toNode)
+        fromNode.links.from[toNode.data.id] = link
+        toNode.links.to[fromNode.data.id] = link
+      }
+    })
   }
 
   render () {
