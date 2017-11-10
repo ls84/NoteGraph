@@ -297,7 +297,8 @@ class SVGCanvas extends React.Component {
             295
           ],
           'fromNode': 'node-3805295699',
-          'toNode': 'node-99756589'
+          'toNode': 'node-99756589',
+          'predicate': 'loves'
         }
       }
     }
@@ -319,7 +320,7 @@ class SVGCanvas extends React.Component {
         link.data.cache = true
         link.data.id = linkID
         let cacheData = cache.links[id]
-        Object.assign(link.data, {from: cacheData.from, controlFrom: cacheData.controlFrom, to: cacheData.to, controlTo: cacheData.controlTo})
+        Object.assign(link.data, {from: cacheData.from, controlFrom: cacheData.controlFrom, to: cacheData.to, controlTo: cacheData.controlTo, predicate: cacheData.predicate})
         link.appendSelf()
         .call((s) => this.setContext(s, 'link'))
 
@@ -327,6 +328,10 @@ class SVGCanvas extends React.Component {
         let toNode = this.nodes.find((v) => v.data.id === cacheData.toNode)
         fromNode.links.from[toNode.data.id] = link
         toNode.links.to[fromNode.data.id] = link
+        link.fromNode = fromNode
+        link.data.fromNode = fromNode.data.id
+        link.toNode = toNode
+        link.data.toNode = toNode.data.id
       }
     })
   }
