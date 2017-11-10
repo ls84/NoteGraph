@@ -262,6 +262,8 @@ class Node extends Primitives {
 
     this.DOM = DOM
 
+    d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(this.data.path)
+
     // propagate d3 data to children
     d3.select(this.DOM).select('.nodeAnchor circle')
     d3.select(this.DOM).select('.nodeValue .nodeValueAnchor')
