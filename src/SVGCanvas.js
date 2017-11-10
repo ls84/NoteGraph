@@ -239,7 +239,6 @@ class SVGCanvas extends React.Component {
           'detachedValue': {
             'value-2116150067': {
               'key': 'value',
-              'value': 'a is for apple',
               'boundingBoxDimension': [
                 124,
                 33
