@@ -1,10 +1,12 @@
 let Primitives = require('./Primitives.js')
 let bindNodeToCanvasCache = require('./bindNodeToCanvasCache.js')
 let Value = require('./Value.js')
+let GunCache = require('./GunCache.js')
 
 class Node extends Primitives {
-  constructor (id, canvas) {
+  constructor (id, path, canvas) {
     super()
+    this.gunCache = new GunCache(path)
     this.canvas = canvas
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
@@ -83,10 +85,14 @@ class Node extends Primitives {
       }
     })()
 
-    this.valueFilter = new Set(['_'])
+    this.keyFilter = new Set(['_'])
     this.drawLinkBehaviour = this.drawLinkBehaviour.bind(this)
     this.drawLinkedNodes = this.drawLinkedNodes.bind(this)
     this.setNodeTarget = this.setNodeTarget.bind(this)
+  }
+
+  keys () {
+    return Object.keys(this.gunCache.cache).filter(v => !this.keyFilter.has(v))
   }
 
   drawLinkBehaviour (selection) {
@@ -234,6 +240,7 @@ class Node extends Primitives {
 
     d3.select(group).append('text').attr('class', 'nodeLabel')
     .attr('transform', 'translate(-7,7)')
+    .text(this.gunCache.path)
 
     return group
   }
@@ -254,7 +261,7 @@ class Node extends Primitives {
 
   appendSelf () {
     let DOM = d3.select('#Canvas #zoomTransform').selectAll('.nodes')
-    .data([this], (d) => d ? d.data.path : undefined)
+    .data([this], (d) => d ? d.gunCache.path : undefined)
     // .attr('transform', `translate(${this.data.position[0]}, ${this.data.position[1]})`)
     .enter()
     .append(() => this.SVGElement())
@@ -262,7 +269,7 @@ class Node extends Primitives {
 
     this.DOM = DOM
 
-    d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(this.data.path)
+    // d3.select(this.DOM).select('.nodeAnchor .nodeLabel').text(this.gunCache.path)
 
     // propagate d3 data to children
     d3.select(this.DOM).select('.nodeAnchor circle')

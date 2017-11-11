@@ -87,10 +87,11 @@ class Interaction extends React.Component {
         // TODO: event.preventDefault()
         let node = this.target
         let path = this.pathInput.value
-        let value = this.valueInput.value
-        node.gun.path(path).put(value)
+        let value = this.valueInput.value.replace(/\n/, '')
+        node.gunCache.data.path(path).put(value)
+        // node.gun.path(path).put(value)
 
-        node.data.attachedValue.key = path
+        // node.data.attachedValue.key = path
 
         this.setState({interaction: {display: 'none'}})
         this.pathInput.value = ''

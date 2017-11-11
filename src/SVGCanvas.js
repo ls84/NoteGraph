@@ -62,50 +62,55 @@ class SVGCanvas extends React.Component {
 
   appendNode (gunPath, position, cache, id) {
     return new Promise((resolve, reject) => {
-      let node = new this.Node(id || `node-${this.getRandomValue()}`, this)
-      node.data.path = gunPath
-      node.gun = this.props.gunData
+      let node = new this.Node(id || `node-${this.getRandomValue()}`, gunPath, this)
+      node.appendSelf()
+      node.data.position = position
+      console.log(node.keys())
 
-      node.gun.not((d, k) => {
-        this.props.putNewNode(gunPath)
-        node.appendSelf()
-        node.data.position = position
-        resolve()
-      })
+      resolve()
+      // node.data.path = gunPath
+      // node.gun = this.props.gunData
 
-      node.gun.val((d, k) => {
-        let existNode = this.nodes.filter((v) => v.data.path === gunPath)[0]
-        if (existNode) {
-          console.log('node exists on canvas')
-          reject('node exists on canvas')
-        }
-        if (!existNode) {
-          node.appendSelf()
-          node.toggleDisplayLevel(2)
-          node.data.position = position
+      // node.gun.not((d, k) => {
+      //   this.props.putNewNode(gunPath)
+      //   node.appendSelf()
+      //   node.data.position = position
+      //   resolve()
+      // })
 
-          if (cache && Object.keys(cache.detachedValue).length > 0) {
-            for (let valueID in cache.detachedValue) {
-              node.data.detachedValue[valueID] = cache.detachedValue[valueID]
-            }
-          }
+      // node.gun.val((d, k) => {
+      //   let existNode = this.nodes.filter((v) => v.data.path === gunPath)[0]
+      //   if (existNode) {
+      //     console.log('node exists on canvas')
+      //     reject('node exists on canvas')
+      //   }
+      //   if (!existNode) {
+      //     node.appendSelf()
+      //     node.toggleDisplayLevel(2)
+      //     node.data.position = position
 
-          if (cache && cache.attachedValue.key) {
-            // must add boundingBoxDimension first
-            node.data.attachedValue.boundingBoxDimension = cache.attachedValue.boundingBoxDimension
-            node.data.attachedValue.key = cache.attachedValue.key
-          }
+      //     if (cache && Object.keys(cache.detachedValue).length > 0) {
+      //       for (let valueID in cache.detachedValue) {
+      //         node.data.detachedValue[valueID] = cache.detachedValue[valueID]
+      //       }
+      //     }
 
-          if (!cache) {
-            let availableValueList = Object.keys(d).filter(v => !node.valueFilter.has(v))
-            let attachedValueKey = availableValueList[0]
+      //     if (cache && cache.attachedValue.key) {
+      //       // must add boundingBoxDimension first
+      //       node.data.attachedValue.boundingBoxDimension = cache.attachedValue.boundingBoxDimension
+      //       node.data.attachedValue.key = cache.attachedValue.key
+      //     }
 
-            node.data.attachedValue.key = attachedValueKey
-          }
-          this.nodes.push(node)
-          resolve()
-        }
-      })
+      //     if (!cache) {
+      //       let availableValueList = Object.keys(d).filter(v => !node.valueFilter.has(v))
+      //       let attachedValueKey = availableValueList[0]
+
+      //       node.data.attachedValue.key = attachedValueKey
+      //     }
+      //     this.nodes.push(node)
+      //     resolve()
+      //   }
+      // })
     })
   }
 
@@ -337,7 +342,7 @@ class SVGCanvas extends React.Component {
   }
 
   render () {
-    console.log('state:', this.state)
+    // console.log('state:', this.state)
     return (
       <div>
         <div id="DropArea">
