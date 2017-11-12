@@ -183,7 +183,8 @@ class SVGCanvas extends React.Component {
       if (event.key === 'p') this.target.gun.val((data, key) => { console.log(data, key) })
       if (event.key === 's') this.target.toggleDisplayLevel()
       if (event.key === 'n') this.interaction.nodeName(this.target)
-      if (event.key === 'v') this.interaction.nodeValue(this.target)
+      if (event.key === 'a') this.interaction.nodeValue(this.target)
+      if (event.key === 'v') this.target.toggleKeys()
       if (event.key === 'Backspace') this.props.removeNode(this.target, event.shiftKey)
     }
 

@@ -1,6 +1,7 @@
 let Primitives = require('./Primitives.js')
 let bindNodeToCanvasCache = require('./bindNodeToCanvasCache.js')
 let Value = require('./Value.js')
+let KeyList = require('./KeyList.js')
 let GunCache = require('./GunCache.js')
 
 class Node extends Primitives {
@@ -10,6 +11,7 @@ class Node extends Primitives {
     this.canvas = canvas
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
+    this.data.path = path
     this.data.attachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
         if (p === 'key') {
@@ -95,6 +97,16 @@ class Node extends Primitives {
     return Object.keys(this.gunCache.cache).filter(v => !this.keyFilter.has(v))
   }
 
+  toggleKeys () {
+    if (this.keylist) {
+      this.keylist.DOM.remove()
+      this.keylist = null
+    } else {
+      this.keylist = new KeyList(this)
+      d3.select(this.DOM).append(() => this.keylist.SVGElement())
+    }
+  }
+
   drawLinkBehaviour (selection) {
     let dragBehaviour = d3.drag()
     let link
@@ -120,7 +132,6 @@ class Node extends Primitives {
 
       if (!d3.event.sourceEvent.shiftKey) {
         this.data.position = position
-        // d3.select(this.DOM).attr('transform', `translate(${position[0]}, ${position[1]})`)
 
         for (let link in this.links.from) {
           this.updateAttachedLink.call(this.links.from[link], 'from', position)
@@ -246,15 +257,10 @@ class Node extends Primitives {
   }
 
   SVGElement () {
-    let id = this.data.id
-    // let position = this.data.position
+    let group = this.group('nodes', this.data.id)
 
-    let group = this.group('nodes', id)
-
-    // d3.select(group).attr('transform', `translate(${position[0]}, ${position[1]})`)
     d3.select(group).append(() => this.circle('nodeOrbit'))
     d3.select(group).append(() => this.nodeAnchor())
-    // d3.select(group).append(() => this.nodeAttachedValue())
 
     return group
   }

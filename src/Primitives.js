@@ -47,6 +47,14 @@ class Primitives {
     return circle
   }
 
+  text (className, idName) {
+    let text = document.createElementNS(d3.namespaces.svg, 'text')
+    if (className) d3.select(text).attr('class', className)
+    if (idName) d3.select(text).attr('id', idName)
+
+    return text
+  }
+
   getRandomValue () {
     let a = new Uint32Array(1)
     return window.crypto.getRandomValues(a)
