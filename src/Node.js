@@ -12,23 +12,6 @@ class Node extends Primitives {
     this.data = new Proxy({}, bindNodeToCanvasCache(canvas, this))
     this.data.id = id
     this.data.path = path
-    this.data.attachedValue = new Proxy({}, {
-      set: (t, p, v, r) => {
-        if (p === 'key') {
-          this.gun.val((d, k) => {
-            if (d[v]) {
-              let value = new Value(v, d[v], this)
-              this.attachedValue = value
-              this.attachedValue.appendAttachedValue()
-              if (t.boundingBoxDimension) this.attachedValue.data.boundingBoxDimension = t.boundingBoxDimension
-              this.toggleDisplayLevel(2)
-            }
-          })
-        }
-
-        return Reflect.set(t, p, v, r)
-      }
-    })
 
     this.data.detachedValue = new Proxy({}, {
       set: (t, p, v, r) => {
@@ -41,17 +24,18 @@ class Node extends Primitives {
         this.links.detachedValue[p] = link
 
         let value = new Value(v.key, this.gunCache.cache[v.key], this)
-        this.detachedValue[p] = value
-        this.detachedValue[p].appendDetachedValue(p)
-        this.detachedValue[p].data.position = v.position
+        this.associatedValue[p] = value
+        this.associatedValue[p].appendValue(p)
+        this.associatedValue[p].data.position = v.position
         if (v.boundingBoxDimension) this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
+
+        this.keyFilter.add(v.key)
 
         return Reflect.set(t, p, v, r)
       }
     })
 
-    this.attachedValue = {}
-    this.detachedValue = {}
+    this.associatedValue = {}
     this.links = {from: {}, to: {}, detachedValue: {}}
 
     this.displayLevel = (function () {

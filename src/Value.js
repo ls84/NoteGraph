@@ -103,48 +103,7 @@ class Value extends Primitives {
     d3.select(this.DOM).append(() => this.valueSizeHandle())
   }
 
-  appendAttachedValue () {
-    this.baseDOM()
-    this.DOM.classList = ['nodeValue']
-    let valueID
-
-    let dragBehaviour = d3.drag()
-    dragBehaviour.on('start', (d, i, g) => {
-      d3.event.sourceEvent.stopPropagation()
-      this.DOM.remove()
-      valueID = `value-${this.getRandomValue()}`
-      let position = d3.mouse(this.canvasDOM)
-      this.node.data.detachedValue[valueID] = {
-        key: this.key,
-        value: this.value,
-        boundingBoxDimension: this.data.boundingBoxDimension,
-        position
-      }
-    })
-
-    dragBehaviour.on('drag', () => {
-      let mouse = d3.mouse(this.canvasDOM)
-      let detachedValue = this.node.detachedValue[valueID]
-      detachedValue.data.position = mouse
-    })
-
-    dragBehaviour.on('end', () => {
-      this.node.gun.val((d, k) => {
-        let valueKeys = new Set(Object.keys(d))
-        this.node.valueFilter.forEach((v) => valueKeys.delete(v))
-        let key = valueKeys.values().next().value
-        if (key) this.node.data.attachedValue.key = key
-      })
-    })
-
-    d3.select(this.DOM).select('.nodeValueAnchor')
-    .call(dragBehaviour)
-    .call((s) => this.node.canvas.setContext(s, 'attachedValue'))
-
-    d3.select(this.node.DOM).append(() => this.DOM)
-  }
-
-  appendDetachedValue (valueID) {
+  appendValue (valueID) {
     this.valueID = valueID
     this.baseDOM()
     this.DOM.classList = ['Value']

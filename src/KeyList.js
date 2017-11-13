@@ -27,7 +27,7 @@ class KeyList extends Primitives {
     })
     dragBehaviour.on('drag', (d, i, g) => {
       let mouse = d3.mouse(this.canvasDOM)
-      this.node.detachedValue[valueID].data.position = mouse
+      this.node.associatedValue[valueID].data.position = mouse
     })
 
     let counter = 0
