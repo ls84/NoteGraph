@@ -65,7 +65,6 @@ class SVGCanvas extends React.Component {
       let node = new this.Node(id || `node-${this.getRandomValue()}`, gunPath, this)
       node.appendSelf()
       node.data.position = position
-      console.log(node.keys())
 
       resolve()
       // node.data.path = gunPath

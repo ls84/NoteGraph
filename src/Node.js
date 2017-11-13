@@ -40,31 +40,12 @@ class Node extends Primitives {
         link.toValue = p
         this.links.detachedValue[p] = link
 
-        if (v.value) {
-          let value = new Value(v.key, v.value, this)
-          this.detachedValue[p] = value
-          this.detachedValue[p].appendDetachedValue(p)
-          this.detachedValue[p].data.position = v.position
-          this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
+        let value = new Value(v.key, this.gunCache.cache[v.key], this)
+        this.detachedValue[p] = value
+        this.detachedValue[p].appendDetachedValue(p)
+        this.detachedValue[p].data.position = v.position
+        if (v.boundingBoxDimension) this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
 
-          this.valueFilter.add(v.key)
-
-          delete v.value
-        }
-
-        if (!v.value) {
-          this.gun.val((d, k) => {
-            if (d[v.key]) {
-              let value = new Value(v.key, d[v.key], this)
-              this.detachedValue[p] = value
-              this.detachedValue[p].appendDetachedValue(p)
-              this.detachedValue[p].data.position = v.position
-              this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
-
-              this.valueFilter.add(v.key)
-            }
-          })
-        }
         return Reflect.set(t, p, v, r)
       }
     })

@@ -108,6 +108,13 @@ svg g.nodes g.nodeValue .value {
   font-weight: 100;
   fill: #404040;
 }
+svg g.nodes g.keyList text.list-value {
+  cursor: default;
+  font-family: monospace;
+  font-weight: 200;
+  font-size: 16px;
+  fill: #444444;
+}
 svg g.Value {
   width: 100px;
 }
