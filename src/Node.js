@@ -13,7 +13,7 @@ class Node extends Primitives {
     this.data.id = id
     this.data.path = path
 
-    this.data.detachedValue = new Proxy({}, {
+    this.data.associatedValue = new Proxy({}, {
       set: (t, p, v, r) => {
         // must append link first
         let link = new this.canvas.Link(`link-${this.getRandomValue()}`, this.canvas)
@@ -28,7 +28,7 @@ class Node extends Primitives {
         this.associatedValue[p] = associatedValue
         this.associatedValue[p].appendValue(p)
         this.associatedValue[p].data.position = v.position
-        if (v.boundingBoxDimension) this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
+        if (v.boundingBoxDimension) this.associatedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
 
         this.keyFilter.add(v.key)
 

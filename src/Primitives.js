@@ -70,7 +70,6 @@ class Primitives {
 
   measureText (text, style) {
     text = text.replace(/\s/g, '\u202F')
-    console.log(style)
 
     d3.select('svg#preRender').attr('class', style)
     let renderedText = d3.select('svg#preRender').append('text').text(text).node()

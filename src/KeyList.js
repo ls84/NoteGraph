@@ -43,7 +43,7 @@ class KeyList extends Primitives {
           key: this.DOM.querySelector('.keyInputBox input').value,
           value: this.DOM.querySelector('.valueInputBox textarea').value
         }
-        this.node.data.detachedValue[valueID] = {
+        this.node.data.associatedValue[valueID] = {
           value: newData.value,
           position: mouse,
           key: newData.key
@@ -70,7 +70,6 @@ class KeyList extends Primitives {
 
       let dimension = this.measureText(key, 'valueLabel')
       let inputWidth = dimension.width > 145 ? dimension.width + 25 : 160
-      console.log(key, inputWidth)
       d3.select(keyInputBox).attr('width', inputWidth)
       .select('input')
       .style('width', inputWidth)
@@ -116,7 +115,7 @@ class KeyList extends Primitives {
       if (!dragged) {
         this.node.keylist = null
         this.DOM.remove()
-        this.node.data.detachedValue[valueID] = {
+        this.node.data.associatedValue[valueID] = {
           position: mouse,
           key: d.key
         }

@@ -73,8 +73,8 @@ class Value extends Primitives {
       let dimension = [this.data.boundingBoxDimension[0] += d3.event.dx, this.data.boundingBoxDimension[1] += d3.event.dy]
       this.data.boundingBoxDimension = dimension
 
-      if (this.valueID) this.node.data.detachedValue[this.valueID].boundingBoxDimension = dimension
-      if (!this.valueID) this.node.data.attachedValue.boundingBoxDimension = dimension
+      if (this.valueID) this.node.data.associatedValue[this.valueID].boundingBoxDimension = dimension
+      if (!this.valueID) this.node.data.associatedValue.boundingBoxDimension = dimension
     })
 
     let handle = document.createElementNS(d3.namespaces.svg, 'polygon')

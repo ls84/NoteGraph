@@ -65,51 +65,16 @@ class SVGCanvas extends React.Component {
       let node = new this.Node(id || `node-${this.getRandomValue()}`, gunPath, this)
       node.appendSelf()
       node.data.position = position
+      if (cache && Object.keys(cache.associatedValue).length > 0) {
+        for (let id in cache.associatedValue) {
+          let cacheData = cache.associatedValue[id]
+          // TODO: check this value inside value instance
+          if (node.gunCache.cache[cacheData.key]) node.data.associatedValue[id] = cacheData
+        }
+      }
 
+      this.nodes.push(node)
       resolve()
-      // node.data.path = gunPath
-      // node.gun = this.props.gunData
-
-      // node.gun.not((d, k) => {
-      //   this.props.putNewNode(gunPath)
-      //   node.appendSelf()
-      //   node.data.position = position
-      //   resolve()
-      // })
-
-      // node.gun.val((d, k) => {
-      //   let existNode = this.nodes.filter((v) => v.data.path === gunPath)[0]
-      //   if (existNode) {
-      //     console.log('node exists on canvas')
-      //     reject('node exists on canvas')
-      //   }
-      //   if (!existNode) {
-      //     node.appendSelf()
-      //     node.toggleDisplayLevel(2)
-      //     node.data.position = position
-
-      //     if (cache && Object.keys(cache.detachedValue).length > 0) {
-      //       for (let valueID in cache.detachedValue) {
-      //         node.data.detachedValue[valueID] = cache.detachedValue[valueID]
-      //       }
-      //     }
-
-      //     if (cache && cache.attachedValue.key) {
-      //       // must add boundingBoxDimension first
-      //       node.data.attachedValue.boundingBoxDimension = cache.attachedValue.boundingBoxDimension
-      //       node.data.attachedValue.key = cache.attachedValue.key
-      //     }
-
-      //     if (!cache) {
-      //       let availableValueList = Object.keys(d).filter(v => !node.valueFilter.has(v))
-      //       let attachedValueKey = availableValueList[0]
-
-      //       node.data.attachedValue.key = attachedValueKey
-      //     }
-      //     this.nodes.push(node)
-      //     resolve()
-      //   }
-      // })
     })
   }
 
@@ -246,7 +211,7 @@ class SVGCanvas extends React.Component {
             ],
             'key': 'another value'
           },
-          'detachedValue': {
+          'associatedValue': {
             'value-2116150067': {
               'key': 'value',
               'boundingBoxDimension': [
@@ -274,7 +239,7 @@ class SVGCanvas extends React.Component {
               25
             ]
           },
-          'detachedValue': {},
+          'associatedValue': {},
           'path': 'b',
           'displayLevel': 2,
           'position': [
