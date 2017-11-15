@@ -55,12 +55,23 @@ class Primitives {
     return text
   }
 
+  foreignObject (className, idName) {
+    let foreignObject = document.createElementNS(d3.namespaces.svg, 'foreignObject')
+    if (className) d3.select(foreignObject).attr('class', className)
+    if (idName) d3.select(foreignObject).attr('id', idName)
+
+    return foreignObject
+  }
+
   getRandomValue () {
     let a = new Uint32Array(1)
     return window.crypto.getRandomValues(a)
   }
 
   measureText (text, style) {
+    text = text.replace(/\s/g, '\u202F')
+    console.log(style)
+
     d3.select('svg#preRender').attr('class', style)
     let renderedText = d3.select('svg#preRender').append('text').text(text).node()
 

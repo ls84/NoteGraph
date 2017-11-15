@@ -7,7 +7,7 @@ class Value extends Primitives {
     this.key = key
     this.value = value
     this.canvasDOM = document.querySelector('svg#Canvas #zoomTransform')
-    this.keyRenderLength = this.measureText(this.key).width
+    this.keyRenderLength = this.measureText(this.key, 'valueLabel').width
     this.data = new Proxy({}, {
       set: (t, p, v, r) => {
         if (p === 'boundingBoxDimension') {

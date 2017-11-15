@@ -23,13 +23,16 @@ class Node extends Primitives {
         link.toValue = p
         this.links.detachedValue[p] = link
 
-        let value = new Value(v.key, this.gunCache.cache[v.key], this)
-        this.associatedValue[p] = value
+        let value = v.value ? v.value : this.gunCache.cache[v.key]
+        let associatedValue = new Value(v.key, value, this)
+        this.associatedValue[p] = associatedValue
         this.associatedValue[p].appendValue(p)
         this.associatedValue[p].data.position = v.position
         if (v.boundingBoxDimension) this.detachedValue[p].data.boundingBoxDimension = v.boundingBoxDimension
 
         this.keyFilter.add(v.key)
+
+        delete v.value
 
         return Reflect.set(t, p, v, r)
       }
