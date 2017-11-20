@@ -15,6 +15,7 @@ class SVGCanvas extends React.Component {
     this.Node = require('./Node.js')
     this.Link = require('./Link.js')
     this.setGraphSize = this.setGraphSize.bind(this)
+    this.parseCache = this.parseCache.bind(this)
   }
 
   setGraphSize () {
@@ -28,6 +29,10 @@ class SVGCanvas extends React.Component {
     svg.setAttribute('width', `${width}px`)
     svg.setAttribute('height', `${height}px`)
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+
+    let cacheLoader = document.querySelector('.cacheLoader')
+    cacheLoader.querySelector('textarea').style.width = `${width}px`
+    cacheLoader.querySelector('textarea').style.height = `${height - 10}px`
 
     return {width, height}
   }
@@ -192,122 +197,64 @@ class SVGCanvas extends React.Component {
     this.setGraphSize()
     window.onresize = this.setGraphSize
 
+    document.querySelector('.cacheLoader textarea').addEventListener('keyup', (event) => {
+      event.stopPropagation()
+    })
+
     this.addInteractions()
     this.context = 'canvas'
   }
 
   saveCache () {
-    console.log(JSON.stringify(this.state.cache, null, 2))
+    window.open().document.write('<pre>' + JSON.stringify(this.state.cache, null, 2) + '</pre>')
   }
 
   loadCache () {
-    let cache = {
-      'nodes': {
-        'node-3805295699': {
-          'attachedValue': {
-            'boundingBoxDimension': [
-              125,
-              23
-            ],
-            'key': 'another value'
-          },
-          'associatedValue': {
-            'value-2116150067': {
-              'key': 'value',
-              'boundingBoxDimension': [
-                124,
-                33
-              ],
-              'position': [
-                502,
-                395
-              ]
-            }
-          },
-          'path': 'a',
-          'displayLevel': 2,
-          'position': [
-            580,
-            311
-          ]
-        },
-        'node-99756589': {
-          'attachedValue': {
-            'key': 'value',
-            'boundingBoxDimension': [
-              117.640625,
-              25
-            ]
-          },
-          'associatedValue': {},
-          'path': 'b',
-          'displayLevel': 2,
-          'position': [
-            898,
-            421
-          ]
-        }
-      },
-      'links': {
-        'link-1225459392': {
-          'from': [
-            580,
-            311
-          ],
-          'to': [
-            898,
-            421
-          ],
-          'controlFrom': [
-            641,
-            269
-          ],
-          'controlTo': [
-            858,
-            295
-          ],
-          'fromNode': 'node-3805295699',
-          'toNode': 'node-99756589',
-          'predicate': 'loves'
-        }
+    document.querySelector('.cacheLoader').classList.toggle('show')
+  }
+
+  parseCache () {
+    let cache = document.querySelector('.cacheLoader textarea').value
+    try {
+      let bluePrint = JSON.parse(cache)
+      let appends = []
+      for (let id in bluePrint.nodes) {
+        let nodeCache = bluePrint.nodes[id]
+        let position = nodeCache.position
+        let path = nodeCache.path
+
+        this.props.getGunData(path)
+        appends.push(this.appendNode(path, position, nodeCache, id))
       }
+
+      Promise.all([appends]).then(() => {
+        for (let id in bluePrint.links) {
+          let linkID = `link-${this.getRandomValue()}`
+          let link = new this.Link(linkID, this)
+          link.data.bluePrint = true
+          link.data.id = linkID
+          let bluePrintData = bluePrint.links[id]
+          Object.assign(link.data, {from: bluePrintData.from, controlFrom: bluePrintData.controlFrom, to: bluePrintData.to, controlTo: bluePrintData.controlTo, predicate: bluePrintData.predicate})
+          link.appendSelf()
+          .call((s) => this.setContext(s, 'link'))
+
+          let fromNode = this.nodes.find((v) => v.data.id === bluePrintData.fromNode)
+          let toNode = this.nodes.find((v) => v.data.id === bluePrintData.toNode)
+          fromNode.links.from[toNode.data.id] = link
+          toNode.links.to[fromNode.data.id] = link
+          link.fromNode = fromNode
+          link.data.fromNode = fromNode.data.id
+          link.toNode = toNode
+          link.data.toNode = toNode.data.id
+        }
+      })
+      document.querySelector('.cacheLoader').classList.toggle('show')
+    } catch (error) {
+      console.log(error)
     }
-
-    let appends = []
-    for (let id in cache.nodes) {
-      let nodeCache = cache.nodes[id]
-      let position = nodeCache.position
-      let path = nodeCache.path
-
-      this.props.getGunData(path)
-      appends.push(this.appendNode(path, position, nodeCache, id))
-    }
-
-    Promise.all([appends]).then(() => {
-      for (let id in cache.links) {
-        let linkID = `link-${this.getRandomValue()}`
-        let link = new this.Link(linkID, this)
-        link.data.cache = true
-        link.data.id = linkID
-        let cacheData = cache.links[id]
-        Object.assign(link.data, {from: cacheData.from, controlFrom: cacheData.controlFrom, to: cacheData.to, controlTo: cacheData.controlTo, predicate: cacheData.predicate})
-        link.appendSelf()
-        .call((s) => this.setContext(s, 'link'))
-
-        let fromNode = this.nodes.find((v) => v.data.id === cacheData.fromNode)
-        let toNode = this.nodes.find((v) => v.data.id === cacheData.toNode)
-        fromNode.links.from[toNode.data.id] = link
-        toNode.links.to[fromNode.data.id] = link
-        link.fromNode = fromNode
-        link.data.fromNode = fromNode.data.id
-        link.toNode = toNode
-        link.data.toNode = toNode.data.id
-      }
-    })
   }
 
   render () {
-    // console.log('state:', this.state)
     return (
       <div>
         <div id="DropArea">
@@ -315,6 +262,11 @@ class SVGCanvas extends React.Component {
         </div>
         <div id="Status"></div>
         <svg id='preRender'></svg>
+        <div className="cacheLoader">
+          <textarea></textarea>
+          <button onClick={this.parseCache}>Load</button>
+          <button onClick={() => document.querySelector('.cacheLoader').classList.toggle('show')}>Cancel</button>
+        </div>
         <NodeInteract ref={(c) => { this.nodeInteract = c }} getGunData={this.props.getGunData} />
         <LinkInteract ref={(c) => { this.linkInteract = c }} />
         <Interaction ref={(c) => { this.interaction = c }} />

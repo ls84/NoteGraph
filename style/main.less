@@ -82,6 +82,10 @@ div#Interaction {
   }
 }
 
+body {
+  overflow: hidden;
+}
+
 svg g.links {
   path.path {
     stroke: white;
@@ -102,6 +106,24 @@ svg g.links {
     fill: black;
     font-family: monospace;
   }
+}
+
+div.cacheLoader {
+  button {
+    position: relative;
+    float: right;
+    height: 25px;
+    width: 100px;
+    right: 8px;
+    top: 3px;
+    margin-left: 10px
+  }
+}
+
+div.cacheLoader.show{
+  position: fixed;
+  top: 15;
+  left: 7.5;
 }
 
 svg g.nodes {

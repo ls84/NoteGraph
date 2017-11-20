@@ -68,6 +68,9 @@ div#Interaction #valueInput {
   top: 30px;
   left: 0px;
 }
+body {
+  overflow: hidden;
+}
 svg g.links path.path {
   stroke: white;
   stroke-width: 9px;
@@ -84,6 +87,20 @@ svg g.links text {
   pointer-events: none;
   fill: black;
   font-family: monospace;
+}
+div.cacheLoader button {
+  position: relative;
+  float: right;
+  height: 25px;
+  width: 100px;
+  right: 8px;
+  top: 3px;
+  margin-left: 10px;
+}
+div.cacheLoader.show {
+  position: fixed;
+  top: 15;
+  left: 7.5;
 }
 svg g.nodes g.nodeAnchor circle {
   stroke: white;
