@@ -117,14 +117,18 @@ class Value extends Primitives {
       let mouse = d3.mouse(this.canvasDOM)
       this.data.position = mouse
 
-      this.node.data.detachedValue[this.valueID].position = mouse
+      this.node.data.associatedValue[this.valueID].position = mouse
     })
 
     d3.select(this.DOM).select('.nodeValueAnchor')
     .call(dragBehaviour)
-    .call((s) => this.node.canvas.setContext(s, 'detachedValue'))
+    .call((s) => this.node.canvas.setContext(s, 'associatedValue'))
 
-    d3.select('svg#Canvas #zoomTransform').append(() => this.DOM)
+    d3.select('svg#Canvas #zoomTransform')
+    .append(() => this.DOM)
+    .datum(this)
+
+    d3.select(this.DOM).select('.nodeValueAnchor')
   }
 }
 

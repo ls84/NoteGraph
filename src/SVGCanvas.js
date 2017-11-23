@@ -116,8 +116,7 @@ class SVGCanvas extends React.Component {
     if (value === 'canvas') this.applyCanvasContext()
     if (value === 'link') this.applyLinkContext()
     if (value === 'node') this.applyNodeContext()
-    if (value === 'value') this.applyValueContext()
-    if (value === 'attachedValue') this.applyAttachedValueContext()
+    if (value === 'associatedValue') this.applyAssociatedValueContext()
     return value
   }
 
@@ -160,14 +159,19 @@ class SVGCanvas extends React.Component {
     window.onkeyup = commands
   }
 
-  applyValueContext (selection) {
+  applyAssociatedValueContext (selection) {
     let commands = (event) => {
       if (event.key === 'Backspace') {
-        let valueID = this.valueDOM.id
-        let link = this.target.links.detachedValue.filter((l) => l.toValue === valueID)[0]
-        this.valueDOM.remove()
+        let value = this.target
+        let link = this.target.node.links.detachedValue[this.target.valueID]
+        value.DOM.remove()
         link.DOM.remove()
-        if (event.shiftKey) this.target.gun.path(this.valuePath).put(null)
+        this.target.node.keyFilter.delete(this.target.key)
+        // let valueID = this.valueDOM.id
+        // let link = this.target.links.detachedValue.filter((l) => l.toValue === valueID)[0]
+        // this.valueDOM.remove()
+        // link.DOM.remove()
+        if (event.shiftKey) this.target.node.gunCache.data.path(this.target.key).put(null)
       }
     }
 

@@ -62,7 +62,7 @@ class Node extends Primitives {
   }
 
   keys () {
-    return Object.keys(this.gunCache.cache).filter(v => !this.keyFilter.has(v))
+    return Object.keys(this.gunCache.cache).filter(v => !this.keyFilter.has(v) && this.gunCache.cache[v] !== null)
   }
 
   toggleKeys () {
