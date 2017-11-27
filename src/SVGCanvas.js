@@ -78,6 +78,19 @@ class SVGCanvas extends React.Component {
         }
       }
 
+      if (!cache) {
+        let linkedNodes = this.nodes.filter((v) => {
+          let nodeOnCanvas = v.gunCache.cache['_']['#']
+          let normalizedKeys = new Set(node.keys().filter((k) => typeof node.gunCache.cache[k] === 'object')
+          .map((k) => node.gunCache.cache[k]['#']))
+
+          return normalizedKeys.has(nodeOnCanvas)
+        })
+
+        // TODO: appendLinks
+        console.log(linkedNodes)
+      }
+
       this.nodes.push(node)
       resolve()
     })
@@ -148,7 +161,7 @@ class SVGCanvas extends React.Component {
 
   applyNodeContext (selection) {
     let commands = (event) => {
-      if (event.key === 'p') this.target.gun.val((data, key) => { console.log(data, key) })
+      if (event.key === 'p') console.log(this.target.gunCache.cache)
       if (event.key === 's') this.target.toggleDisplayLevel()
       if (event.key === 'n') this.interaction.nodeName(this.target)
       if (event.key === 'a') this.interaction.nodeValue(this.target)
@@ -167,21 +180,8 @@ class SVGCanvas extends React.Component {
         value.DOM.remove()
         link.DOM.remove()
         this.target.node.keyFilter.delete(this.target.key)
-        // let valueID = this.valueDOM.id
-        // let link = this.target.links.detachedValue.filter((l) => l.toValue === valueID)[0]
-        // this.valueDOM.remove()
-        // link.DOM.remove()
         if (event.shiftKey) this.target.node.gunCache.data.path(this.target.key).put(null)
       }
-    }
-
-    window.onkeyup = commands
-  }
-
-  applyAttachedValueContext (selection) {
-    let commands = (event) => {
-      // if (event.key === 'ArrowRight')
-      // if (event.key === 'ArrowLeft')
     }
 
     window.onkeyup = commands
