@@ -91,9 +91,25 @@ class SVGCanvas extends React.Component {
           let predicate = node.keys().filter(k => node.gunCache.cache[k]['#'] === v)[0]
           a[i] = {linkedNode, predicate}
         })
-        
-        // TODO: add links
-        console.log(linkedNodesOnCanvas)
+
+        linkedNodesOnCanvas.forEach((v) => {
+          let linkID = `link-${this.getRandomValue()}`
+          let link = new this.Link(linkID, this)
+          let linkData = {
+            from: node.data.position,
+            to: v.linkedNode.data.position,
+            predicate: v.predicate
+          }
+          Object.assign(link.data, linkData)
+          link.resetHandle()
+          link.appendSelf()
+          .call((s) => this.setContext(s, 'link'))
+          link.fromNode = node
+          link.toNode = v.linkedNode
+
+          node.links.from[v.linkedNode.data.id] = link
+          v.linkedNode.links.to[node.data.id] = link
+        })
       }
 
       this.nodes.push(node)
