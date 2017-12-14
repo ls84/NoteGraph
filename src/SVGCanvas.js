@@ -79,16 +79,21 @@ class SVGCanvas extends React.Component {
       }
 
       if (!cache) {
-        let linkedNodes = this.nodes.filter((v) => {
-          let nodeOnCanvas = v.gunCache.cache['_']['#']
-          let normalizedKeys = new Set(node.keys().filter((k) => typeof node.gunCache.cache[k] === 'object')
-          .map((k) => node.gunCache.cache[k]['#']))
-
-          return normalizedKeys.has(nodeOnCanvas)
+        let nodesOnCanvas = new Set(this.nodes.map(v => v.gunCache.cache['_']['#']))
+        let linkedNodes = new Set(node.keys().filter(k => typeof node.gunCache.cache[k] === 'object').map(k => node.gunCache.cache[k]['#']))
+        let linkedNodesOnCanvas = []
+        linkedNodes.forEach((v) => {
+          if (nodesOnCanvas.has(v)) linkedNodesOnCanvas.push(v)
         })
 
-        // TODO: appendLinks
-        console.log(linkedNodes)
+        linkedNodesOnCanvas.forEach((v, i, a) => {
+          let linkedNode = this.nodes.filter(n => n.gunCache.cache['_']['#'] === v)[0]
+          let predicate = node.keys().filter(k => node.gunCache.cache[k]['#'] === v)[0]
+          a[i] = {linkedNode, predicate}
+        })
+        
+        // TODO: add links
+        console.log(linkedNodesOnCanvas)
       }
 
       this.nodes.push(node)
