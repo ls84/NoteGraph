@@ -112,7 +112,7 @@ svg g.nodes g.nodeAnchor .nodeLabel {
   font-family: monospace;
   font-size: 24px;
 }
-svg g.nodes g.keyList text.list-value {
+svg g.nodes g.keyList .list-element text.list-key {
   cursor: default;
   font-family: monospace;
   font-weight: 200;

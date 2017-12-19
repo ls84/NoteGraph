@@ -78,39 +78,39 @@ class SVGCanvas extends React.Component {
         }
       }
 
-      if (!cache) {
-        let nodesOnCanvas = new Set(this.nodes.map(v => v.gunCache.cache['_']['#']))
-        let linkedNodes = new Set(node.keys().filter(k => typeof node.gunCache.cache[k] === 'object').map(k => node.gunCache.cache[k]['#']))
-        let linkedNodesOnCanvas = []
-        linkedNodes.forEach((v) => {
-          if (nodesOnCanvas.has(v)) linkedNodesOnCanvas.push(v)
-        })
+      // if (!cache) {
+      //   let nodesOnCanvas = new Set(this.nodes.map(v => v.gunCache.cache['_']['#']))
+      //   let linkedNodes = new Set(node.keys().filter(k => typeof node.gunCache.cache[k] === 'object').map(k => node.gunCache.cache[k]['#']))
+      //   let linkedNodesOnCanvas = []
+      //   linkedNodes.forEach((v) => {
+      //     if (nodesOnCanvas.has(v)) linkedNodesOnCanvas.push(v)
+      //   })
 
-        linkedNodesOnCanvas.forEach((v, i, a) => {
-          let linkedNode = this.nodes.filter(n => n.gunCache.cache['_']['#'] === v)[0]
-          let predicate = node.keys().filter(k => node.gunCache.cache[k]['#'] === v)[0]
-          a[i] = {linkedNode, predicate}
-        })
+      //   linkedNodesOnCanvas.forEach((v, i, a) => {
+      //     let linkedNode = this.nodes.filter(n => n.gunCache.cache['_']['#'] === v)[0]
+      //     let predicate = node.keys().filter(k => node.gunCache.cache[k]['#'] === v)[0]
+      //     a[i] = {linkedNode, predicate}
+      //   })
 
-        linkedNodesOnCanvas.forEach((v) => {
-          let linkID = `link-${this.getRandomValue()}`
-          let link = new this.Link(linkID, this)
-          let linkData = {
-            from: node.data.position,
-            to: v.linkedNode.data.position,
-            predicate: v.predicate
-          }
-          Object.assign(link.data, linkData)
-          link.resetHandle()
-          link.appendSelf()
-          .call((s) => this.setContext(s, 'link'))
-          link.fromNode = node
-          link.toNode = v.linkedNode
+      //   linkedNodesOnCanvas.forEach((v) => {
+      //     let linkID = `link-${this.getRandomValue()}`
+      //     let link = new this.Link(linkID, this)
+      //     let linkData = {
+      //       from: node.data.position,
+      //       to: v.linkedNode.data.position,
+      //       predicate: v.predicate
+      //     }
+      //     Object.assign(link.data, linkData)
+      //     link.resetHandle()
+      //     link.appendSelf()
+      //     .call((s) => this.setContext(s, 'link'))
+      //     link.fromNode = node
+      //     link.toNode = v.linkedNode
 
-          node.links.from[v.linkedNode.data.id] = link
-          v.linkedNode.links.to[node.data.id] = link
-        })
-      }
+      //     node.links.from[v.linkedNode.data.id] = link
+      //     v.linkedNode.links.to[node.data.id] = link
+      //   })
+      // }
 
       this.nodes.push(node)
       resolve()

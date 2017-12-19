@@ -82,7 +82,7 @@ class KeyList extends Primitives {
         d3.select(keyInputBox).select('input')
         .call(dragBehaviour)
 
-        d3.select(this.DOM).select('.keys').attr('transform', 'translate(0, 105)')
+        d3.select(this.DOM).select('.keys').attr('transform', 'translate(0, 95)')
         let valueInputBox = this.valueInputBox()
         d3.select(valueInputBox).attr('width', inputWidth)
         .select('textarea')
@@ -108,31 +108,46 @@ class KeyList extends Primitives {
 
     dragBehaviour.on('start', (d, i, g) => {
       d3.event.sourceEvent.stopPropagation()
-      valueID = `value-${this.getRandomValue()}`
+      if (d.type === 'value') valueID = `value-${this.getRandomValue()}`
     })
     dragBehaviour.on('drag', (d, i, g) => {
       let mouse = d3.mouse(this.canvasDOM)
       if (!dragged) {
         this.node.keylist = null
         this.DOM.remove()
-        this.node.data.associatedValue[valueID] = {
-          position: mouse,
-          key: d.key
+        if (d.type === 'value') {
+          this.node.data.associatedValue[valueID] = {
+            position: mouse,
+            key: d.key
+          }
+          dragged = true
         }
-        dragged = true
+        // TODO:
+        // if (d.type === 'node')
       } else {
-        this.node.associatedValue[valueID].data.position = mouse
+        if (d.type === 'value') this.node.associatedValue[valueID].data.position = mouse
+        // TODO:
+        // if (d.type === 'node') 
       }
     })
 
     let counter = 0
     this.list = this.node.keys().map((v) => {
+      let type = 'value'
+      if (typeof this.node.gunCache.cache[v] === 'object') type = 'node'
+      if (typeof this.node.gunCache.cache[v] === 'string') type = 'value'
       let id = `${this.node.data.path}-${v}`
-      let element = this.text('list-value', id)
-      d3.select(element).attr('transform', `translate(1, ${counter * 20 + 35})`)
+      let element = this.group('list-element')
+      d3.select(element).append(() => this.text('list-key'))
+      d3.select(element).select('text')
+      .attr('transform', `translate(1, ${counter * 20 + 45})`)
       .text(v)
+      // let element = this.text('list-value', id)
+      // d3.select(element).attr('transform', `translate(1, ${counter * 20 + 45})`)
+      // .text(v)
 
       counter += 1
+      console.log(counter)
 
       d3.select(element)
       .call(dragBehaviour)
@@ -140,7 +155,8 @@ class KeyList extends Primitives {
       return {
         element,
         key: v,
-        id
+        id,
+        type
       }
     })
   }
@@ -154,7 +170,7 @@ class KeyList extends Primitives {
     d3.select(group)
     .attr('transform', 'translate(0, 30)')
     .append(() => this.group('keys'))
-    .selectAll('.list-value')
+    .selectAll('.list-element')
     .data(this.list, (d) => d.id ? d.id : undefined)
     .enter()
     .append((d) => d.element)
