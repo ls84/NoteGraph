@@ -23,7 +23,7 @@
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
     "source-map-loader": "^0.2.0",
-    "webpack": "^2.5.1",
-    "webpack-dev-server": "^2.8.2"
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
   }
 }
